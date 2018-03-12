@@ -1,0 +1,161 @@
+version: '2'
+
+services:
+
+### Applications Code Container #############################
+
+    web-applications:
+      image: tianon/true
+      volumes:
+        - ./:/var/www
+
+### Workspace Utilities Container ###########################
+
+    web-workspace:
+      container_name: "${CONTAINER_NAME_PREFIX}-workspace-utilities"
+      build:
+        context: ./laradock/workspace
+        args:
+          - INSTALL_XDEBUG=false
+          - INSTALL_BLACKFIRE=false
+          - INSTALL_SOAP=false
+          - INSTALL_LDAP=false
+          - INSTALL_MONGO=false
+          - INSTALL_PHPREDIS=false
+          - INSTALL_MSSQL=false
+          - INSTALL_NODE=false
+          - INSTALL_YARN=false
+          - INSTALL_DRUSH=false
+          - INSTALL_DRUPAL_CONSOLE=false
+          - INSTALL_AEROSPIKE=false
+          - INSTALL_V8JS=false
+          - COMPOSER_GLOBAL_INSTALL=false
+          - INSTALL_WORKSPACE_SSH=false
+          - INSTALL_LARAVEL_ENVOY=false
+          - INSTALL_LARAVEL_INSTALLER=false
+          - INSTALL_DEPLOYER=false
+          - INSTALL_LINUXBREW=false
+          - INSTALL_MC=false
+          - INSTALL_SYMFONY=false
+          - INSTALL_PYTHON=false
+          - INSTALL_IMAGE_OPTIMIZERS=false
+          - INSTALL_IMAGEMAGICK=false
+          - INSTALL_TERRAFORM=false
+          - INSTALL_DUSK_DEPS=false
+          - PUID=1000
+          - PGID=1000
+          - CHROME_DRIVER_VERSION=2.32
+          - NODE_VERSION=stable
+          - YARN_VERSION=latest
+          - TZ=UTC
+          - BLACKFIRE_CLIENT_ID=<client_id>
+          - BLACKFIRE_CLIENT_TOKEN=<client_token>
+        dockerfile: "Dockerfile-71"
+      volumes_from:
+        - web-applications
+      extra_hosts:
+        - "dockerhost:${DOCKER_HOST_IP}"
+      ports:
+        - "${WORKSPACE_SSH_PORT}:22"
+      tty: true
+      networks:
+        - frontend
+        - backend
+
+### PHP-FPM Container #######################################
+
+    web-php-fpm:
+      container_name: "${CONTAINER_NAME_PREFIX}-php-fpm"
+      build:
+        context: ./laradock/php-fpm
+        args:
+          - INSTALL_XDEBUG=false
+          - INSTALL_BLACKFIRE=false
+          - INSTALL_SOAP=false
+          - INSTALL_MONGO=false
+          - INSTALL_MSSQL=false
+          - INSTALL_BCMATH=false
+          - INSTALL_ZIP_ARCHIVE=false
+          - INSTALL_PHPREDIS=false
+          - INSTALL_MEMCACHED=false
+          - INSTALL_OPCACHE=false
+          - INSTALL_EXIF=false
+          - INSTALL_AEROSPIKE=false
+          - INSTALL_MYSQLI=true
+          - INSTALL_TOKENIZER=false
+          - INSTALL_INTL=false
+          - INSTALL_GHOSTSCRIPT=fale
+          - INSTALL_LDAP=false
+          - INSTALL_SWOOLE=false
+          - INSTALL_IMAGE_OPTIMIZERS=false
+          - INSTALL_IMAGEMAGICK=false
+        dockerfile: "Dockerfile-71"
+      volumes_from:
+        - web-applications
+      volumes:
+        - ./php-fpm/php71.ini:/usr/local/etc/php/php.ini
+      ports:
+        - "${NGINX_PHP_UPSTREAM_PORT}:9000"
+      depends_on:
+        - "web-workspace"
+      extra_hosts:
+        - "dockerhost:${DOCKER_HOST_IP}"
+      environment:
+        - PHP_IDE_CONFIG=serverName=laradock
+      networks:
+        - backend
+
+
+### NGINX Server Container ##################################
+
+    web-nginx:
+      container_name: ${CONTAINER_NAME_PREFIX}-nginx
+      build:
+        context: ./laradock/nginx
+        args:
+          - NGINX_HOSTNAME=dribly
+          - PHP_UPSTREAM_CONTAINER=${NGINX_PHP_UPSTREAM_CONTAINER}
+          - PHP_UPSTREAM_PORT=${NGINX_PHP_UPSTREAM_PORT}
+      volumes_from:
+        - web-applications
+      volumes:
+        - ${NGINX_HOST_LOG_PATH}:/var/log/nginx
+        - ${NGINX_SITES_PATH}:/etc/nginx/sites-available
+      ports:
+        - "${HOST_HTTP_PORT}:80"
+        - "${HOST_HTTPS_PORT}:443"
+      extra_hosts:
+        - "dockerhost:${DOCKER_HOST_IP}"
+      depends_on:
+        - web-php-fpm
+      networks:
+        - frontend
+        - backend
+
+    web-mariadb:
+      container_name: "${CONTAINER_NAME_PREFIX}-mariadb"
+      build: ./laradock/mariadb
+      volumes:
+        - ${DATA_SAVE_PATH}/mariadb:/var/lib/mysql
+        - ${MARIADB_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
+      ports:
+        - "${MARIADB_PORT}:3306"
+      environment:
+        - MYSQL_DATABASE=${MARIADB_DATABASE}
+        - MYSQL_USER=${MARIADB_USER}
+        - MYSQL_PASSWORD=${MARIADB_PASSWORD}
+        - MYSQL_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
+      networks:
+        - backend
+
+
+### Networks Setup ############################################
+
+networks:
+  frontend:
+    driver: "bridge"
+  backend:
+    driver: "bridge"
+
+### Volumes Setup #############################################
+

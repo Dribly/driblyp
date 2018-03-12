@@ -1,0 +1,12 @@
+#!/bin/sh
+export PHP_VERSION=71
+
+export APP_NAME=dribly-web
+export NGINX_HOSTNAME=dribly
+echo "${APP_NAME} going down"
+export CONTAINER_NAME_PREFIX=${APP_NAME}
+export COMPOSE_PROJECT_NAME="Dribly"
+
+echo ${APP_NAME}
+docker-compose --project-name="Dribly" down --rmi all
+echo "All done downing ${APP_NAME}. Hope it worked"
