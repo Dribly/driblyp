@@ -1,8 +1,7 @@
 @extends('layouts.bootstrap')
 
-@section ('headertitle')Welcome to your dashboard@endsection
-@section ('pagetitle')Dribly Dashboard ashboard@endsection
-@endsection
+@section('headertitle') Welcome to your dashboard @endsection
+@section('pagetitle') Dribly Dashboard @endsection
 
 @section('content')
 

@@ -32,6 +32,7 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarResponsive">
           <ul class="navbar-nav ml-auto">
+            @if (Auth::guest())
             <li class="nav-item">
               <a class="nav-link js-scroll-trigger" href="#about">About</a>
             </li>
@@ -41,6 +42,20 @@
             <li class="nav-item">
               <a class="nav-link js-scroll-trigger" href="/login">Log in</a>
             </li>
+            @else
+            <li class="nav-item">
+              <a class="nav-link js-scroll-trigger" href="/sensors">My sensors</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link js-scroll-trigger" href="/controllers">My Controllers</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link js-scroll-trigger" href="/logout" onclick="event.preventDefault(); document.getElementById('frm-logout').submit();return false" title="Logged in as {{ Auth::user()->firstname }}">Log Out</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link js-scroll-trigger" href="/profile" title="Logged in as {{ Auth::user()->firstname }}">Profile</a>
+            </li>
+            @endif
             <li class="nav-item">
               <a class="nav-link js-scroll-trigger" href="#contact">Contact</a>
             </li>
@@ -60,16 +75,11 @@
     </header>
 
     @yield('content')
-    
-
-<!--    <div class="call-to-action bg-dark">
-      <div class="container text-center">
-        <h2>Free Download at Start Bootstrap!</h2>
-        <a class="btn btn-default btn-xl sr-button" href="http://startbootstrap.com/template-overviews/creative/">Download Now!</a>
-      </div>
-    </div>-->
 
   </body>
-
+   
+<form id="frm-logout" action="{{ route('logout') }}" method="POST" style="display: none;">
+    {{ csrf_field() }}
+</form>
 </html>
 

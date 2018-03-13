@@ -20,3 +20,27 @@ Route::get('/dashboard',
         ['as' => 'users.dashboard',
     'uses' => 'UsersController@dashboard']);
 
+Route::get('/sensors', 
+        ['as' => 'sensors.index',
+    'uses' => 'SensorsController@index']);
+
+Route::get('/sensors/add', 
+        ['as' => 'sensors.add',
+    'uses' => 'SensorsController@add']);
+
+Route::get('/sensors/{id}', 
+        ['as' => 'sensors.show',
+    'uses' => 'SensorsController@show']);
+
+Route::get('/controllers', 
+        ['as' => 'controllers.index',
+    'uses' => 'ControllersController@index']);
+
+Route::get('/controllers/add', 
+        ['as' => 'sensors.add',
+    'uses' => 'ControllersController@iadd']);
+
+Route::get('/controllers/{id}', 
+        ['as' => 'controllers.show',
+    'uses' => 'ControllersController@show']);
+
