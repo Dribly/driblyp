@@ -17,7 +17,8 @@ class TapsController extends Controller {
     }
 
     public function index(Request $request) {
-        return view('taps.index');
+        $taps = Tap::where('owner',Auth::user()->id)->get();
+        return view('taps.index', ['taps' => $taps]);
     }
 
     public function show(Request $request, $id) {

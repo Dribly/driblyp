@@ -13,10 +13,9 @@
             <hr class="light">
             <p class="text-faded"></p>
             <a class="btn btn-default btn-xl js-scroll-trigger" href="{{route('sensors.add')}}">Register a new sensor</a>
-            <table>
-                <tr><td>Sensor 1 (fake)</td><td><a class="btn btn-default" href="/sensors/1">Lookie</a></td></tr>
-                <tr><td>Sensor 2 (fake)</td><td><a class="btn btn-default" href="/sensors/2">Lookie</a></td></tr>
-            </table>
+@foreach ($sensors as $sensor)
+<p>{{$sensor->id}}: <a href="{{$sensor->getUrl()}}" class="btn btn-default">{{ $sensor->description }} {{ $sensor->uid }}</a></p>
+@endforeach
           </div>
         </div>
       </div>

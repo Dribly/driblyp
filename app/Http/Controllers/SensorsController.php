@@ -17,7 +17,8 @@ class SensorsController extends Controller {
     }
 
     public function index(Request $request) {
-        return view('sensors.index');
+        $sensors = WaterSensor::where('owner',Auth::user()->id)->get();
+        return view('sensors.index', ['sensors'=>$sensors]);
     }
 
     public function show(Request $request,$id) {
