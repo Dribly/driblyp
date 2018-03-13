@@ -37,20 +37,20 @@
               <a class="nav-link js-scroll-trigger" href="#about">About</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link js-scroll-trigger" href="/register">Register</a>
+              <a class="nav-link js-scroll-trigger" href="{{route('register')}}">Register</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link js-scroll-trigger" href="/login">Log in</a>
+              <a class="nav-link js-scroll-trigger" href="{{route('login')}}">Log in</a>
             </li>
             @else
             <li class="nav-item">
-              <a class="nav-link js-scroll-trigger" href="/sensors">My sensors</a>
+              <a class="nav-link js-scroll-trigger" href="{{route('sensors.index')}}">My Sensors</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link js-scroll-trigger" href="/controllers">My Controllers</a>
+              <a class="nav-link js-scroll-trigger" href="{{route('taps.index')}}">My Taps</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link js-scroll-trigger" href="/logout" onclick="event.preventDefault(); document.getElementById('frm-logout').submit();return false" title="Logged in as {{ Auth::user()->firstname }}">Log Out</a>
+              <a class="nav-link js-scroll-trigger" href="{{route('logout')}}" onclick="event.preventDefault(); document.getElementById('frm-logout').submit();return false" title="Logged in as {{ Auth::user()->firstname }}">Log Out</a>
             </li>
             <li class="nav-item">
               <a class="nav-link js-scroll-trigger" href="/profile" title="Logged in as {{ Auth::user()->firstname }}">Profile</a>

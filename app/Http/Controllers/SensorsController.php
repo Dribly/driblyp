@@ -1,11 +1,12 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\WaterSensor;
+use Illuminate\Support\Facades\Auth;
 
-class SensorsController extends Controller
-{
+class SensorsController extends Controller {
+
     /**
      * Create a new controller instance.
      *
@@ -19,12 +20,27 @@ class SensorsController extends Controller
         return view('sensors.index');
     }
 
-    public function show(Request $request) {
-        return view('sensors.show');
+    public function show(Request $request,$id) {
+        $sensor = WaterSensor::where('id', (int) $id)->where('owner',Auth::user()->id)->first();
+        return view('sensors.show', ['sensor'=>$sensor]);
     }
 
     public function add(Request $request) {
-        return view('sensors.add');
+        if ($request->isMethod('POST')) {
+            $sensor = new WaterSensor();
+            $sensor->owner = Auth::user()->id;
+            $sensor->description = $request->post('description');
+            $sensor->uid = $request->post('uid');
+            try {
+                $sensor->save();
+            } catch (\Exception $e) {
+                var_dump($e);
+                die();
+            }
+            return redirect(Route('sensors.show', $sensor->id), 302);
+        } else {
+            return view('sensors.add');
+        }
     }
 
     public function remove(Request $request) {

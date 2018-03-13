@@ -20,12 +20,12 @@
 <div class="form-group">
     <table>
         <tr>
-            <td>{{ Form::label('label', 'Your Label (e.g. Front Garden, Flower Bed):', ['class' => 'control-label']) }}</td>
-            <td>{{ Form::text('label', null, ['class' => 'form-control']) }}</td>
+            <td>{{ Form::label('description', 'Your Description of the location of the sensor (e.g. Front Garden, Flower Bed):', ['class' => 'control-label']) }}</td>
+            <td>{{ Form::text('description', null, ['class' => 'form-control']) }}</td>
        </tr>
         <tr>
-            <td>{{ Form::label('ID', 'ID (from the side of the sensor):', ['class' => 'control-label']) }}</td>
-            <td>{{ Form::text('id', null, ['class' => 'form-control']) }}</td>
+            <td>{{ Form::label('UID', 'UID (from the side of the sensor):', ['class' => 'control-label']) }}</td>
+            <td>{{ Form::text('uid', null, ['class' => 'form-control']) }}</td>
         </tr>
 
     </table>

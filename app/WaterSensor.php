@@ -1,12 +1,9 @@
 <?php
-
 namespace App;
 
-use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Model;
 
-class Sensor
-{
-    use Notifiable;
+class WaterSensor extends Model {
 
     /**
      * The attributes that are mass assignable.
@@ -14,7 +11,8 @@ class Sensor
      * @var array
      */
     protected $fillable = [
-        'label', 'owner', 'mfrid', 'lastsignal', 'batterylevel','status'
+        'description', 'owner', 'uid', 'last_signal', 'last_signal_date',
+        'remember_token', 'battery_level', 'status'
     ];
 
     /**
@@ -25,4 +23,5 @@ class Sensor
     protected $hidden = [
         'owner'
     ];
+
 }

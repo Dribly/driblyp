@@ -35,18 +35,19 @@ Route::get('/sensors/{id}',
         ['as' => 'sensors.show',
     'uses' => 'SensorsController@show']);
 
-Route::get('/controllers', 
-        ['as' => 'controllers.index',
-    'uses' => 'ControllersController@index']);
+Route::get('/taps', 
+        ['as' => 'taps.index',
+    'uses' => 'TapsController@index']);
 
-Route::get('/controllers/add', 
-        ['as' => 'controllers.add',
-    'uses' => 'ControllersController@add']);
-Route::post('/controllers/add', 
-        ['as' => 'controllers.add',
-    'uses' => 'ControllersController@add']);
+Route::get('/taps/add', 
+        ['as' => 'taps.add',
+    'uses' => 'TapsController@add']);
 
-Route::get('/controllers/{id}', 
-        ['as' => 'controllers.show',
-    'uses' => 'ControllersController@show']);
+Route::post('/taps/add', 
+        ['as' => 'taps.add',
+    'uses' => 'TapsController@add']);
+
+Route::get('/taps/{id}', 
+        ['as' => 'taps.show',
+    'uses' => 'TapsController@show']);
 
