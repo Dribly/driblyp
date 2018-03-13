@@ -12,7 +12,7 @@
             <h2 class="section-heading text-white">Sensors</h2>
             <hr class="light">
             <p class="text-faded"></p>
-            <a class="btn btn-default btn-xl js-scroll-trigger" href="#services">Register a new sensor!</a>
+            <a class="btn btn-default btn-xl js-scroll-trigger" href="/sensors/add">Register a new sensor!</a>
           </div>
         </div>
       </div>

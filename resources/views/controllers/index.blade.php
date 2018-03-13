@@ -12,7 +12,7 @@
             <h2 class="section-heading text-white">Controllers</h2>
             <hr class="light">
             <p class="text-faded"></p>
-            <a class="btn btn-default btn-xl js-scroll-trigger" href="#services">Register a new controller!</a>
+            <a class="btn btn-default btn-xl js-scroll-trigger" href="/controllers/add">Register a new controller!</a>
           </div>
         </div>
       </div>

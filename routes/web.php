@@ -27,6 +27,9 @@ Route::get('/sensors',
 Route::get('/sensors/add', 
         ['as' => 'sensors.add',
     'uses' => 'SensorsController@add']);
+Route::post('/sensors/add', 
+        ['as' => 'sensors.add',
+    'uses' => 'SensorsController@add']);
 
 Route::get('/sensors/{id}', 
         ['as' => 'sensors.show',
@@ -37,8 +40,11 @@ Route::get('/controllers',
     'uses' => 'ControllersController@index']);
 
 Route::get('/controllers/add', 
-        ['as' => 'sensors.add',
-    'uses' => 'ControllersController@iadd']);
+        ['as' => 'controllers.add',
+    'uses' => 'ControllersController@add']);
+Route::post('/controllers/add', 
+        ['as' => 'controllers.add',
+    'uses' => 'ControllersController@add']);
 
 Route::get('/controllers/{id}', 
         ['as' => 'controllers.show',

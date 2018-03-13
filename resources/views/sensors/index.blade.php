@@ -1,7 +1,7 @@
 @extends('layouts.bootstrap')
 
-@section('headertitle')Sensors @endsection
-@section('pagetitle')Your Sensors @endsection
+@section('headertitle')Add a sensor @endsection
+@section('pagetitle')Add a sensor @endsection
 
 @section('content')
 
@@ -9,10 +9,10 @@
       <div class="container">
         <div class="row">
           <div class="col-lg-8 mx-auto text-center">
-            <h2 class="section-heading text-white">Sensors</h2>
+            <h2 class="section-heading text-white">Add Sensor</h2>
             <hr class="light">
             <p class="text-faded"></p>
-            <a class="btn btn-default btn-xl js-scroll-trigger" href="#services">Register a new sensor!</a>
+            <a class="btn btn-default btn-xl js-scroll-trigger" href="/sensors/add">Register a new sensor!</a>
             <table>
                 <tr><td>Sensor 1 (fake)</td><td><a class="btn btn-default" href="/sensors/1">Lookie</a></td></tr>
                 <tr><td>Sensor 2 (fake)</td><td><a class="btn btn-default" href="/sensors/2">Lookie</a></td></tr>
