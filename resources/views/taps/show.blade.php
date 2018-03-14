@@ -4,7 +4,6 @@
 @section('pagetitle')Your Taps @endsection
 
 @section('content')
-{{$banana}}
     <section class="bg-primary" id="about">
       <div class="container">
         <div class="row">

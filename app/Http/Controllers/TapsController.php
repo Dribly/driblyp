@@ -22,9 +22,9 @@ class TapsController extends Controller {
     }
 
     public function show(Request $request, $id) {
-        $tap = Tap::where('id', (int) $id)->where('owner', Auth::user()->id)->first();
+        $tap = Tap::where(['id'=> (int) $id, 'owner'=> Auth::user()->id])->first();
         if ($tap instanceof Tap) {
-            return view('taps.show', ['tap' => $tap, 'banana' => 'fish']);
+            return view('taps.show', ['tap' => $tap]);
         } else {
             return view('404');
         }

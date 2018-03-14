@@ -22,7 +22,7 @@ class SensorsController extends Controller {
     }
 
     public function show(Request $request, $id) {
-        $sensor = WaterSensor::where('id', (int) $id)->where('owner', Auth::user()->id)->first();
+        $sensor = WaterSensor::where(['id'=> (int) $id, 'owner'=>Auth::user()->id])->first();
         if ($sensor instanceof WaterSensor) {
         return view('sensors.show', ['sensor' => $sensor]);
         } else {
