@@ -17,13 +17,17 @@ class TapsController extends Controller {
     }
 
     public function index(Request $request) {
-        $taps = Tap::where('owner',Auth::user()->id)->get();
+        $taps = Tap::where('owner', Auth::user()->id)->get();
         return view('taps.index', ['taps' => $taps]);
     }
 
     public function show(Request $request, $id) {
         $tap = Tap::where('id', (int) $id)->where('owner', Auth::user()->id)->first();
-        return view('taps.show', ['tap' => $tap]);
+        if ($tap instanceof Tap) {
+            return view('taps.show', ['tap' => $tap, 'banana' => 'fish']);
+        } else {
+            return view('404');
+        }
     }
 
     public function add(Request $request) {

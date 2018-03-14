@@ -23,10 +23,8 @@ class Tap extends Model {
     protected $hidden = [
         'owner'
     ];
-    
-    public function getUrl()
-    {
+
+    public function getUrl() {
         return route('taps.show', ['id' => $this->id]);
     }
-
 }

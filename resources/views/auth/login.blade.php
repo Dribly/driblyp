@@ -2,8 +2,6 @@
 @section('pagetitle')
 Log In
 @endsection
-@section('headertitle')Log In
-@endsection
 @section('content')
 <!-- resources/views/auth/login.blade.php -->
 @if ($errors->any())

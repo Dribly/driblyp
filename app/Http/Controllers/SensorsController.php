@@ -17,13 +17,17 @@ class SensorsController extends Controller {
     }
 
     public function index(Request $request) {
-        $sensors = WaterSensor::where('owner',Auth::user()->id)->get();
-        return view('sensors.index', ['sensors'=>$sensors]);
+        $sensors = WaterSensor::where('owner', Auth::user()->id)->get();
+            return view('sensors.index', ['sensors' => $sensors]);
     }
 
-    public function show(Request $request,$id) {
-        $sensor = WaterSensor::where('id', (int) $id)->where('owner',Auth::user()->id)->first();
-        return view('sensors.show', ['sensor'=>$sensor]);
+    public function show(Request $request, $id) {
+        $sensor = WaterSensor::where('id', (int) $id)->where('owner', Auth::user()->id)->first();
+        if ($sensor instanceof WaterSensor) {
+        return view('sensors.show', ['sensor' => $sensor]);
+        } else {
+            return view('404');
+        }
     }
 
     public function add(Request $request) {

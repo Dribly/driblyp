@@ -2,8 +2,6 @@
 @section('pagetitle')Register a new account
 Log In
 @endsection
-@section('headertitle')Register a new account at Dribly
-@endsection
 @section('content')
 <!-- resources/views/auth/register.blade.php -->
 @if ($errors->any())

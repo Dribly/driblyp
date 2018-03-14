@@ -1,6 +1,5 @@
 @extends('layouts.bootstrap')
 
-@section('headertitle')Taps @endsection
 @section('pagetitle')Your Taps @endsection
 
 @section('content')

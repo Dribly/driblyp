@@ -23,10 +23,8 @@ class WaterSensor extends Model {
     protected $hidden = [
         'owner'
     ];
-    
-    public function getUrl()
-    {
-        return route('taps.show', ['id' => $this->id]);
-    }
 
+    public function getUrl() {
+        return route('sensors.show', ['id' => $this->id]);
+    }
 }
