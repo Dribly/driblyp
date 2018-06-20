@@ -13,7 +13,14 @@
             <p class="text-faded"></p>
             <a class="btn btn-default btn-xl js-scroll-trigger" href="{{route('taps.add')}}">Register a new tap</a>
             <br />
-            {{$tap->description}} 
+            {{$tap->description}}
+            {{  Form::model($tap, array('route' => array('taps.changestatus', $tap->id))) }}
+            {{ Form::select('status', $statuses, null, ['class' => 'form-control']) }}
+
+                {{$tap->status}}
+            {{ Form::submit('Save Status', ['class' => 'btn btn-primary']) }}
+
+{{ Form::close() }}
             ({{$tap->uid}})
           </div>
         </div>

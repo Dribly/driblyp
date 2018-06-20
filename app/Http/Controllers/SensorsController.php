@@ -7,15 +7,6 @@ use Illuminate\Support\Facades\Auth;
 
 class SensorsController extends Controller {
 
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct() {
-        $this->middleware('auth');
-    }
-
     public function index(Request $request) {
         $sensors = WaterSensor::where('owner', Auth::user()->id)->get();
             return view('sensors.index', ['sensors' => $sensors]);
@@ -52,4 +43,10 @@ class SensorsController extends Controller {
         return view('sensors.remove');
     }
     //
+    
+    public function ApiUpdate(Request $request, $id)
+    {
+        return view('404');
+//        if ()
+    }
 }

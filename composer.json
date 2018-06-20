@@ -6,11 +6,13 @@
     "type": "project",
     "require": {
         "php": "^7.1.3",
+        "brandonhudson/lightning": "^0.9.2",
         "doctrine/dbal": "^2.6",
         "fideloper/proxy": "^4.0",
         "laravel/framework": "5.6.*",
         "laravel/tinker": "^1.0",
-        "laravelcollective/html": "^5.6"
+        "laravelcollective/html": "^5.6",
+        "mcfish/libmqtt": "^1.0"
     },
     "require-dev": {
         "filp/whoops": "^2.0",

@@ -22,9 +22,10 @@ class TapsController extends Controller {
     }
 
     public function show(Request $request, $id) {
-        $tap = Tap::where(['id'=> (int) $id, 'owner'=> Auth::user()->id])->first();
+        $tap = Tap::where(['id' => (int) $id, 'owner' => Auth::user()->id])->first();
         if ($tap instanceof Tap) {
-            return view('taps.show', ['tap' => $tap]);
+//            return view('taps.add', );
+            return view('taps.show', ['statuses'=>['active'=>'Active','inactive'=>'Inactive','deleted'=>'Deleted'], 'tap' => $tap]);
         } else {
             return view('404');
         }
@@ -44,8 +45,30 @@ class TapsController extends Controller {
             }
             return redirect(Route('taps.show', $tap->id), 302);
         } else {
-            return view('taps.add');
+            return view('taps.add', ['statuses'=>['active'=>'Active','inactive'=>'Inactive','deleted'=>'Deleted']]);
         }
+    }
+
+    public function changestatus(Request $request, $id) {
+        $tap = Tap::where(['id' => (int) $id, 'owner' => Auth::user()->id])->first();
+        if ($tap instanceof Tap) {
+            $status =  $request->post('status');
+            if (in_array($status, ['active','inactive','deleted']))
+            {
+                $tap->status = $status;
+            }
+            else
+            {
+                die(var_dump($status));
+            }
+            try {
+                $tap->save();
+            } catch (\Exception $e) {
+                var_dump($e);
+                die();
+            }
+        }
+        return redirect(Route('taps.show', (int) $id), 302);
     }
 
     public function remove(Request $request) {
