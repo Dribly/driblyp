@@ -4,45 +4,43 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "71290e041876068bd5d1ed1a0927291e",
+    "content-hash": "4d56c90cd9f30316bdeaf04386119f3c",
     "packages": [
         {
-            "name": "brandonhudson/lightning",
-            "version": "0.9.2",
+            "name": "bluerhinos/phpmqtt",
+            "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/brandonhudson/Lightning.git",
-                "reference": "c05394ff7c773e3f02bf80bc6840288ff0e7cb8c"
+                "url": "https://github.com/bluerhinos/phpMQTT.git",
+                "reference": "6c15cef0b1b2cb4c438e526c78d805b69a733f9d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/brandonhudson/Lightning/zipball/c05394ff7c773e3f02bf80bc6840288ff0e7cb8c",
-                "reference": "c05394ff7c773e3f02bf80bc6840288ff0e7cb8c",
+                "url": "https://api.github.com/repos/bluerhinos/phpMQTT/zipball/6c15cef0b1b2cb4c438e526c78d805b69a733f9d",
+                "reference": "6c15cef0b1b2cb4c438e526c78d805b69a733f9d",
                 "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4"
             },
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Lightning\\": "Lightning"
+                    "Bluerhinos\\": "./"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "MIT"
+                "BSD"
             ],
             "authors": [
                 {
-                    "name": "Brandon Hudson",
-                    "email": "brandon@brandonhudson.me"
+                    "name": "Andrew Milsted",
+                    "email": "andrew@bluerhinos.co.uk"
                 }
             ],
-            "description": "PHP micro framework for MQTT, letting you quickly connect, publish, and subscribe to topics.",
-            "keywords": [
-                "framework",
-                "micro",
-                "mqtt"
-            ],
-            "time": "2017-09-06T15:19:52+00:00"
+            "description": "Simple MQTT Class",
+            "time": "2017-10-16T21:14:36+00:00"
         },
         {
             "name": "dnoegel/php-xdg-base-dir",
@@ -4469,7 +4467,9 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "bluerhinos/phpmqtt": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
