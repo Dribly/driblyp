@@ -13,7 +13,7 @@
             <p class="text-faded"></p>
             <a class="btn btn-default btn-xl js-scroll-trigger" href="{{route('taps.add')}}">Register a new tap</a>
 @foreach ($taps as $tap)
-<p>{{$tap->id}}: <a href="{{$tap->getUrl()}}" class="btn btn-default">{{ $tap->description }} {{ $tap->uid }}</a></p>
+<p> <a href="{{$tap->getUrl()}}" class="btn btn-default">{{ $tap->description }} {{ $tap->uid }} ({{$tap->status}})</a></p>
 @endforeach
           </div>
         </div>

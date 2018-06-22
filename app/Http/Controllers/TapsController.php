@@ -3,10 +3,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Tap;
+use App\WaterSensor;
+use App\TapControlledBySensor;
 use Illuminate\Support\Facades\Auth;
+use App\Exceptions\TapNotFoundException;
 
 class TapsController extends Controller {
-
+    private $tapStatuses = ['active' => 'Active', 'inactive' => 'Inactive', 'deleted' => 'Deleted'];
     /**
      * Create a new controller instance.
      *
@@ -22,13 +25,44 @@ class TapsController extends Controller {
     }
 
     public function show(Request $request, $id) {
-        $tap = Tap::where(['id' => (int) $id, 'owner' => Auth::user()->id])->first();
-        if ($tap instanceof Tap) {
-//            return view('taps.add', );
-            return view('taps.show', ['statuses'=>['active'=>'Active','inactive'=>'Inactive','deleted'=>'Deleted'], 'tap' => $tap]);
-        } else {
+        try {
+            $tap = $this->getTap($id);
+        } catch (TapNotFoundException $ex) {
             return view('404');
         }
+        $tapID = $tap->id;
+        $sensorMap = TapControlledBySensor::where('tap_id', $tapID)->get();
+        $sensors = [];
+        foreach ($sensorMap as $sensorMapItem) {
+            $sensors[$sensorMapItem->sensor_id] = WaterSensor::where('id', $sensorMapItem->sensor_id)->first();
+        }
+        $allUnaddedSensorsAry = [];
+        $allSensors = WaterSensor::where('owner', Auth::user()->id)->get(); //->list('description','id');
+        // Yuck! don't know how to map model to select
+        foreach ($allSensors as $sensor) {
+            if (!array_key_exists($sensor->id, $sensors)) {
+                $allUnaddedSensorsAry[$sensor->id] = $sensor->description;
+            }
+        }
+//            $lastValue = $customServiceInstance->readMessage(CloudMQTT::FEED_WATERSENSOR.'/'.(int)$id, 5);
+
+        return view('taps.show', [
+            'statuses' => $this->tapStatuses,
+            'tap' => $tap,
+            'lastvalue' => 0,
+            'sensorMap' => $sensorMap,
+            'sensors' => $sensors,
+            'allSensors' => $allUnaddedSensorsAry]);
+//            return view('taps.add', );
+    }
+
+    protected function getTap(int $tapID): Tap {
+        $tap = Tap::where(['id' => (int) $tapID, 'owner' => Auth::user()->id])->first();
+        if (!$tap instanceof Tap) {
+            throw new TapNotFoundException();
+        }
+
+        return $tap;
     }
 
     public function add(Request $request) {
@@ -45,29 +79,56 @@ class TapsController extends Controller {
             }
             return redirect(Route('taps.show', $tap->id), 302);
         } else {
-            return view('taps.add', ['statuses'=>['active'=>'Active','inactive'=>'Inactive','deleted'=>'Deleted']]);
+            return view('taps.add', ['statuses' => $this->tapStatuses]);
         }
     }
 
     public function changestatus(Request $request, $id) {
-        $tap = Tap::where(['id' => (int) $id, 'owner' => Auth::user()->id])->first();
-        if ($tap instanceof Tap) {
-            $status =  $request->post('status');
-            if (in_array($status, ['active','inactive','deleted']))
-            {
-                $tap->status = $status;
-            }
-            else
-            {
-                die(var_dump($status));
+        try {
+            $tap = $this->getTap($id);
+        } catch (TapNotFoundException $ex) {
+            return view('404');
+        }
+        $status = $request->post('status');
+        if (in_array($status, array_keys($this->tapStatuses))) {
+            $tap->status = $status;
+        } else {
+            die(var_dump($status));
+        }
+        try {
+            $tap->save();
+        } catch (\Exception $e) {
+            var_dump($e);
+            die();
+        }
+
+        return redirect(Route('taps.show', (int) $id), 302);
+    }
+
+    public function connectToSensor(Request $request, int $id) {
+        try {
+            $tap = $this->getTap($id);
+        } catch (TapNotFoundException $ex) {
+            return view('404');
+        }
+        $sensorID = (float) $request->post('sensor_id');
+        $sensor = WaterSensor::where(['id' => (int) $sensorID, 'owner' => Auth::user()->id])->first();
+        if ($sensor instanceof WaterSensor) {
+            $TapControlledBySensor = TapControlledBySensor::where('tap_id', $id)->where('sensor_id', $sensorID)->first();
+            // Don't add the same relationship twice
+            if (!$TapControlledBySensor instanceof TapControlledBySensor) {
+                $TapControlledBySensor = new TapControlledBySensor();
+                $TapControlledBySensor->tap_id = $id;
+                $TapControlledBySensor->sensor_id = $sensorID;
             }
             try {
-                $tap->save();
+                $TapControlledBySensor->save();
             } catch (\Exception $e) {
                 var_dump($e);
                 die();
             }
         }
+
         return redirect(Route('taps.show', (int) $id), 302);
     }
 

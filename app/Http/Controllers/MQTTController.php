@@ -12,7 +12,7 @@ class MQTTController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
-    public function sendmessage(CloudMQTT $customServiceInstance)
+    public function sendmessage(Request $request, CloudMQTT $customServiceInstance)
     {
         echo $customServiceInstance->writeTestMessage();
     }
