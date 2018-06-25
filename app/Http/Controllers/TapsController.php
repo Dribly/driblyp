@@ -135,4 +135,26 @@ class TapsController extends Controller {
     public function remove(Request $request) {
         return view('taps.remove');
     }
+    
+    public function handleMessage($id, $messageType, stdClass $messageObj) {
+        try {
+            $sensor = $this->getSensor($id);
+        } catch (SensorNotFoundException $ex) {
+                    throw new \App\Exceptions\SensorNotFoundException();
+        }
+        switch ($messageType) {
+            case 'identify':
+                throw new \Exception('Cannot use ' . $messageType . ' in ' . $routeParts[1]);
+                break;
+            case 'update':
+                throw new \Exception('Cannot use ' . $messageType . ' in ' . $routeParts[1]);
+//
+//                $sensor->last_reading = $messageObj->last_reading;
+//                $sensor->battery_level = $messageObj->battery_level;
+//                $sensor->last_signal_date = date('Y-m-d H:i:s');
+//                $sensor->last_signal = 'reading';
+//                $sensor->save();
+                break;
+        }
+    }    
 }

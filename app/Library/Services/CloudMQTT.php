@@ -1,8 +1,8 @@
 <?php
 namespace App\Library\Services;
 
-use Bluerhinos\phpMQTT;
-Use App\MessageLog;
+use Lightning\App as LightningApp;
+use Exceptions\InvalidMessageException;
 
 class CloudMQTT {
 
@@ -16,10 +16,10 @@ class CloudMQTT {
     const FEED_TAP = 20;
     const FEED_TAPIDENTIFY = 21;
     const FEED_TYPES = [
-        self::FEED_WATERSENSOR => "powellblyth/feeds/watersensors",
-        self::FEED_WATERSENSORIDENTIFY => "powellblyth/feeds/watersensoridentifies",
-        self::FEED_TAP => "powellblyth/feeds/taps",
-        self::FEED_TAPIDENTIFY => "powellblyth/feeds/tapidentifies"
+        self::FEED_WATERSENSOR => "dribly/watersensors/update",
+        self::FEED_WATERSENSORIDENTIFY => "dribly/watersensors/identify",
+        self::FEED_TAP => "dribly/taps/update",
+        self::FEED_TAPIDENTIFY => "dribly/taps/identify"
     ];
 
     /*
@@ -43,9 +43,9 @@ class CloudMQTT {
 
 
         $this->initMqtt();
-        sleep(1);
-        echo "PUBLIC -" . $feed . "=<Br />";
+        static::$mqtt->connect();
         static::$mqtt->publish($feed, json_encode($object), 0);
+        static::$mqtt->close();
     }
 
     /**
@@ -55,37 +55,16 @@ class CloudMQTT {
      */
     public function readMessage(string $feed) {
         $this->initMqtt();
-
-        $topics[$feed] = array(
-            "qos" => 0,
-            "function" => "procmsg"
-        );
-        static::$mqtt->subscribe($topics, 0);
-        while (static::$mqtt->proc()) {
-            
-        }
+        static::$mqtt->connect();
+        static::$mqtt->subscribe($feed, 0, function (\Lightning\Response $response, MessageReader $reader) {
+            try {
+                $reader->readMessage($response->getMessage(), $response->getRoute(), $response->getReceived(), $response->getAttributes());
+            } catch (InvalidMessageException $ex) {
+                
+            }
+        });
+        static::$mqtt->listen(true);
         static::$mqtt->close();
-
-
-//        static::$mqtt->listen(true);
-//        static::$mqtt->close();
-//        if (static::$mqtt->connect(true, NULL, self::USERNAME, self::KEY)) {
-//            $topics[self::FEED_TYPES[$feed]] = array("qos" => 0, "function" => "procmsg");
-//            static::$mqtt->subscribe($topics, 0);
-////            var_dump(static::$mqtt->message(self::FEED_TYPES[$feed]));
-////            
-//$x = 0;
-//            while (static::$mqtt->proc(false)) {
-//                sleep(1);
-//                echo "HI<br />\n";
-//                if ($x++ > 2){break;}
-////                $mqtt = new phpMQTT();
-////                static::$mqtt->proc(true);
-//            }
-//            static::$mqtt->close();
-//        } else {
-//            echo "Time out, could not read message!\n";
-//        }
     }
 
     function procmsg($topic, $msg) {
@@ -101,21 +80,8 @@ class CloudMQTT {
     private function initMqtt() {
         if (!static::$mqtt) {
             try {
-//$mqtt = new Bluerhinos\phpMQTT($url['host'], $url['port'], $client_id);
-//if ($mqtt->connect(true, NULL, $url['user'], $url['pass'])) {
-//    $mqtt->publish($topic, $message, 0);
-//    echo "Published message: " . $message;
-//    static::$mqtt->close();
-//}else{
-//    echo "Fail or time out<br />";
-//}                
-                static::$mqtt = new phpMQTT(self::SERVER, self::PORT, 'powellblythconnection' . md5(uniqid()));
-                if (static::$mqtt->connect(true, NULL, self::USERNAME, self::PASSWORD)) {
-                    echo "Connected";
-                } else {
-                    unset(static::$mqtt);
-                }
-//                    self::SERVER, self::PORT, 'powellblythconnection' . md5(uniqid()), self::USERNAME, self::PASSWORD);
+                static::$mqtt = new LightningApp(
+                    self::SERVER, self::PORT, 'powellblythconnection' . md5(uniqid()), self::USERNAME, self::PASSWORD);
 //                        new Client(, self::USERNAME,"HeresJohnny");
             } catch (Exception $e) {
                 var_dump($e);
@@ -151,44 +117,10 @@ class CloudMQTT {
         echo "<pre>";
         echo "<h1>Begin monitor</h1>";
         flush();
-//        echo "slept";
-//            $messageLog = new \App\MessageLog();
-//            $messageLog->message =  'message';
-//            $messageLog->topic =  'topic';
-//            $messageLog->route =  'route';
-//            $messageLog->received =  'received';
-//            $messageLog->attributes =  'attributes';
-//            $messageLog->save();
-//        echo "exiting";exit();
-//        $this->sendMessage(self::FEED_WATERSENSOR, date('s') . "s Hello World! at " . date("r"));
+
         echo "reading from " . self::makeFeedName(self::FEED_WATERSENSOR);
         $this->readMessage(self::makeFeedName(self::FEED_WATERSENSOR));
-//        $this->sendMessage(self::FEED_WATERSENSOR, date('s') . "s Bananas are great! at " . date("r"));
         echo "</pre>";
         return 'Output from DemoOne';
     }
-
-    public function __destruct() {
-        if (static::$mqtt instanceof phpMQTT) {
-            static::$mqtt->close();
-        }
-    }
-}
-
-function progMsg($topic, $msg) {
-    $messageLog = new MessageLog();
-    $messageLog->message = $msg;
-    $messageLog->route = '';
-    $messageLog->topic = $topic;
-    $messageLog->received = date('Y-m-d H:i:s');
-    $messageLog->attributes = '';
-//            if ($response->uid) {
-//                $messageLog->uid = $response->uid;
-//            }
-    $messageLog->save();
-    $message = $msg;
-    echo "got to " . $msg;
-    var_dump($msg);
-    die();
-    flush();
 }

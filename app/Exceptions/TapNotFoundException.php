@@ -12,5 +12,15 @@ namespace App\Exceptions;
  * @author toby
  */
 class TapNotFoundException extends \Exception{
+    protected $tapID;
+
     //put your code here
+    public function construct($uid, $errorMessage, $code = null) {
+        $this->tapID = $uid;
+        parent::__construct('Tap ' . $this->tapID.': ' . $errorMessage, $code);
+    }
+
+    public function getTapID() {
+        return $this->tapID;
+    }
 }

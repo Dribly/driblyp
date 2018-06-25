@@ -9,7 +9,8 @@ use App\Library\Services\CloudMqtt; //NOTE not clear whhy netbeans doesnt think 
 use Illuminate\Support\Facades\Auth;
 use App\Exceptions\SensorNotFoundException;
 
-class SensorsController extends Controller {
+    class SensorsController extends Controller {
+
     private $sensorStatuses = ['active' => 'Active', 'inactive' => 'Inactive', 'deleted' => 'Deleted'];
 
     public function index(Request $request) {
@@ -157,7 +158,7 @@ class SensorsController extends Controller {
             echo "writing message to " . CloudMQTT::makeFeedName(CloudMQTT::FEED_WATERSENSOR);
             $customServiceInstance->sendMessage(CloudMQTT::makeFeedName(CloudMQTT::FEED_WATERSENSOR), $message);
         } else {
-            die(var_dump($status));
+            die(var_dump($value));
         }
         try {
             if ($saveLastValue) {
@@ -169,5 +170,26 @@ class SensorsController extends Controller {
         }
 
         return redirect(Route('sensors.show', (int) $id), 302);
+    }
+
+    public function handleMessage($id, $messageType, stdClass $messageObj) {
+        try {
+            $sensor = $this->getSensor($id);
+        } catch (SensorNotFoundException $ex) {
+                    throw new \App\Exceptions\SensorNotFoundException();
+        }
+        switch ($messageType) {
+            case 'identify':
+                throw new \Exception('Cannot use ' . $messageType . ' in ' . $routeParts[1]);
+                break;
+            case 'update':
+
+                $sensor->last_reading = $messageObj->last_reading;
+                $sensor->battery_level = $messageObj->battery_level;
+                $sensor->last_signal_date = date('Y-m-d H:i:s');
+                $sensor->last_signal = 'reading';
+                $sensor->save();
+                break;
+        }
     }
 }

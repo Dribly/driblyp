@@ -1,7 +1,7 @@
 <?php
 namespace App\Library\Services;
 
-use Lightning\App as LightningApp;
+use Bluerhinos\phpMQTT;
 Use App\MessageLog;
 
 class CloudMQTT {
@@ -43,11 +43,9 @@ class CloudMQTT {
 
 
         $this->initMqtt();
-        static::$mqtt->connect();
         sleep(1);
-echo "PUBLIC -".$feed."=<Br />";
+        echo "PUBLIC -" . $feed . "=<Br />";
         static::$mqtt->publish($feed, json_encode($object), 0);
-        static::$mqtt->close();
     }
 
     /**
@@ -57,25 +55,20 @@ echo "PUBLIC -".$feed."=<Br />";
      */
     public function readMessage(string $feed) {
         $this->initMqtt();
-        static::$mqtt->connect();
-        static::$mqtt->subscribe($feed, 0, function (\Lightning\Response $response) {
-            $messageLog = new MessageLog();
-            $messageLog->message = $response->getMessage();
-            $messageLog->route = '';
-            $messageLog->topic = $response->getRoute();
-            $messageLog->received = $response->getReceived();
-            $messageLog->attributes = implode(', ', $response->getAttributes());
-            if ($response->uid) {
-                $messageLog->uid = $response->uid;
-            }
-            $messageLog->save();
-            $message = $response->getMessage();
-        echo "got to ".$messageLog->message;die();
-            var_dump($message);
-            flush();
-        });
-        static::$mqtt->listen(true);
+
+        $topics[$feed] = array(
+            "qos" => 0,
+            "function" => "procmsg"
+        );
+        static::$mqtt->subscribe($topics, 0);
+        while (static::$mqtt->proc()) {
+            
+        }
         static::$mqtt->close();
+
+
+//        static::$mqtt->listen(true);
+//        static::$mqtt->close();
 //        if (static::$mqtt->connect(true, NULL, self::USERNAME, self::KEY)) {
 //            $topics[self::FEED_TYPES[$feed]] = array("qos" => 0, "function" => "procmsg");
 //            static::$mqtt->subscribe($topics, 0);
@@ -108,8 +101,21 @@ echo "PUBLIC -".$feed."=<Br />";
     private function initMqtt() {
         if (!static::$mqtt) {
             try {
-                static::$mqtt = new LightningApp(
-                    self::SERVER, self::PORT, 'powellblythconnection' . md5(uniqid()), self::USERNAME, self::PASSWORD);
+//$mqtt = new Bluerhinos\phpMQTT($url['host'], $url['port'], $client_id);
+//if ($mqtt->connect(true, NULL, $url['user'], $url['pass'])) {
+//    $mqtt->publish($topic, $message, 0);
+//    echo "Published message: " . $message;
+//    static::$mqtt->close();
+//}else{
+//    echo "Fail or time out<br />";
+//}                
+                static::$mqtt = new phpMQTT(self::SERVER, self::PORT, 'powellblythconnection' . md5(uniqid()));
+                if (static::$mqtt->connect(true, NULL, self::USERNAME, self::PASSWORD)) {
+                    echo "Connected";
+                } else {
+                    unset(static::$mqtt);
+                }
+//                    self::SERVER, self::PORT, 'powellblythconnection' . md5(uniqid()), self::USERNAME, self::PASSWORD);
 //                        new Client(, self::USERNAME,"HeresJohnny");
             } catch (Exception $e) {
                 var_dump($e);
@@ -161,4 +167,28 @@ echo "PUBLIC -".$feed."=<Br />";
         echo "</pre>";
         return 'Output from DemoOne';
     }
+
+    public function __destruct() {
+        if (static::$mqtt instanceof phpMQTT) {
+            static::$mqtt->close();
+        }
+    }
+}
+
+function progMsg($topic, $msg) {
+    $messageLog = new MessageLog();
+    $messageLog->message = $msg;
+    $messageLog->route = '';
+    $messageLog->topic = $topic;
+    $messageLog->received = date('Y-m-d H:i:s');
+    $messageLog->attributes = '';
+//            if ($response->uid) {
+//                $messageLog->uid = $response->uid;
+//            }
+    $messageLog->save();
+    $message = $msg;
+    echo "got to " . $msg;
+    var_dump($msg);
+    die();
+    flush();
 }
