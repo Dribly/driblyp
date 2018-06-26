@@ -9,7 +9,9 @@ use Illuminate\Support\Facades\Auth;
 use App\Exceptions\TapNotFoundException;
 
 class TapsController extends Controller {
+
     private $tapStatuses = ['active' => 'Active', 'inactive' => 'Inactive', 'deleted' => 'Deleted'];
+
     /**
      * Create a new controller instance.
      *
@@ -56,8 +58,13 @@ class TapsController extends Controller {
 //            return view('taps.add', );
     }
 
-    protected function getTap(int $tapID): Tap {
-        $tap = Tap::where(['id' => (int) $tapID, 'owner' => Auth::user()->id])->first();
+    protected function getTap(int $tapID, string $uid = null): Tap {
+        // find by UID if presented
+        if (!is_null($uid)) {
+            $tap = Tap::where(['uid' => $uid, 'owner' => Auth::user()->id])->first();
+        } else {
+            $tap = Tap::where(['id' => (int) $tapID, 'owner' => Auth::user()->id])->first();
+        }
         if (!$tap instanceof Tap) {
             throw new TapNotFoundException();
         }
@@ -136,11 +143,46 @@ class TapsController extends Controller {
         return view('taps.remove');
     }
     
-    public function handleMessage($id, $messageType, stdClass $messageObj) {
+    /**
+     * Changes the tap status
+     * @param Request $request
+     * @param int $id
+     * @param \App\Http\Controllers\CloudMQTT $customServiceInstance
+     * @return type
+     */
+    public function changeTapStatus(Request $request, int $id, CloudMQTT $customServiceInstance) {
+        $saveLastValue = false;
         try {
-            $sensor = $this->getSensor($id);
+            $tap = $this->getTap($id);
         } catch (SensorNotFoundException $ex) {
-                    throw new \App\Exceptions\SensorNotFoundException();
+            return view('404');
+        }
+        $value = (bool) $request->post('tap_status');
+        if (0.0 < $value && 100.0 >= $value) {
+            $message = $this->makeMessage($tap->uid, ['tap_status' => $value]);
+            echo "writing message to " . CloudMQTT::makeFeedName(CloudMQTT::FEED_TAP);
+            $customServiceInstance->sendMessage(CloudMQTT::makeFeedName(CloudMQTT::FEED_TAP), $message);
+        } else {
+            die(var_dump($value));
+        }
+        try {
+            if ($saveLastValue) {
+                $tap->is_on = $value;
+                $tap->save();
+            }
+        } catch (\Exception $e) {
+            var_dump($e);
+            die();
+        }
+
+        return redirect(Route('sensors.show', (int) $id), 302);
+    }
+    
+    public function handleMessage($uid, $messageType, stdClass $messageObj) {
+        try {
+            $tap = $this->getTap(0, $uid);
+        } catch (SensorNotFoundException $ex) {
+            throw new \App\Exceptions\SensorNotFoundException();
         }
         switch ($messageType) {
             case 'identify':
@@ -156,5 +198,5 @@ class TapsController extends Controller {
 //                $sensor->save();
                 break;
         }
-    }    
+    }
 }

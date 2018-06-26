@@ -9,7 +9,7 @@ use App\Library\Services\CloudMqtt; //NOTE not clear whhy netbeans doesnt think 
 use Illuminate\Support\Facades\Auth;
 use App\Exceptions\SensorNotFoundException;
 
-    class SensorsController extends Controller {
+class SensorsController extends Controller {
 
     private $sensorStatuses = ['active' => 'Active', 'inactive' => 'Inactive', 'deleted' => 'Deleted'];
 
@@ -75,8 +75,13 @@ use App\Exceptions\SensorNotFoundException;
         return redirect(Route('sensors.show', (int) $id), 302);
     }
 
-    protected function getSensor(int $sensorID): WaterSensor {
-        $sensor = WaterSensor::where(['id' => (int) $sensorID, 'owner' => Auth::user()->id])->first();
+    protected function getSensor(int $sensorID, string $uid = null): WaterSensor {
+        // find by UID if presented
+        if (!is_null($uid)) {
+            $sensor = WaterSensor::where(['uid' => $uid, 'owner' => Auth::user()->id])->first();
+        } else {
+            $sensor = WaterSensor::where(['id' => (int) $sensorID, 'owner' => Auth::user()->id])->first();
+        }
         if (!$sensor instanceof WaterSensor) {
             throw new SensorNotFoundException();
         }
@@ -129,7 +134,7 @@ use App\Exceptions\SensorNotFoundException;
 
     //
 
-    public function ApiUpdate(Request $request, int $id) {
+    public function apiUpdate(Request $request, int $id) {
         return view('404');
     }
 
@@ -142,6 +147,13 @@ use App\Exceptions\SensorNotFoundException;
         return $resultObj;
     }
 
+    /**
+     * Sends a false value to mqtt, for testing
+     * @param Request $request
+     * @param int $id
+     * @param \App\Http\Controllers\CloudMQTT $customServiceInstance
+     * @return type
+     */
     public function sendFakeValue(Request $request, int $id, CloudMQTT $customServiceInstance) {
         $saveLastValue = false;
         try {
@@ -172,15 +184,26 @@ use App\Exceptions\SensorNotFoundException;
         return redirect(Route('sensors.show', (int) $id), 302);
     }
 
-    public function handleMessage($id, $messageType, stdClass $messageObj) {
+    /**
+     * This handles whatever comes in from presumably mqtt
+     * @param string $uid 
+     * @param string $messageType
+     * @param \stdClass $messageObj The object we made above with the message in it.
+     * @throws SensorNotFoundException
+     */
+    public function handleMessage(string $uid, string $messageType, \stdClass $messageObj) {
         try {
-            $sensor = $this->getSensor($id);
+            $sensor = $this->getSensor(0, $uid);
         } catch (SensorNotFoundException $ex) {
-                    throw new \App\Exceptions\SensorNotFoundException();
+            throw new \App\Exceptions\SensorNotFoundException();
         }
         switch ($messageType) {
             case 'identify':
-                throw new \Exception('Cannot use ' . $messageType . ' in ' . $routeParts[1]);
+                $sensor->last_reading = $messageObj->last_reading;
+                $sensor->battery_level = $messageObj->battery_level;
+                $sensor->last_signal_date = date('Y-m-d H:i:s');
+                $sensor->last_signal = 'identify';
+                $sensor->save();
                 break;
             case 'update':
 

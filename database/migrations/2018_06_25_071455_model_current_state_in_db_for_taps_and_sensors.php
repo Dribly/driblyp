@@ -16,7 +16,6 @@ class ModelCurrentStateInDbForTapsAndSensors extends Migration {
             $table->float('last_reading', 6,2)->nullable();
         }); //
         Schema::table('taps', function (Blueprint $table) {
-            $table->enum('status', ['on','off','error','disconnected'])->default('off');
             $table->datetime('last_on')->nullable();
         }); //
     }
@@ -31,7 +30,6 @@ class ModelCurrentStateInDbForTapsAndSensors extends Migration {
             $table->dropColumn(['last_reading']);
         });
         Schema::table('taps', function (Blueprint $table) {
-            $table->dropColumn(['status']);
             $table->dropColumn(['last_on']);
         });
     }
