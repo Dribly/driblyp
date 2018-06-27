@@ -7,7 +7,10 @@ use App\Tap;
 use App\TapControlledBySensor;
 use App\Library\Services\CloudMqtt; //NOTE not clear whhy netbeans doesnt think this is used
 use Illuminate\Support\Facades\Auth;
+use App\Exceptions\TapNotFoundException;
 use App\Exceptions\SensorNotFoundException;
+use App\Exceptions\SensorIncompatibleWithTapException;
+use App\Http\Controllers\TapsController;
 
 class SensorsController extends Controller {
 
@@ -18,9 +21,9 @@ class SensorsController extends Controller {
         return view('sensors.index', ['sensors' => $sensors]);
     }
 
-    public function show(Request $request, int $id, CloudMQTT $customServiceInstance) {
+    public function show(Request $request, int $id) {
         try {
-            $sensor = $this->getSensor($id);
+            $sensor = self::getSensor($id);
         } catch (SensorNotFoundException $ex) {
             return view('404');
         }
@@ -32,13 +35,12 @@ class SensorsController extends Controller {
         }
         $allUnaddedTapsAry = [];
         $allTaps = Tap::where('owner', Auth::user()->id)->get(); //->list('description','id');
-        // Yuck! don't know how to map model to select
+// Yuck! don't know how to map model to select
         foreach ($allTaps as $tap) {
             if (!array_key_exists($tap->id, $taps)) {
                 $allUnaddedTapsAry[$tap->id] = $tap->description;
             }
         }
-//            $lastValue = $customServiceInstance->readMessage(CloudMQTT::FEED_WATERSENSOR.'/'.(int)$id, 5);
 
         return view('sensors.show', [
             'statuses' => $this->sensorStatuses,
@@ -49,34 +51,88 @@ class SensorsController extends Controller {
             'allTaps' => $allUnaddedTapsAry]);
     }
 
-    public function connectToTap(Request $request, int $id) {
+    /**
+     * Get all taps controlled by this sensor
+     * NOTE a sensor can only control a single tap
+     * @param int $sensorID
+     * @return array
+     */
+    public static function getTapsControlledBySensor(int $sensorID) {
+        return TapControlledBySensor::where('sensor_id', $sensorID)->get();
+    }
+
+    /**
+     * check if a sensor can have any new taps asspcoated with it
+     * HINT: if it has one then no!
+     * @param int $sensorID the ID of the sensor
+     */
+    public static function canSensorControlNewTap(int $sensorID): bool {
+        if (0 === count(self::getTapsControlledBySensor($sensorID))) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    /**
+     * 
+     * @param int $sensorID
+     * @param int $tapID
+     * @return bool
+     * @throws \App\Exceptions\TapNotFoundException
+     * @throws SensorIncompatibleWithTapException
+     */
+    public static function controlTapWithSensor(int $sensorID, int $tapID):bool
+    {
         try {
-            $sensor = $this->getSensor($id);
+            $sensor = self::getSensor($sensorID);
         } catch (SensorNotFoundException $ex) {
             return view('404');
         }
-        $tapID = (float) $request->post('tap_id');
-        $tap = Tap::where(['id' => (int) $tapID, 'owner' => Auth::user()->id])->first();
-        if ($tap instanceof Tap) {
-            $TapControlledBySensor = TapControlledBySensor::where('tap_id', $tapID)->where('sensor_id', $id)->first();
-            // Don't add the same relationship twice
-            if (!$TapControlledBySensor instanceof TapControlledBySensor) {
-                $TapControlledBySensor = new TapControlledBySensor();
-                $TapControlledBySensor->tap_id = $tapID;
-                $TapControlledBySensor->sensor_id = $id;
-            }
+        try {
+            $tap = TapsController::getTap($tapID);
+        } catch (TapNotFoundException $e) {
+            return view('404');
+        }
+        // If the sensor has no taps, and they have the same owner
+        // Obvs we checked the owner above, but this protects against
+        // future changes
+        if (self::canSensorControlNewTap($sensorID) && $sensor->owner === $tap->owner) {
+
+            $TapControlledBySensor = new TapControlledBySensor();
+            $TapControlledBySensor->tap_id = $tap->id;
+            $TapControlledBySensor->sensor_id = $sensor->id;
             try {
                 $TapControlledBySensor->save();
             } catch (\Exception $e) {
-                var_dump($e);
-                die();
+                throw $e;
             }
+        } else {
+            throw new SensorIncompatibleWithTapException('This sensor is not allowed to associate with this tap');
+        }
+        // If we got here then it must have worked right?
+        return true;
+        
+    }
+
+    /**
+     * Controller function to connect a sensor to a tap. 
+     * @param Request $request
+     * @param int $id
+     * @return type
+     */
+    public function connectToTap(Request $request, int $id) {
+        try
+        {
+            self::controlTapWithSensor($id, (int)$request->post('tap_id'));
+        } catch (\Exception $ex) {
+
         }
         return redirect(Route('sensors.show', (int) $id), 302);
     }
 
-    protected function getSensor(int $sensorID, string $uid = null): WaterSensor {
-        // find by UID if presented
+    public static function getSensor(int $sensorID, string $uid = null): WaterSensor {
+// find by UID if presented
         if (!is_null($uid)) {
             $sensor = WaterSensor::where(['uid' => $uid, 'owner' => Auth::user()->id])->first();
         } else {
@@ -90,7 +146,7 @@ class SensorsController extends Controller {
 
     public function changestatus(Request $request, $id) {
         try {
-            $sensor = $this->getSensor($id);
+            $sensor = self::getSensor($id);
         } catch (SensorNotFoundException $ex) {
             return view('404');
         }
@@ -132,19 +188,8 @@ class SensorsController extends Controller {
         return view('sensors.remove');
     }
 
-    //
-
     public function apiUpdate(Request $request, int $id) {
         return view('404');
-    }
-
-    public function makeMessage(string $deviceUid, array $message): \stdClass {
-        $resultObj = new \stdClass();
-        $resultObj->uid = $deviceUid;
-        foreach ($message as $key => $value) {
-            $resultObj->$key = $value;
-        }
-        return $resultObj;
     }
 
     /**
@@ -157,7 +202,7 @@ class SensorsController extends Controller {
     public function sendFakeValue(Request $request, int $id, CloudMQTT $customServiceInstance) {
         $saveLastValue = false;
         try {
-            $sensor = $this->getSensor($id);
+            $sensor = self::getSensor($id);
         } catch (SensorNotFoundException $ex) {
             return view('404');
         }
@@ -185,6 +230,21 @@ class SensorsController extends Controller {
     }
 
     /**
+     * This function creates a messaage object that this controller will read laterw
+     * @param string $deviceUid
+     * @param array $message
+     * @return \stdClass
+     */
+    public function makeMessage(string $deviceUid, array $message): \stdClass {
+        $resultObj = new \stdClass();
+        $resultObj->uid = $deviceUid;
+        foreach ($message as $key => $value) {
+            $resultObj->$key = $value;
+        }
+        return $resultObj;
+    }
+
+    /**
      * This handles whatever comes in from presumably mqtt
      * @param string $uid 
      * @param string $messageType
@@ -193,7 +253,7 @@ class SensorsController extends Controller {
      */
     public function handleMessage(string $uid, string $messageType, \stdClass $messageObj) {
         try {
-            $sensor = $this->getSensor(0, $uid);
+            $sensor = self::getSensor(0, $uid);
         } catch (SensorNotFoundException $ex) {
             throw new \App\Exceptions\SensorNotFoundException();
         }

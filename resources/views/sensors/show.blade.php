@@ -43,7 +43,7 @@
 @endforeach
 @endif
 
-            @if  (count($allTaps) > 0)
+            @if  (count($sensorMap)== 0 && count($allTaps) > 0)
                 {{  Form::model($sensor, array('route' => array('sensors.connectToTap', $sensor->id))) }}
                 {{ Form::select('tap_id', $allTaps, null, ['class' => 'form-control']) }}
 

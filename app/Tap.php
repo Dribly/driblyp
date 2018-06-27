@@ -27,4 +27,5 @@ class Tap extends Model {
     public function getUrl() {
         return route('taps.show', ['id' => $this->id]);
     }
+    
 }

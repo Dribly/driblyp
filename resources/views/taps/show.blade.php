@@ -27,7 +27,7 @@
             <h3>Controls</h3>
 
             @if  (count($sensorMap) > 0)
-            <h3>{{count($sensorMap)}} sensor{{(count($sensorMap) == 1 ? ' is':'s are')}} controlled by this tap</h3>
+            <h3>{{count($sensorMap)}} sensor{{(count($sensorMap) == 1 ? ' controls':'s control')}}  this tap</h3>
             @foreach ($sensorMap as $sensorMap)
             @php
             $sensor = $sensors[$sensorMap->sensor_id]

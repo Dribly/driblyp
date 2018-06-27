@@ -7,6 +7,7 @@ use App\WaterSensor;
 use App\TapControlledBySensor;
 use Illuminate\Support\Facades\Auth;
 use App\Exceptions\TapNotFoundException;
+use App\Http\Controllers\SensorsController;
 
 class TapsController extends Controller {
 
@@ -28,7 +29,7 @@ class TapsController extends Controller {
 
     public function show(Request $request, $id) {
         try {
-            $tap = $this->getTap($id);
+            $tap = self::getTap($id);
         } catch (TapNotFoundException $ex) {
             return view('404');
         }
@@ -42,7 +43,7 @@ class TapsController extends Controller {
         $allSensors = WaterSensor::where('owner', Auth::user()->id)->get(); //->list('description','id');
         // Yuck! don't know how to map model to select
         foreach ($allSensors as $sensor) {
-            if (!array_key_exists($sensor->id, $sensors)) {
+            if (!array_key_exists($sensor->id, $sensors) && SensorsController::canSensorControlNewTap($sensor->id)) {
                 $allUnaddedSensorsAry[$sensor->id] = $sensor->description;
             }
         }
@@ -57,8 +58,8 @@ class TapsController extends Controller {
             'allSensors' => $allUnaddedSensorsAry]);
 //            return view('taps.add', );
     }
-
-    protected function getTap(int $tapID, string $uid = null): Tap {
+    
+    public static function getTap(int $tapID, string $uid = null): Tap {
         // find by UID if presented
         if (!is_null($uid)) {
             $tap = Tap::where(['uid' => $uid, 'owner' => Auth::user()->id])->first();
@@ -71,7 +72,7 @@ class TapsController extends Controller {
 
         return $tap;
     }
-
+    
     public function add(Request $request) {
         if ($request->isMethod('POST')) {
             $tap = new Tap();
@@ -92,7 +93,7 @@ class TapsController extends Controller {
 
     public function changestatus(Request $request, $id) {
         try {
-            $tap = $this->getTap($id);
+            $tap = self::getTap($id);
         } catch (TapNotFoundException $ex) {
             return view('404');
         }
@@ -111,31 +112,20 @@ class TapsController extends Controller {
 
         return redirect(Route('taps.show', (int) $id), 302);
     }
-
+    /**
+     * Controller function to connect a sensor to a tap. 
+     * @param Request $request
+     * @param int $id
+     * @return type
+     */
     public function connectToSensor(Request $request, int $id) {
-        try {
-            $tap = $this->getTap($id);
-        } catch (TapNotFoundException $ex) {
-            return view('404');
+        try
+        {
+            SensorsController::controlTapWithSensor( (int) $request->post('sensor_id'), $id);
+        } catch (\Exception $ex) {
+var_dump($ex);
+            die('exception');
         }
-        $sensorID = (float) $request->post('sensor_id');
-        $sensor = WaterSensor::where(['id' => (int) $sensorID, 'owner' => Auth::user()->id])->first();
-        if ($sensor instanceof WaterSensor) {
-            $TapControlledBySensor = TapControlledBySensor::where('tap_id', $id)->where('sensor_id', $sensorID)->first();
-            // Don't add the same relationship twice
-            if (!$TapControlledBySensor instanceof TapControlledBySensor) {
-                $TapControlledBySensor = new TapControlledBySensor();
-                $TapControlledBySensor->tap_id = $id;
-                $TapControlledBySensor->sensor_id = $sensorID;
-            }
-            try {
-                $TapControlledBySensor->save();
-            } catch (\Exception $e) {
-                var_dump($e);
-                die();
-            }
-        }
-
         return redirect(Route('taps.show', (int) $id), 302);
     }
 
@@ -153,8 +143,8 @@ class TapsController extends Controller {
     public function changeTapStatus(Request $request, int $id, CloudMQTT $customServiceInstance) {
         $saveLastValue = false;
         try {
-            $tap = $this->getTap($id);
-        } catch (SensorNotFoundException $ex) {
+            $tap = self::getTap($id);
+        } catch (TapNotFoundException $ex) {
             return view('404');
         }
         $value = (bool) $request->post('tap_status');
@@ -175,14 +165,14 @@ class TapsController extends Controller {
             die();
         }
 
-        return redirect(Route('sensors.show', (int) $id), 302);
+        return redirect(Route('taps.show', (int) $id), 302);
     }
     
     public function handleMessage($uid, $messageType, stdClass $messageObj) {
         try {
-            $tap = $this->getTap(0, $uid);
-        } catch (SensorNotFoundException $ex) {
-            throw new \App\Exceptions\SensorNotFoundException();
+            $tap = self::getTap(0, $uid);
+        } catch (TapNotFoundException $ex) {
+            throw new \App\Exceptions\TapNotFoundException();
         }
         switch ($messageType) {
             case 'identify':
