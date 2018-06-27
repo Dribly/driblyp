@@ -1,7 +1,7 @@
 @extends('layouts.bootstrap')
 
 @section('headertitle')Taps @endsection
-@section('pagetitle')Your Taps @endsection
+@section('pagetitle')Your Tap '{{$tap->description}}'@endsection
 
 @section('content')
     <section class="bg-primary" id="about">
@@ -11,10 +11,14 @@
         </div>
         <div class="row">
           <div class="col-lg-8 mx-auto text-center">
-            <h2 class="section-heading text-white">Taps</h2>
+@foreach (['danger', 'warning', 'success', 'info'] as $key)
+ @if(Session::has($key))
+     <p class="alert alert-{{ $key }}">{{ Session::get($key) }}</p>
+ @endif
+@endforeach
+            <h2 class="section-heading text-white">Tap: {{$tap->description}}</h2>
             <hr class="light">
             <p class="text-faded"></p>
-            {{$tap->description}}
             {{  Form::model($tap, array('route' => array('taps.changestatus', $tap->id))) }}
             {{ Form::select('status', $statuses, null, ['class' => 'form-control']) }}
 
@@ -24,7 +28,7 @@
 {{ Form::close() }}
             ({{$tap->uid}})
             <br />
-            <h3>Controls</h3>
+            <h3 class="section-heading text-white">Controls</h3>
 
             @if  (count($sensorMap) > 0)
             <h3>{{count($sensorMap)}} sensor{{(count($sensorMap) == 1 ? ' controls':'s control')}}  this tap</h3>

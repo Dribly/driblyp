@@ -11,6 +11,7 @@ use App\Exceptions\TapNotFoundException;
 use App\Exceptions\SensorNotFoundException;
 use App\Exceptions\SensorIncompatibleWithTapException;
 use App\Http\Controllers\TapsController;
+use App\Exceptions\WaterSensorAlreadyRegisteredException;
 
 class SensorsController extends Controller {
 
@@ -73,7 +74,7 @@ class SensorsController extends Controller {
             return false;
         }
     }
-    
+
     /**
      * 
      * @param int $sensorID
@@ -82,8 +83,7 @@ class SensorsController extends Controller {
      * @throws \App\Exceptions\TapNotFoundException
      * @throws SensorIncompatibleWithTapException
      */
-    public static function controlTapWithSensor(int $sensorID, int $tapID):bool
-    {
+    public static function controlTapWithSensor(int $sensorID, int $tapID): bool {
         try {
             $sensor = self::getSensor($sensorID);
         } catch (SensorNotFoundException $ex) {
@@ -112,7 +112,6 @@ class SensorsController extends Controller {
         }
         // If we got here then it must have worked right?
         return true;
-        
     }
 
     /**
@@ -122,11 +121,11 @@ class SensorsController extends Controller {
      * @return type
      */
     public function connectToTap(Request $request, int $id) {
-        try
-        {
-            self::controlTapWithSensor($id, (int)$request->post('tap_id'));
+        try {
+            self::controlTapWithSensor($id, (int) $request->post('tap_id'));
+            $request->session()->flash('success', 'Tap connected!');
         } catch (\Exception $ex) {
-
+            $request->session()->flash('warning', 'Tap could not be connected: ' . $ex->getMessage());
         }
         return redirect(Route('sensors.show', (int) $id), 302);
     }
@@ -158,9 +157,9 @@ class SensorsController extends Controller {
         }
         try {
             $sensor->save();
+            $request->session()->flash('success', 'Status saved');
         } catch (\Exception $e) {
-            var_dump($e);
-            die();
+            $request->session()->flash('warning', 'Could not change status: ' . $e->getMessage());
         }
 
         return redirect(Route('sensors.show', (int) $id), 302);
@@ -173,6 +172,12 @@ class SensorsController extends Controller {
             $sensor->description = $request->post('description');
             $sensor->uid = $request->post('uid');
             try {
+                $dupeCheck = WaterSensor::where('uid', $tap->uid)->first();
+                if ($dupeCheck instanceof WaterSensor) {
+                    throw new WaterSensorAlreadyRegisteredException();
+                }
+                unset($dupeCheck);
+
                 $sensor->save();
             } catch (\Exception $e) {
                 var_dump($e);

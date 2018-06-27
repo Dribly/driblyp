@@ -10,6 +10,11 @@
         <div class="row">
           <div class="col-lg-8 mx-auto text-center">
             <h2 class="section-heading text-white">Add Sensor</h2>
+@foreach (['danger', 'warning', 'success', 'info'] as $key)
+ @if(Session::has($key))
+     <p class="alert alert-{{ $key }}">{{ Session::get($key) }}</p>
+ @endif
+@endforeach
             <hr class="light">
             <p class="text-faded">You can register your sensor here, just enter the ID on the side of the device, and a helpful label to help you identify your sensor</p>
 

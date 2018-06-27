@@ -8,6 +8,7 @@ use App\TapControlledBySensor;
 use Illuminate\Support\Facades\Auth;
 use App\Exceptions\TapNotFoundException;
 use App\Http\Controllers\SensorsController;
+use App\Exceptions\TapAlreadyRegisteredException;
 
 class TapsController extends Controller {
 
@@ -58,7 +59,7 @@ class TapsController extends Controller {
             'allSensors' => $allUnaddedSensorsAry]);
 //            return view('taps.add', );
     }
-    
+
     public static function getTap(int $tapID, string $uid = null): Tap {
         // find by UID if presented
         if (!is_null($uid)) {
@@ -72,7 +73,7 @@ class TapsController extends Controller {
 
         return $tap;
     }
-    
+
     public function add(Request $request) {
         if ($request->isMethod('POST')) {
             $tap = new Tap();
@@ -80,12 +81,25 @@ class TapsController extends Controller {
             $tap->description = $request->post('description');
             $tap->uid = $request->post('uid');
             try {
+                $dupeCheck = Tap::where('uid', $tap->uid)->first();
+                if ($dupeCheck instanceof Tap) {
+                    throw new TapAlreadyRegisteredException();
+                }
+                unset($dupeCheck);
+
                 $tap->save();
+                $request->session()->flash('success', 'Tap added successfully');
+                return redirect(Route('taps.show', $tap->id), 302);
+            } catch (TapAlreadyRegisteredException $e) {
+                $request->session()->flash('warning', 'This tap has already been registered, please re-enter the UID carefully');
+                return view('taps.add', ['statuses' => $this->tapStatuses]);
+            } catch (Illuminate\Database\QueryException $e) {
+                $request->session()->flash('warning', 'Could not add tap: Internal error');
+                return view('taps.add', ['statuses' => $this->tapStatuses]);
             } catch (\Exception $e) {
-                var_dump($e);
-                die();
+                $request->session()->flash('warning', 'Could not add tap: ' . $e->getMessage());
+                return view('taps.add', ['statuses' => $this->tapStatuses]);
             }
-            return redirect(Route('taps.show', $tap->id), 302);
         } else {
             return view('taps.add', ['statuses' => $this->tapStatuses]);
         }
@@ -105,13 +119,14 @@ class TapsController extends Controller {
         }
         try {
             $tap->save();
+            $request->session()->flash('success', 'Status saved');
         } catch (\Exception $e) {
-            var_dump($e);
-            die();
+            $request->session()->flash('warning', 'Could not change status: ' . $e->getMessage());
         }
 
         return redirect(Route('taps.show', (int) $id), 302);
     }
+
     /**
      * Controller function to connect a sensor to a tap. 
      * @param Request $request
@@ -119,12 +134,11 @@ class TapsController extends Controller {
      * @return type
      */
     public function connectToSensor(Request $request, int $id) {
-        try
-        {
-            SensorsController::controlTapWithSensor( (int) $request->post('sensor_id'), $id);
+        try {
+            SensorsController::controlTapWithSensor((int) $request->post('sensor_id'), $id);
+            $request->session()->flash('success', 'Connected the tap to the water sensor');
         } catch (\Exception $ex) {
-var_dump($ex);
-            die('exception');
+            $request->session()->flash('warning', 'Could not connect the tap to the water sensor: ' . $e->getMessage());
         }
         return redirect(Route('taps.show', (int) $id), 302);
     }
@@ -132,7 +146,7 @@ var_dump($ex);
     public function remove(Request $request) {
         return view('taps.remove');
     }
-    
+
     /**
      * Changes the tap status
      * @param Request $request
@@ -152,8 +166,9 @@ var_dump($ex);
             $message = $this->makeMessage($tap->uid, ['tap_status' => $value]);
             echo "writing message to " . CloudMQTT::makeFeedName(CloudMQTT::FEED_TAP);
             $customServiceInstance->sendMessage(CloudMQTT::makeFeedName(CloudMQTT::FEED_TAP), $message);
+            $request->session()->flash('success', 'Status message sent to tap');
         } else {
-            die(var_dump($value));
+//            $request->session()->flash('warning', 'Invalid );
         }
         try {
             if ($saveLastValue) {
@@ -167,7 +182,7 @@ var_dump($ex);
 
         return redirect(Route('taps.show', (int) $id), 302);
     }
-    
+
     public function handleMessage($uid, $messageType, stdClass $messageObj) {
         try {
             $tap = self::getTap(0, $uid);

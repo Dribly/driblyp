@@ -11,11 +11,16 @@
         </div>
         <div class="row">
           <div class="col-lg-8 mx-auto text-center">
-            <h2 class="section-heading text-white">Show Sensor</h2>
+@foreach (['danger', 'warning', 'success', 'info'] as $key)
+ @if(Session::has($key))
+     <p class="alert alert-{{ $key }}">{{ Session::get($key) }}</p>
+ @endif
+@endforeach
+            <h2 class="section-heading text-white">Water Sensor: {{$sensor->description}}</h2>
             <hr class="light" />
             <p class="text-faded"></p>
 
-            {{$sensor->description}} ({{$sensor->uid}})
+            ({{$sensor->uid}})
             {{  Form::model($sensor, array('route' => array('sensors.changestatus', $sensor->id))) }}
             {{ Form::select('status', $statuses, null, ['class' => 'form-control']) }}
 
