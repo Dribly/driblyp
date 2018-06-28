@@ -24,7 +24,8 @@
             {{  Form::model($sensor, array('route' => array('sensors.changestatus', $sensor->id))) }}
             {{ Form::select('status', $statuses, null, ['class' => 'form-control']) }}
 
-                {{$sensor->status}}
+            <p>{{$sensor->status}}</p>
+            <p><b>Last Reading:</b> {{$sensor->last_reading}}% at {{$sensor->last_signal_date}}</p>
             {{ Form::submit('Save Status', ['class' => 'btn btn-primary']) }}
 
             {{ Form::close() }}
