@@ -49,7 +49,8 @@ class SensorsController extends Controller {
             'lastvalue' => 0,
             'sensorMap' => $sensorMap,
             'taps' => $taps,
-            'allTaps' => $allUnaddedTapsAry]);
+            'allTaps' => $allUnaddedTapsAry,
+            'fakeValues' => [0=>0, 1=>1,2=>2,5=>5,7=>7,9=>9,10=>10,20=>20,30=>30,40=>40,55=>55,66=>66,77=>77,88=>88,99=>99,100=>100, 101=>101]]);
     }
 
     /**
@@ -219,8 +220,9 @@ class SensorsController extends Controller {
             $message = $this->makeMessage($sensor->uid, ['reading' => $value]);
             echo "writing message to " . CloudMQTT::makeFeedName(CloudMQTT::FEED_WATERSENSOR);
             $customServiceInstance->sendMessage(CloudMQTT::makeFeedName(CloudMQTT::FEED_WATERSENSOR), $message);
+            $request->session()->flash('success', 'Fake value of ' . $value . ' sent');
         } else {
-            die(var_dump($value));
+            $request->session()->flash('warning', 'Could not set fake value of ' . $value . ' to sensor '.$id .' because the number given was <1 or > 100');
         }
         try {
             if ($saveLastValue) {

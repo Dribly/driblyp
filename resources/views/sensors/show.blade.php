@@ -31,7 +31,7 @@
                 <hr class="light" />
 
             {{  Form::model($sensor, array('route' => array('sensors.sendFakeValue', $sensor->id))) }}
-            {{ Form::select('value', [1,2,5,7,9,10,20,30,40,55,66,77,88,99,1000], null, ['class' => 'form-control']) }}
+            {{ Form::select('value', $fakeValues, null, ['class' => 'form-control']) }}
 
                 
             {{ Form::submit('Send Fake Value', ['class' => 'btn btn-primary']) }}
