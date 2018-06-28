@@ -40,11 +40,11 @@ class MessageReader {
             
             case 'watersensors':
                 $controller = new \App\Http\Controllers\SensorsController();
-                $controller->handleMessage($messageObj->uid, $routeParts[1], $messageObj);
+                $controller->handleMessage($messageObj->uid, $routeParts[2], $messageObj);
                 
             case 'taps':
                 $controller = new \App\Http\Controllers\TapsController();
-                $controller->handleMessage($messageObj->uid, $routeParts[1], $messageObj);
+                $controller->handleMessage($messageObj->uid, $routeParts[2], $messageObj);
                 // EEP this should not happen, we should not be reading tap messages
                 ;
                 break;

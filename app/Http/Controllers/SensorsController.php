@@ -254,16 +254,24 @@ class SensorsController extends Controller {
         if ($sensor instanceof WaterSensor) {
             switch ($messageType) {
                 case 'identify':
-                    $sensor->last_reading = $messageObj->last_reading;
-                    $sensor->battery_level = $messageObj->battery_level;
+                    if (isset($messageObj->reading)) {
+                        $sensor->last_reading = $messageObj->reading;
+                    }
+                    if (isset($messageObj->battery_level)) {
+                        $sensor->battery_level = $messageObj->battery_level;
+                    }
                     $sensor->last_signal_date = date('Y-m-d H:i:s');
                     $sensor->last_signal = 'identify';
                     $sensor->save();
                     break;
                 case 'update':
 
-                    $sensor->last_reading = $messageObj->last_reading;
-                    $sensor->battery_level = $messageObj->battery_level;
+                    if (isset($messageObj->reading)) {
+                        $sensor->last_reading = $messageObj->reading;
+                    }
+                    if (isset($messageObj->battery_level)) {
+                        $sensor->battery_level = $messageObj->battery_level;
+                    }
                     $sensor->last_signal_date = date('Y-m-d H:i:s');
                     $sensor->last_signal = 'reading';
                     $sensor->save();
