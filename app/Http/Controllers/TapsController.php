@@ -183,12 +183,10 @@ class TapsController extends Controller {
         return redirect(Route('taps.show', (int) $id), 302);
     }
 
-    public function handleMessage($uid, $messageType, stdClass $messageObj) {
-        try {
-            $tap = self::getTap(0, $uid);
-        } catch (TapNotFoundException $ex) {
-            throw new \App\Exceptions\TapNotFoundException();
-        }
+    public function handleMessage($uid, $messageType, \stdClass $messageObj) {
+        $tap = Tap::where(['uid' => $uid])->first();
+
+        if (($tap instanceof Tap)) {
         switch ($messageType) {
             case 'identify':
                 throw new \Exception('Cannot use ' . $messageType . ' in ' . $routeParts[1]);
@@ -202,6 +200,6 @@ class TapsController extends Controller {
 //                $sensor->last_signal = 'reading';
 //                $sensor->save();
                 break;
-        }
+        }}
     }
 }

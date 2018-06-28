@@ -50,7 +50,7 @@ class SensorsController extends Controller {
             'sensorMap' => $sensorMap,
             'taps' => $taps,
             'allTaps' => $allUnaddedTapsAry,
-            'fakeValues' => [0=>0, 1=>1,2=>2,5=>5,7=>7,9=>9,10=>10,20=>20,30=>30,40=>40,55=>55,66=>66,77=>77,88=>88,99=>99,100=>100, 101=>101]]);
+            'fakeValues' => [0 => 0, 1 => 1, 2 => 2, 5 => 5, 7 => 7, 9 => 9, 10 => 10, 20 => 20, 30 => 30, 40 => 40, 55 => 55, 66 => 66, 77 => 77, 88 => 88, 99 => 99, 100 => 100, 101 => 101]]);
     }
 
     /**
@@ -206,7 +206,6 @@ class SensorsController extends Controller {
      * @return type
      */
     public function sendFakeValue(Request $request, int $id, CloudMQTT $customServiceInstance) {
-        $saveLastValue = false;
         try {
             $sensor = self::getSensor($id);
         } catch (SensorNotFoundException $ex) {
@@ -214,30 +213,19 @@ class SensorsController extends Controller {
         }
         $value = (float) $request->post('value');
         if (0.0 < $value && 100.0 >= $value) {
-            if ($saveLastValue) {
-                $sensor->lastvalue = $value;
-            }
             $message = $this->makeMessage($sensor->uid, ['reading' => $value]);
             echo "writing message to " . CloudMQTT::makeFeedName(CloudMQTT::FEED_WATERSENSOR);
             $customServiceInstance->sendMessage(CloudMQTT::makeFeedName(CloudMQTT::FEED_WATERSENSOR), $message);
             $request->session()->flash('success', 'Fake value of ' . $value . ' sent');
         } else {
-            $request->session()->flash('warning', 'Could not set fake value of ' . $value . ' to sensor '.$id .' because the number given was <1 or > 100');
-        }
-        try {
-            if ($saveLastValue) {
-                $sensor->save();
-            }
-        } catch (\Exception $e) {
-            var_dump($e);
-            die();
+            $request->session()->flash('warning', 'Could not set fake value of ' . $value . ' to sensor ' . $id . ' because the number given was <1 or > 100');
         }
 
         return redirect(Route('sensors.show', (int) $id), 302);
     }
 
     /**
-     * This function creates a messaage object that this controller will read laterw
+     * This function creates a message object that this controller will read later
      * @param string $deviceUid
      * @param array $message
      * @return \stdClass
@@ -259,27 +247,28 @@ class SensorsController extends Controller {
      * @throws SensorNotFoundException
      */
     public function handleMessage(string $uid, string $messageType, \stdClass $messageObj) {
-        try {
-            $sensor = self::getSensor(0, $uid);
-        } catch (SensorNotFoundException $ex) {
-            throw new \App\Exceptions\SensorNotFoundException();
-        }
-        switch ($messageType) {
-            case 'identify':
-                $sensor->last_reading = $messageObj->last_reading;
-                $sensor->battery_level = $messageObj->battery_level;
-                $sensor->last_signal_date = date('Y-m-d H:i:s');
-                $sensor->last_signal = 'identify';
-                $sensor->save();
-                break;
-            case 'update':
 
-                $sensor->last_reading = $messageObj->last_reading;
-                $sensor->battery_level = $messageObj->battery_level;
-                $sensor->last_signal_date = date('Y-m-d H:i:s');
-                $sensor->last_signal = 'reading';
-                $sensor->save();
-                break;
+        $sensor = WaterSensor::where(['uid' => $uid])->first();
+
+        // Ifgnore if not a valid sensor
+        if ($sensor instanceof WaterSensor) {
+            switch ($messageType) {
+                case 'identify':
+                    $sensor->last_reading = $messageObj->last_reading;
+                    $sensor->battery_level = $messageObj->battery_level;
+                    $sensor->last_signal_date = date('Y-m-d H:i:s');
+                    $sensor->last_signal = 'identify';
+                    $sensor->save();
+                    break;
+                case 'update':
+
+                    $sensor->last_reading = $messageObj->last_reading;
+                    $sensor->battery_level = $messageObj->battery_level;
+                    $sensor->last_signal_date = date('Y-m-d H:i:s');
+                    $sensor->last_signal = 'reading';
+                    $sensor->save();
+                    break;
+            }
         }
     }
 }

@@ -2,7 +2,7 @@
 namespace App\Library\Services;
 
 use Lightning\App as LightningApp;
-use Exceptions\InvalidMessageException;
+use App\Exceptions\InvalidMessageException;
 
 class CloudMQTT {
 
@@ -56,8 +56,9 @@ class CloudMQTT {
     public function readMessage(string $feed) {
         $this->initMqtt();
         static::$mqtt->connect();
-        static::$mqtt->subscribe($feed, 0, function (\Lightning\Response $response, MessageReader $reader) {
+        static::$mqtt->subscribe($feed, 0, function (\Lightning\Response $response) {
             try {
+                $reader = new MessageReader();
                 $reader->readMessage($response->getMessage(), $response->getRoute(), $response->getReceived(), $response->getAttributes());
             } catch (InvalidMessageException $ex) {
                 

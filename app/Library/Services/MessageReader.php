@@ -2,7 +2,7 @@
 namespace App\Library\Services;
 
 Use App\MessageLog;
-
+use App\Exceptions\InvalidMessageException;
 class MessageReader {
 
     /**
@@ -30,13 +30,14 @@ class MessageReader {
         // Log any meta data we can find
         if (isset($messageObj->uid)) {
 
-            $messageLog->uid = $messageObj->uid;
+            $messageLog->device_uid = $messageObj->uid;
         }
         $messageLog->status = 'success';
         // Expecting basehome/thing/thong or similar
         $routeParts = explode('/', $route);
         // Route part 1 is env, route part 2 is approx
         switch ($routeParts[1]) {
+            
             case 'watersensors':
                 $controller = new \App\Http\Controllers\SensorsController();
                 $controller->handleMessage($messageObj->uid, $routeParts[1], $messageObj);

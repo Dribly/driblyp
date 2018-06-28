@@ -16,7 +16,7 @@ class InvalidMessageException extends \Exception {
     protected $badMessage;
 
     //put your code here
-    public function construct($original, $errorMessage, $code = null) {
+    public function __construct($original, $errorMessage, $code = null) {
         $this->badMessage = $original;
         parent::__construct($errorMessage, $code);
     }
