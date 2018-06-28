@@ -81,13 +81,6 @@ class CloudMQTT {
         static::$mqtt->close();
     }
 
-    function procmsg($topic, $msg) {
-        echo "Msg Received: " . date("r") . "\n";
-        echo "Topic: {$topic}\n\n";
-        echo "\t$msg\n\n";
-        exit;
-    }
-
     /**
      * Simply initiates the MQTT if it is not already done
      */
@@ -105,36 +98,4 @@ class CloudMQTT {
         }
     }
 
-    public function doSubscriptions() {
-        echo "<pre>";
-        echo "<pre>";
-        echo "<h1>Begin monitor</h1>";
-        $this->readMessage(self::FEED_WATERSENSOR);
-        echo "</pre>";
-        return 'Output from DemoOne';
-    }
-
-    public function writeTestMessage() {
-        echo "<pre>";
-        echo "<h1>Begin writign</h1>";
-        echo "<a href=\"/mqttsendmessage\">Reload</a><br />";
-        echo '<pre>';
-
-        $message = date('s.U') . "s ALSOHello World! at " . date("r");
-        echo "Wrigting to " . self::makeFeedName(self::FEED_WATERSENSOR);
-        $this->sendMessage(self::makeFeedName(self::FEED_WATERSENSOR), $message);
-        return 'done writing ' . $message . "\n";
-    }
-
-    public function messageBoard() {
-//        flush();
-        echo "<pre>";
-        echo "<h1>Begin monitor</h1>";
-        flush();
-
-        echo "reading from " . self::makeFeedName(self::FEED_WATERSENSOR);
-        $this->readMessage(self::makeFeedName(self::FEED_WATERSENSOR));
-        echo "</pre>";
-        return 'Output from DemoOne';
-    }
 }
