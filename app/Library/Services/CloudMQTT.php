@@ -16,10 +16,10 @@ class CloudMQTT {
     const FEED_TAP = 20;
     const FEED_TAPIDENTIFY = 21;
     const FEED_TYPES = [
-        self::FEED_WATERSENSOR => "dribly/watersensors/update",
-        self::FEED_WATERSENSORIDENTIFY => "dribly/watersensors/identify",
-        self::FEED_TAP => "dribly/taps/update",
-        self::FEED_TAPIDENTIFY => "dribly/taps/identify"
+        self::FEED_WATERSENSOR => "dribly/watersensors/uid/update",
+        self::FEED_WATERSENSORIDENTIFY => "dribly/watersensors/uid/identify",
+        self::FEED_TAP => "dribly/taps/uid/update",
+        self::FEED_TAPIDENTIFY => "dribly/taps/uid/identify"
     ];
 
     /*
@@ -28,11 +28,24 @@ class CloudMQTT {
 
     static $mqtt;
 
-    public static function makeFeedName(int $type) {
-        return self::FEED_TYPES[$type];
+    /**
+     * Create a feed name from a feed and a UID
+     * @param int $type
+     * @param string $uid
+     * @return type
+     */
+    public static function makeFeedName(int $type, string $uid) {
+        $cleanUID = str_replace('/','',$uid);
+        return str_replace('/uid/','/'.$cleanUID.'/', self::FEED_TYPES[$type]);
     }
 
-    public function sendMessage(string $feed, $message) {
+    /**
+     * 
+     * @param string $feed which feed the message goes to
+     * @param type $message
+     * @param int $retain
+     */
+    public function sendMessage(string $feed, $message, int $retain=0) {
 
         if (!is_object($message)) {
             $object = new \stdClass();
@@ -44,7 +57,7 @@ class CloudMQTT {
 
         $this->initMqtt();
         static::$mqtt->connect();
-        static::$mqtt->publish($feed, json_encode($object), 0);
+        static::$mqtt->publish($feed, json_encode($object), 0, $retain);
         static::$mqtt->close();
     }
 
