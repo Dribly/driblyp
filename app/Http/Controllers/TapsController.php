@@ -28,6 +28,15 @@ class TapsController extends Controller {
         return view('taps.index', ['taps' => $taps]);
     }
 
+    /**
+     * gets all sensor IDs for sensors which can control this tap
+     * @param type $tapID
+     * @return type
+     */
+    public function getSensorIdsForTapId($tapID) {
+        return TapControlledBySensor::where('tap_id', $tapID)->get();
+    }
+
     public function show(Request $request, $id) {
         try {
             $tap = self::getTap($id);
@@ -42,7 +51,7 @@ class TapsController extends Controller {
         }
         $allUnaddedSensorsAry = [];
         $allSensors = WaterSensor::where('owner', Auth::user()->id)->get(); //->list('description','id');
-        // Yuck! don't know how to map model to select
+// Yuck! don't know how to map model to select
         foreach ($allSensors as $sensor) {
             if (!array_key_exists($sensor->id, $sensors) && SensorsController::canSensorControlNewTap($sensor->id)) {
                 $allUnaddedSensorsAry[$sensor->id] = $sensor->description;
@@ -61,7 +70,7 @@ class TapsController extends Controller {
     }
 
     public static function getTap(int $tapID, string $uid = null): Tap {
-        // find by UID if presented
+// find by UID if presented
         if (!is_null($uid)) {
             $tap = Tap::where(['uid' => $uid, 'owner' => Auth::user()->id])->first();
         } else {
@@ -147,6 +156,32 @@ class TapsController extends Controller {
         return view('taps.remove');
     }
 
+    public function changeTapValveRoute(Request $request, int $id) {
+        try {
+            $tap = self::getTap($id);
+        } catch (TapNotFoundException $ex) {
+            $request->session()->flash('warning', 'Tap does not exist');
+        }
+        $success = $this->turnTap($tap, $request->new_value);
+        if ($success) {
+            $request->session()->flash('success', 'Tap requested to turn on');
+        }
+        else
+        {
+            $request->session()->flash('warning', 'Something went wrong turning the tap on');
+            
+        }
+    }
+
+    public function turnTap(Tap $tap, string $onOrOff = 'off', CloudMQTT $customServiceInstance) {
+        // Belt and braces. You have to REALLY mean 'on' here
+        if (trim(strToLower($onOrOff)) !== 'on') {
+            $onOrOff = 'off';
+        }
+        $message = $this->makeMessage($tap->uid, ['action'=>'turntap', 'value' => $onOrOff]);
+        $customServiceInstance->sendMessage(CloudMQTT::makeFeedName(CloudMQTT::FEED_TAP, $tap->uid), $message, 1);
+    }
+
     /**
      * Changes the tap status
      * @param Request $request
@@ -164,8 +199,8 @@ class TapsController extends Controller {
         $value = (bool) $request->post('tap_status');
         if (0.0 < $value && 100.0 >= $value) {
             $message = $this->makeMessage($tap->uid, ['tap_status' => $value]);
-            echo "writing message to " . CloudMQTT::makeFeedName(CloudMQTT::FEED_TAP);
-            $customServiceInstance->sendMessage(CloudMQTT::makeFeedName(CloudMQTT::FEED_TAP), $message);
+            echo "writing message to " . CloudMQTT::makeFeedName(CloudMQTT::FEED_TAP, $tap->uid);
+            $customServiceInstance->sendMessage(CloudMQTT::makeFeedName(CloudMQTT::FEED_TAP, $tap->uid), $message);
             $request->session()->flash('success', 'Status message sent to tap');
         } else {
 //            $request->session()->flash('warning', 'Invalid );
@@ -187,19 +222,20 @@ class TapsController extends Controller {
         $tap = Tap::where(['uid' => $uid])->first();
 
         if (($tap instanceof Tap)) {
-        switch ($messageType) {
-            case 'identify':
-                throw new \Exception('Cannot use ' . $messageType . ' in ' . $routeParts[1]);
-                break;
-            case 'update':
-                throw new \Exception('Cannot use ' . $messageType . ' in ' . $routeParts[1]);
+            switch ($messageType) {
+                case 'identify':
+                    throw new \Exception('Cannot use ' . $messageType . ' in ' . $routeParts[1]);
+                    break;
+                case 'update':
+                    throw new \Exception('Cannot use ' . $messageType . ' in ' . $routeParts[1]);
 //
 //                $sensor->last_reading = $messageObj->last_reading;
 //                $sensor->battery_level = $messageObj->battery_level;
 //                $sensor->last_signal_date = date('Y-m-d H:i:s');
 //                $sensor->last_signal = 'reading';
 //                $sensor->save();
-                break;
-        }}
+                    break;
+            }
+        }
     }
 }

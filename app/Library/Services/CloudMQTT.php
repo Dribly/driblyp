@@ -16,10 +16,10 @@ class CloudMQTT {
     const FEED_TAP = 20;
     const FEED_TAPIDENTIFY = 21;
     const FEED_TYPES = [
-        self::FEED_WATERSENSOR => "dribly/watersensors/uid/update",
-        self::FEED_WATERSENSORIDENTIFY => "dribly/watersensors/uid/identify",
-        self::FEED_TAP => "dribly/taps/uid/update",
-        self::FEED_TAPIDENTIFY => "dribly/taps/uid/identify"
+        self::FEED_WATERSENSOR => "dribly/watersensors/update/uid/",
+        self::FEED_WATERSENSORIDENTIFY => "dribly/watersensors/identify/uid/",
+        self::FEED_TAP => "dribly/taps/update/uid/",
+        self::FEED_TAPIDENTIFY => "dribly/taps/identify/uid/"
     ];
 
     /*

@@ -214,29 +214,14 @@ class SensorsController extends Controller {
         $value = (float) $request->post('value');
         if (0.0 < $value && 100.0 >= $value) {
             $message = $this->makeMessage($sensor->uid, ['reading' => $value]);
-            echo "writing message to " . CloudMQTT::makeFeedName(CloudMQTT::FEED_WATERSENSOR);
-            $customServiceInstance->sendMessage(CloudMQTT::makeFeedName(CloudMQTT::FEED_WATERSENSOR), $message);
+            echo "writing message to " . CloudMQTT::makeFeedName(CloudMQTT::FEED_WATERSENSOR, $sensor->uid);
+            $customServiceInstance->sendMessage(CloudMQTT::makeFeedName(CloudMQTT::FEED_WATERSENSOR, $sensor->uid), $message);
             $request->session()->flash('success', 'Fake value of ' . $value . ' sent');
         } else {
             $request->session()->flash('warning', 'Could not set fake value of ' . $value . ' to sensor ' . $id . ' because the number given was <1 or > 100');
         }
 
         return redirect(Route('sensors.show', (int) $id), 302);
-    }
-
-    /**
-     * This function creates a message object that this controller will read later
-     * @param string $deviceUid
-     * @param array $message
-     * @return \stdClass
-     */
-    public function makeMessage(string $deviceUid, array $message): \stdClass {
-        $resultObj = new \stdClass();
-        $resultObj->uid = $deviceUid;
-        foreach ($message as $key => $value) {
-            $resultObj->$key = $value;
-        }
-        return $resultObj;
     }
 
     /**
@@ -275,6 +260,31 @@ class SensorsController extends Controller {
                     $sensor->last_signal_date = date('Y-m-d H:i:s');
                     $sensor->last_signal = 'reading';
                     $sensor->save();
+
+                    // get the tapID that is controlled by this sensor
+                    $tapControlledBySensor = TapControlledBySensor::where('sensor_id', $sensor->id)->first();
+
+                    //Make a new tap controller and ask it for all the sensors
+                    $tapController = new \App\Http\Controllers\TapsController();
+                    $otherSensors = $tapController->getSensorIdsForTapId($tapControlledBySensor->tap_id)->get();
+
+                    $tap = Tap::find('id', $tapControlledBySensor->tap_id);
+
+                    $needsWater = false;
+                    foreach ($otherSensors as $sensorControllingTap) {
+                        $sensor = WaterSensor::where('id', $sensor->id)->first();
+                        // If ANY sensor needs water then we need water.
+                        $needsWater |= $sensor->needsWater();
+                    }
+
+                    if ($needsWater) {
+                        $tapController->turnOnTap($tap);
+                    } else {
+                        $tapController->turnOffTap($tap);
+                    }
+
+                    break;
+                default:
                     break;
             }
         }
