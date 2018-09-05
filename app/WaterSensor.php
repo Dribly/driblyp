@@ -1,9 +1,13 @@
 <?php
+
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\MQTTEndpointTrait;
+use App\Library\Services\CloudMQTT;
 
 class WaterSensor extends Model {
+    use MQTTEndpointTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -27,6 +31,7 @@ class WaterSensor extends Model {
     public function getUrl() {
         return route('sensors.show', ['id' => $this->id]);
     }
+
     /**
      * Determine if a sensor needs to be watered
      * @return bool
@@ -41,7 +46,12 @@ class WaterSensor extends Model {
         }
         return $needsWater;
     }
-    
-    
-    
-        }
+
+    public function sendFakeValue($value) {
+        $customServiceInstance = $this->getMQTTService();
+        $message = $this->makeMessage($this->uid, ['reading' => $value]);
+        echo "writing message to " . CloudMQTT::makeFeedName(CloudMQTT::FEED_WATERSENSOR, $this->uid);
+        $customServiceInstance->sendMessage(CloudMQTT::makeFeedName(CloudMQTT::FEED_WATERSENSOR, $this->uid), $message);
+    }
+
+}

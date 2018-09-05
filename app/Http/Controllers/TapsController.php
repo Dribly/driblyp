@@ -7,7 +7,7 @@ use App\WaterSensor;
 use App\TapControlledBySensor;
 use Illuminate\Support\Facades\Auth;
 use App\Exceptions\TapNotFoundException;
-use App\Http\Controllers\SensorsController;
+use Illuminate\Database\QueryException;
 use App\Exceptions\TapAlreadyRegisteredException;
 
 class TapsController extends Controller {
@@ -57,7 +57,6 @@ class TapsController extends Controller {
                 $allUnaddedSensorsAry[$sensor->id] = $sensor->description;
             }
         }
-//            $lastValue = $customServiceInstance->readMessage(CloudMQTT::FEED_WATERSENSOR.'/'.(int)$id, 5);
 
         return view('taps.show', [
             'statuses' => $this->tapStatuses,
@@ -102,7 +101,7 @@ class TapsController extends Controller {
             } catch (TapAlreadyRegisteredException $e) {
                 $request->session()->flash('warning', 'This tap has already been registered, please re-enter the UID carefully');
                 return view('taps.add', ['statuses' => $this->tapStatuses]);
-            } catch (Illuminate\Database\QueryException $e) {
+            } catch (QueryException $e) {
                 $request->session()->flash('warning', 'Could not add tap: Internal error');
                 return view('taps.add', ['statuses' => $this->tapStatuses]);
             } catch (\Exception $e) {
@@ -162,7 +161,7 @@ class TapsController extends Controller {
         } catch (TapNotFoundException $ex) {
             $request->session()->flash('warning', 'Tap does not exist');
         }
-        $success = $this->turnTap($tap, $request->new_value);
+        $success = $tap->turnTap($request->new_value);
         if ($success) {
             $request->session()->flash('success', 'Tap requested to turn on');
         }
@@ -171,51 +170,6 @@ class TapsController extends Controller {
             $request->session()->flash('warning', 'Something went wrong turning the tap on');
             
         }
-    }
-
-    public function turnTap(Tap $tap, string $onOrOff = 'off', CloudMQTT $customServiceInstance) {
-        // Belt and braces. You have to REALLY mean 'on' here
-        if (trim(strToLower($onOrOff)) !== 'on') {
-            $onOrOff = 'off';
-        }
-        $message = $this->makeMessage($tap->uid, ['action'=>'turntap', 'value' => $onOrOff]);
-        $customServiceInstance->sendMessage(CloudMQTT::makeFeedName(CloudMQTT::FEED_TAP, $tap->uid), $message, 1);
-    }
-
-    /**
-     * Changes the tap status
-     * @param Request $request
-     * @param int $id
-     * @param \App\Http\Controllers\CloudMQTT $customServiceInstance
-     * @return type
-     */
-    public function changeTapStatus(Request $request, int $id, CloudMQTT $customServiceInstance) {
-        $saveLastValue = false;
-        try {
-            $tap = self::getTap($id);
-        } catch (TapNotFoundException $ex) {
-            return view('404');
-        }
-        $value = (bool) $request->post('tap_status');
-        if (0.0 < $value && 100.0 >= $value) {
-            $message = $this->makeMessage($tap->uid, ['tap_status' => $value]);
-            echo "writing message to " . CloudMQTT::makeFeedName(CloudMQTT::FEED_TAP, $tap->uid);
-            $customServiceInstance->sendMessage(CloudMQTT::makeFeedName(CloudMQTT::FEED_TAP, $tap->uid), $message);
-            $request->session()->flash('success', 'Status message sent to tap');
-        } else {
-//            $request->session()->flash('warning', 'Invalid );
-        }
-        try {
-            if ($saveLastValue) {
-                $tap->is_on = $value;
-                $tap->save();
-            }
-        } catch (\Exception $e) {
-            var_dump($e);
-            die();
-        }
-
-        return redirect(Route('taps.show', (int) $id), 302);
     }
 
     public function handleMessage($uid, $messageType, \stdClass $messageObj) {

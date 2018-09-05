@@ -4,16 +4,16 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class ModelCurrentStateInDbForTapsAndSensors extends Migration {
-
+class AddTapOnOffTimes extends Migration {
     /**
      * Run the migrations.
      *
      * @return void
      */
     public function up() {
-        Schema::table('water_sensors', function (Blueprint $table) {
-            $table->float('last_reading', 6,2)->nullable();
+        Schema::table('taps', function (Blueprint $table) {
+            $table->datetime('last_on')->nullable();
+            $table->datetime('last_off')->nullable();
         }); //
     }
 
@@ -23,8 +23,9 @@ class ModelCurrentStateInDbForTapsAndSensors extends Migration {
      * @return void
      */
     public function down() {
-        Schema::table('water_sensors', function (Blueprint $table) {
-            $table->dropColumn(['last_reading']);
+        Schema::table('message_logs', function (Blueprint $table) {
+            $table->dropColumn(['last_on']);
+            $table->dropColumn(['last_off']);
         });
     }
 }

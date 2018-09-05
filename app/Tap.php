@@ -2,9 +2,13 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Exceptions\SensorNotFoundException;
+use Exceptions\TapNotFoundException;
+use App\Traits\MQTTEndpointTrait;
+use App\Library\Services\CloudMQTT;
 
-class Tap extends Model {
-
+class Tap extends Model{
+use MQTTEndpointTrait;
     /**
      * The attributes that are mass assignable.
      *
@@ -23,6 +27,19 @@ class Tap extends Model {
     protected $hidden = [
         'owner'
     ];
+
+    public function turnTap(string $onOrOff = 'off') {
+
+        $customServiceInstance = $this->getMQTTService();
+
+        // Belt and braces. You have to REALLY mean 'on' here
+        if (trim(strToLower($onOrOff)) !== 'on') {
+            $onOrOff = 'off';
+        }
+        $message = $this->makeMessage($this->uid, ['action'=>'turntap', 'value' => $onOrOff]);
+        $customServiceInstance->sendMessage(CloudMQTT::makeFeedName(CloudMQTT::FEED_TAP, $this->uid), $message, 1);
+    }
+
 
     public function getUrl() {
         return route('taps.show', ['id' => $this->id]);

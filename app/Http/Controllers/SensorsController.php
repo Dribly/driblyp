@@ -1,21 +1,46 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\WaterSensor;
 use App\Tap;
 use App\TapControlledBySensor;
-use App\Library\Services\CloudMqtt; //NOTE not clear whhy netbeans doesnt think this is used
 use Illuminate\Support\Facades\Auth;
 use App\Exceptions\TapNotFoundException;
 use App\Exceptions\SensorNotFoundException;
 use App\Exceptions\SensorIncompatibleWithTapException;
-use App\Http\Controllers\TapsController;
 use App\Exceptions\WaterSensorAlreadyRegisteredException;
 
 class SensorsController extends Controller {
 
     private $sensorStatuses = ['active' => 'Active', 'inactive' => 'Inactive', 'deleted' => 'Deleted'];
+
+    /**
+     * Sends a false value to mqtt, for testing
+     * @param Request $request
+     * @param int $id
+     * @param \App\Http\Controllers\CloudMQTT $customServiceInstance
+     * @return type
+     */
+    public function sendFakeValue(Request $request, int $id) {
+        try {
+            $sensor = self::getSensor($id);
+        } catch (SensorNotFoundException $ex) {
+            return view('404');
+        }
+        $value = (float)$request->post('value');
+
+        if (0.0 < $value && 100.0 >= $value) {
+            $sensor->sendFakeValue($value);
+
+            $request->session()->flash('success', 'Fake value of ' . $value . ' sent');
+        } else {
+            $request->session()->flash('warning', 'Could not set fake value of ' . $value . ' to sensor ' . $id . ' because the number given was <1 or > 100');
+        }
+
+        return redirect(Route('sensors.show', (int)$id), 302);
+    }
 
     public function index(Request $request) {
         $sensors = WaterSensor::where('owner', Auth::user()->id)->get();
@@ -77,7 +102,7 @@ class SensorsController extends Controller {
     }
 
     /**
-     * 
+     *
      * @param int $sensorID
      * @param int $tapID
      * @return bool
@@ -116,19 +141,19 @@ class SensorsController extends Controller {
     }
 
     /**
-     * Controller function to connect a sensor to a tap. 
+     * Controller function to connect a sensor to a tap.
      * @param Request $request
      * @param int $id
      * @return type
      */
     public function connectToTap(Request $request, int $id) {
         try {
-            self::controlTapWithSensor($id, (int) $request->post('tap_id'));
+            self::controlTapWithSensor($id, (int)$request->post('tap_id'));
             $request->session()->flash('success', 'Tap connected!');
         } catch (\Exception $ex) {
             $request->session()->flash('warning', 'Tap could not be connected: ' . $ex->getMessage());
         }
-        return redirect(Route('sensors.show', (int) $id), 302);
+        return redirect(Route('sensors.show', (int)$id), 302);
     }
 
     public static function getSensor(int $sensorID, string $uid = null): WaterSensor {
@@ -136,7 +161,7 @@ class SensorsController extends Controller {
         if (!is_null($uid)) {
             $sensor = WaterSensor::where(['uid' => $uid, 'owner' => Auth::user()->id])->first();
         } else {
-            $sensor = WaterSensor::where(['id' => (int) $sensorID, 'owner' => Auth::user()->id])->first();
+            $sensor = WaterSensor::where(['id' => (int)$sensorID, 'owner' => Auth::user()->id])->first();
         }
         if (!$sensor instanceof WaterSensor) {
             throw new SensorNotFoundException();
@@ -163,7 +188,7 @@ class SensorsController extends Controller {
             $request->session()->flash('warning', 'Could not change status: ' . $e->getMessage());
         }
 
-        return redirect(Route('sensors.show', (int) $id), 302);
+        return redirect(Route('sensors.show', (int)$id), 302);
     }
 
     public function add(Request $request) {
@@ -199,34 +224,8 @@ class SensorsController extends Controller {
     }
 
     /**
-     * Sends a false value to mqtt, for testing
-     * @param Request $request
-     * @param int $id
-     * @param \App\Http\Controllers\CloudMQTT $customServiceInstance
-     * @return type
-     */
-    public function sendFakeValue(Request $request, int $id, CloudMQTT $customServiceInstance) {
-        try {
-            $sensor = self::getSensor($id);
-        } catch (SensorNotFoundException $ex) {
-            return view('404');
-        }
-        $value = (float) $request->post('value');
-        if (0.0 < $value && 100.0 >= $value) {
-            $message = $this->makeMessage($sensor->uid, ['reading' => $value]);
-            echo "writing message to " . CloudMQTT::makeFeedName(CloudMQTT::FEED_WATERSENSOR, $sensor->uid);
-            $customServiceInstance->sendMessage(CloudMQTT::makeFeedName(CloudMQTT::FEED_WATERSENSOR, $sensor->uid), $message);
-            $request->session()->flash('success', 'Fake value of ' . $value . ' sent');
-        } else {
-            $request->session()->flash('warning', 'Could not set fake value of ' . $value . ' to sensor ' . $id . ' because the number given was <1 or > 100');
-        }
-
-        return redirect(Route('sensors.show', (int) $id), 302);
-    }
-
-    /**
      * This handles whatever comes in from presumably mqtt
-     * @param string $uid 
+     * @param string $uid
      * @param string $messageType
      * @param \stdClass $messageObj The object we made above with the message in it.
      * @throws SensorNotFoundException
@@ -263,26 +262,31 @@ class SensorsController extends Controller {
 
                     // get the tapID that is controlled by this sensor
                     $tapControlledBySensor = TapControlledBySensor::where('sensor_id', $sensor->id)->first();
+                    if ($tapControlledBySensor instanceof TapControlledBySensor) {
 
-                    //Make a new tap controller and ask it for all the sensors
-                    $tapController = new \App\Http\Controllers\TapsController();
-                    $otherSensors = $tapController->getSensorIdsForTapId($tapControlledBySensor->tap_id)->get();
+                        //Make a new tap controller and ask it for all the sensors
+                        $tapController = new \App\Http\Controllers\TapsController();
+                        $otherSensors = $tapController->getSensorIdsForTapId($tapControlledBySensor->tap_id)->get();
 
-                    $tap = Tap::find('id', $tapControlledBySensor->tap_id);
+                        $tap = Tap::find('id', $tapControlledBySensor->tap_id);
 
-                    $needsWater = false;
-                    foreach ($otherSensors as $sensorControllingTap) {
-                        $sensor = WaterSensor::where('id', $sensor->id)->first();
-                        // If ANY sensor needs water then we need water.
-                        $needsWater |= $sensor->needsWater();
+                        $needsWater = false;
+                        foreach ($otherSensors as $sensorControllingTap) {
+                            $sensor = WaterSensor::where('id', $sensor->id)->first();
+                            // If ANY sensor needs water then we need water.
+                            $needsWater |= $sensor->needsWater();
+                        }
+
+                        if ($needsWater) {
+                            $tap->turnOnTap();
+                        } else {
+                            $tap->turnOffTap();
+                        }
                     }
-
-                    if ($needsWater) {
-                        $tapController->turnOnTap($tap);
-                    } else {
-                        $tapController->turnOffTap($tap);
+                    else
+                    {
+                        ; // ignore
                     }
-
                     break;
                 default:
                     break;

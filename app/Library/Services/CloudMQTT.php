@@ -34,7 +34,7 @@ class CloudMQTT {
      * @param string $uid
      * @return type
      */
-    public static function makeFeedName(int $type, string $uid) {
+    public static function makeFeedName(int $type, string $uid):string {
         $cleanUID = str_replace('/','',$uid);
         return str_replace('/uid/','/'.$cleanUID.'/', self::FEED_TYPES[$type]);
     }
