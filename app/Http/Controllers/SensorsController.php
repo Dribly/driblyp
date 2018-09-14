@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\WaterSensor;
 use App\Tap;
-use App\TapControlledBySensor;
 use Illuminate\Support\Facades\Auth;
 use App\Exceptions\TapNotFoundException;
 use App\Exceptions\SensorNotFoundException;
@@ -53,17 +52,16 @@ class SensorsController extends Controller {
         } catch (SensorNotFoundException $ex) {
             return view('404');
         }
-        $sensorID = $sensor->id;
-        $sensorMap = TapControlledBySensor::where('sensor_id', $sensorID)->get();
-        $taps = [];
-        foreach ($sensorMap as $sensorMapItem) {
-            $taps[$sensorMapItem->tap_id] = Tap::where('id', $sensorMapItem->tap_id)->first();
+        $taps = $sensor->taps;
+        $addedTapsArray = [];
+        foreach ($taps as $tap){
+            $addedTapsArray[$tap->id] = $tap->description;
         }
         $allUnaddedTapsAry = [];
         $allTaps = Tap::where('owner', Auth::user()->id)->get(); //->list('description','id');
 // Yuck! don't know how to map model to select
         foreach ($allTaps as $tap) {
-            if (!array_key_exists($tap->id, $taps)) {
+            if (!array_key_exists($tap->id, $addedTapsArray)) {
                 $allUnaddedTapsAry[$tap->id] = $tap->description;
             }
         }
@@ -72,29 +70,18 @@ class SensorsController extends Controller {
             'statuses' => $this->sensorStatuses,
             'sensor' => $sensor,
             'lastvalue' => 0,
-            'sensorMap' => $sensorMap,
             'taps' => $taps,
             'allTaps' => $allUnaddedTapsAry,
             'fakeValues' => [0 => 0, 1 => 1, 2 => 2, 5 => 5, 7 => 7, 9 => 9, 10 => 10, 20 => 20, 30 => 30, 40 => 40, 55 => 55, 66 => 66, 77 => 77, 88 => 88, 99 => 99, 100 => 100, 101 => 101]]);
     }
 
     /**
-     * Get all taps controlled by this sensor
-     * NOTE a sensor can only control a single tap
-     * @param int $sensorID
-     * @return array
-     */
-    public static function getTapsControlledBySensor(int $sensorID) {
-        return TapControlledBySensor::where('sensor_id', $sensorID)->get();
-    }
-
-    /**
      * check if a sensor can have any new taps asspcoated with it
      * HINT: if it has one then no!
-     * @param int $sensorID the ID of the sensor
+     * @param WaterSensor $sensor the ID of the sensor
      */
-    public static function canSensorControlNewTap(int $sensorID): bool {
-        if (0 === count(self::getTapsControlledBySensor($sensorID))) {
+    public static function canSensorControlNewTap(WaterSensor $sensor): bool {
+        if (0 === count($sensor->taps)) {
             return true;
         } else {
             return false;
@@ -123,13 +110,9 @@ class SensorsController extends Controller {
         // If the sensor has no taps, and they have the same owner
         // Obvs we checked the owner above, but this protects against
         // future changes
-        if (self::canSensorControlNewTap($sensorID) && $sensor->owner === $tap->owner) {
-
-            $TapControlledBySensor = new TapControlledBySensor();
-            $TapControlledBySensor->tap_id = $tap->id;
-            $TapControlledBySensor->sensor_id = $sensor->id;
+        if (self::canSensorControlNewTap($sensor) && $sensor->owner === $tap->owner) {
             try {
-                $TapControlledBySensor->save();
+                $tap->waterSensors()->attach($sensor);
             } catch (\Exception $e) {
                 throw $e;
             }
@@ -260,33 +243,7 @@ class SensorsController extends Controller {
                     $sensor->last_signal = 'reading';
                     $sensor->save();
 
-                    // get the tapID that is controlled by this sensor
-                    $tapControlledBySensor = TapControlledBySensor::where('sensor_id', $sensor->id)->first();
-                    if ($tapControlledBySensor instanceof TapControlledBySensor) {
 
-                        //Make a new tap controller and ask it for all the sensors
-                        $tapController = new \App\Http\Controllers\TapsController();
-                        $otherSensors = $tapController->getSensorIdsForTapId($tapControlledBySensor->tap_id)->get();
-
-                        $tap = Tap::find('id', $tapControlledBySensor->tap_id);
-
-                        $needsWater = false;
-                        foreach ($otherSensors as $sensorControllingTap) {
-                            $sensor = WaterSensor::where('id', $sensor->id)->first();
-                            // If ANY sensor needs water then we need water.
-                            $needsWater |= $sensor->needsWater();
-                        }
-
-                        if ($needsWater) {
-                            $tap->turnOnTap();
-                        } else {
-                            $tap->turnOffTap();
-                        }
-                    }
-                    else
-                    {
-                        ; // ignore
-                    }
                     break;
                 default:
                     break;

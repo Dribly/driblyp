@@ -38,8 +38,13 @@ use MQTTEndpointTrait;
         }
         $message = $this->makeMessage($this->uid, ['action'=>'turntap', 'value' => $onOrOff]);
         $customServiceInstance->sendMessage(CloudMQTT::makeFeedName(CloudMQTT::FEED_TAP, $this->uid), $message, 1);
+        $this->requested_state = $onOrOff;
+        $this->save();
     }
 
+    public function waterSensors() {
+        return $this->belongsToMany('App\WaterSensor');
+    }
 
     public function getUrl() {
         return route('taps.show', ['id' => $this->id]);

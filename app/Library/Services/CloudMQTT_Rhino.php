@@ -4,7 +4,7 @@ namespace App\Library\Services;
 use Bluerhinos\phpMQTT;
 Use App\MessageLog;
 
-class CloudMQTT {
+class CloudMQTT_Rhino {
 
     const SERVER = 'm21.cloudmqtt.com';
     const USERNAME = 'powellblyth';

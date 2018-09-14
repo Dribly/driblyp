@@ -13,8 +13,8 @@ class StoreExpectedTapStatus extends Migration {
      */
     public function up() {
         Schema::table('taps', function (Blueprint $table) {
-            $table->enum('expected_state', ['on','off'])->nullable();
-            $table->enum('reported_state', ['on','off'])->nullable();
+            $table->enum('expected_state', ['on','off'])->default('off');
+            $table->enum('reported_state', ['on','off'])->default('off');
         }); //
     }
 

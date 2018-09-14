@@ -18,17 +18,9 @@ class ListenMqtt extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Listens to MQTT and carries on';
 
-    /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
+
 
     /**
      * Execute the console command.

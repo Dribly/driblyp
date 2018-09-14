@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-
+use App\Tap;
 
 class CheckOverrunningTaps extends Command
 {
@@ -38,6 +38,6 @@ class CheckOverrunningTaps extends Command
      */
     public function handle()
     {
-        //
+//        $tap = Tap::where()->
     }
 }

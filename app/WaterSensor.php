@@ -53,5 +53,8 @@ class WaterSensor extends Model {
         echo "writing message to " . CloudMQTT::makeFeedName(CloudMQTT::FEED_WATERSENSOR, $this->uid);
         $customServiceInstance->sendMessage(CloudMQTT::makeFeedName(CloudMQTT::FEED_WATERSENSOR, $this->uid), $message);
     }
+    public function taps() {
+        return $this->belongsToMany('App\Tap');
+    }
 
 }

@@ -15,11 +15,13 @@ class CloudMQTT {
     const FEED_WATERSENSORIDENTIFY = 11;
     const FEED_TAP = 20;
     const FEED_TAPIDENTIFY = 21;
+    const FEED_TAPREPLY = 22;
     const FEED_TYPES = [
         self::FEED_WATERSENSOR => "dribly/watersensors/update/uid/",
         self::FEED_WATERSENSORIDENTIFY => "dribly/watersensors/identify/uid/",
         self::FEED_TAP => "dribly/taps/update/uid/",
-        self::FEED_TAPIDENTIFY => "dribly/taps/identify/uid/"
+        self::FEED_TAPIDENTIFY => "dribly/taps/identify/uid/",
+        self::FEED_TAPREPLY => "dribly/taps/update/uid/",
     ];
 
     /*
@@ -64,7 +66,6 @@ class CloudMQTT {
     /**
      * timeout in seconds
      * @param string $feed
-     * @param int $timeout
      */
     public function readMessage(string $feed) {
         $this->initMqtt();

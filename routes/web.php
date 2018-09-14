@@ -51,10 +51,13 @@ Route::get('/taps/add',
 Route::post('/taps/add', 
         ['as' => 'taps.add',
     'uses' => 'TapsController@add'])->middleware('auth');
-Route::post('/taps/{id}/changestatus', 
-        ['as' => 'taps.changestatus',
-    'uses' => 'TapsController@changestatus'])->middleware('auth');
-Route::get('/taps/{id}', 
+Route::post('/taps/{id}/changestatus',
+    ['as' => 'taps.changestatus',
+        'uses' => 'TapsController@changestatus'])->middleware('auth');
+Route::post('/taps/{id}/turntap',
+    ['as' => 'taps.turntap',
+        'uses' => 'TapsController@turnOnOrOff'])->middleware('auth');
+Route::get('/taps/{id}',
         ['as' => 'taps.show',
     'uses' => 'TapsController@show'])->middleware('auth');
 Route::post('/taps/{id}/connectToSensor', 

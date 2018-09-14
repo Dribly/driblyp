@@ -1,10 +1,10 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Tap;
 use App\WaterSensor;
-use App\TapControlledBySensor;
 use Illuminate\Support\Facades\Auth;
 use App\Exceptions\TapNotFoundException;
 use Illuminate\Database\QueryException;
@@ -13,6 +13,7 @@ use App\Exceptions\TapAlreadyRegisteredException;
 class TapsController extends Controller {
 
     private $tapStatuses = ['active' => 'Active', 'inactive' => 'Inactive', 'deleted' => 'Deleted'];
+    private $onOrOff = ['on' => 'On', 'off' => 'Off'];
 
     /**
      * Create a new controller instance.
@@ -28,41 +29,34 @@ class TapsController extends Controller {
         return view('taps.index', ['taps' => $taps]);
     }
 
-    /**
-     * gets all sensor IDs for sensors which can control this tap
-     * @param type $tapID
-     * @return type
-     */
-    public function getSensorIdsForTapId($tapID) {
-        return TapControlledBySensor::where('tap_id', $tapID)->get();
-    }
-
     public function show(Request $request, $id) {
         try {
             $tap = self::getTap($id);
         } catch (TapNotFoundException $ex) {
             return view('404');
         }
-        $tapID = $tap->id;
-        $sensorMap = TapControlledBySensor::where('tap_id', $tapID)->get();
-        $sensors = [];
-        foreach ($sensorMap as $sensorMapItem) {
-            $sensors[$sensorMapItem->sensor_id] = WaterSensor::where('id', $sensorMapItem->sensor_id)->first();
+        $sensors = $tap->waterSensors;
+
+        $allAddedSensorsAry = [];
+        foreach ($sensors as $sensor){
+            $allAddedSensorsAry[$sensor->id] = $sensor->description;
         }
+
         $allUnaddedSensorsAry = [];
+
         $allSensors = WaterSensor::where('owner', Auth::user()->id)->get(); //->list('description','id');
 // Yuck! don't know how to map model to select
         foreach ($allSensors as $sensor) {
-            if (!array_key_exists($sensor->id, $sensors) && SensorsController::canSensorControlNewTap($sensor->id)) {
+            if (!array_key_exists($sensor->id, $allAddedSensorsAry) && SensorsController::canSensorControlNewTap($sensor)) {
                 $allUnaddedSensorsAry[$sensor->id] = $sensor->description;
             }
         }
 
         return view('taps.show', [
             'statuses' => $this->tapStatuses,
+            'onOrOffs' => $this->onOrOff,
             'tap' => $tap,
             'lastvalue' => 0,
-            'sensorMap' => $sensorMap,
             'sensors' => $sensors,
             'allSensors' => $allUnaddedSensorsAry]);
 //            return view('taps.add', );
@@ -73,7 +67,7 @@ class TapsController extends Controller {
         if (!is_null($uid)) {
             $tap = Tap::where(['uid' => $uid, 'owner' => Auth::user()->id])->first();
         } else {
-            $tap = Tap::where(['id' => (int) $tapID, 'owner' => Auth::user()->id])->first();
+            $tap = Tap::where(['id' => (int)$tapID, 'owner' => Auth::user()->id])->first();
         }
         if (!$tap instanceof Tap) {
             throw new TapNotFoundException();
@@ -132,23 +126,39 @@ class TapsController extends Controller {
             $request->session()->flash('warning', 'Could not change status: ' . $e->getMessage());
         }
 
-        return redirect(Route('taps.show', (int) $id), 302);
+        return redirect(Route('taps.show', (int)$id), 302);
+    }
+
+    public function turnOnOrOff(Request $request, $id) {
+        try {
+            $tap = self::getTap($id);
+        } catch (TapNotFoundException $ex) {
+            return view('404');
+        }
+        $status = $request->post('expected_state');
+        if (in_array($status, array_keys($this->onOrOff))) {
+            $tap->turnTap($status);
+        } else {
+            die(var_dump($status));
+        }
+
+        return redirect(Route('taps.show', (int)$id), 302);
     }
 
     /**
-     * Controller function to connect a sensor to a tap. 
+     * Controller function to connect a sensor to a tap.
      * @param Request $request
      * @param int $id
      * @return type
      */
     public function connectToSensor(Request $request, int $id) {
         try {
-            SensorsController::controlTapWithSensor((int) $request->post('sensor_id'), $id);
+            SensorsController::controlTapWithSensor((int)$request->post('sensor_id'), $id);
             $request->session()->flash('success', 'Connected the tap to the water sensor');
         } catch (\Exception $ex) {
             $request->session()->flash('warning', 'Could not connect the tap to the water sensor: ' . $e->getMessage());
         }
-        return redirect(Route('taps.show', (int) $id), 302);
+        return redirect(Route('taps.show', (int)$id), 302);
     }
 
     public function remove(Request $request) {
@@ -164,11 +174,9 @@ class TapsController extends Controller {
         $success = $tap->turnTap($request->new_value);
         if ($success) {
             $request->session()->flash('success', 'Tap requested to turn on');
-        }
-        else
-        {
+        } else {
             $request->session()->flash('warning', 'Something went wrong turning the tap on');
-            
+
         }
     }
 
@@ -176,20 +184,33 @@ class TapsController extends Controller {
         $tap = Tap::where(['uid' => $uid])->first();
 
         if (($tap instanceof Tap)) {
+            $tap->last_signal = $messageType;
+            $tap->last_signal_date = date('Y-m-d H:i:s');
+            if (!empty($messageObj->battery_level)) {
+                $tap->last_battery_level = $messageObj->last_battery_level;
+            }
             switch ($messageType) {
                 case 'identify':
                     throw new \Exception('Cannot use ' . $messageType . ' in ' . $routeParts[1]);
                     break;
                 case 'update':
+                    $tap->reported_state = $messageObj->state;
+                    switch ($tap->reported_state) {
+                        case 'on':
+                            $tap->last_on = date('Y-m-d H:i:s');
+                            break;
+                        case 'off':
+                            $tap->last_off = date('Y-m-d H:i:s');
+                            break;
+                        default:
+                            ;
+                            break;
+                    }
                     throw new \Exception('Cannot use ' . $messageType . ' in ' . $routeParts[1]);
-//
-//                $sensor->last_reading = $messageObj->last_reading;
-//                $sensor->battery_level = $messageObj->battery_level;
-//                $sensor->last_signal_date = date('Y-m-d H:i:s');
-//                $sensor->last_signal = 'reading';
-//                $sensor->save();
+
                     break;
             }
+            $tap->save();
         }
     }
 }
