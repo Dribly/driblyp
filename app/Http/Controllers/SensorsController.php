@@ -24,7 +24,7 @@ class SensorsController extends Controller {
      */
     public function sendFakeValue(Request $request, int $id) {
         try {
-            $sensor = self::getSensor($id);
+            $sensor = WaterSensor::getSensor(Auth::user()->id, $id);
         } catch (SensorNotFoundException $ex) {
             return view('404');
         }
@@ -48,7 +48,7 @@ class SensorsController extends Controller {
 
     public function show(Request $request, int $id) {
         try {
-            $sensor = self::getSensor($id);
+            $sensor = WaterSensor::getSensor(Auth::user()->id, $id);
         } catch (SensorNotFoundException $ex) {
             return view('404');
         }
@@ -98,12 +98,12 @@ class SensorsController extends Controller {
      */
     public static function controlTapWithSensor(int $sensorID, int $tapID): bool {
         try {
-            $sensor = self::getSensor($sensorID);
+            $sensor = WaterSensor::getSensor(Auth::user()->id, $sensorID);
         } catch (SensorNotFoundException $ex) {
             return view('404');
         }
         try {
-            $tap = TapsController::getTap($tapID);
+            $tap = Tap::getTap(Auth::user()->id, $tapID);
         } catch (TapNotFoundException $e) {
             return view('404');
         }
@@ -139,22 +139,9 @@ class SensorsController extends Controller {
         return redirect(Route('sensors.show', (int)$id), 302);
     }
 
-    public static function getSensor(int $sensorID, string $uid = null): WaterSensor {
-// find by UID if presented
-        if (!is_null($uid)) {
-            $sensor = WaterSensor::where(['uid' => $uid, 'owner' => Auth::user()->id])->first();
-        } else {
-            $sensor = WaterSensor::where(['id' => (int)$sensorID, 'owner' => Auth::user()->id])->first();
-        }
-        if (!$sensor instanceof WaterSensor) {
-            throw new SensorNotFoundException();
-        }
-        return $sensor;
-    }
-
     public function changestatus(Request $request, $id) {
         try {
-            $sensor = self::getSensor($id);
+            $sensor = WaterSensor::getSensor(Auth::user()->id, $id);
         } catch (SensorNotFoundException $ex) {
             return view('404');
         }
@@ -181,7 +168,7 @@ class SensorsController extends Controller {
             $sensor->description = $request->post('description');
             $sensor->uid = $request->post('uid');
             try {
-                $dupeCheck = WaterSensor::where('uid', $tap->uid)->first();
+                $dupeCheck = WaterSensor::where('uid', $sensor->uid)->first();
                 if ($dupeCheck instanceof WaterSensor) {
                     throw new WaterSensorAlreadyRegisteredException();
                 }
@@ -204,50 +191,5 @@ class SensorsController extends Controller {
 
     public function apiUpdate(Request $request, int $id) {
         return view('404');
-    }
-
-    /**
-     * This handles whatever comes in from presumably mqtt
-     * @param string $uid
-     * @param string $messageType
-     * @param \stdClass $messageObj The object we made above with the message in it.
-     * @throws SensorNotFoundException
-     */
-    public function handleMessage(string $uid, string $messageType, \stdClass $messageObj) {
-
-        $sensor = WaterSensor::where(['uid' => $uid])->first();
-
-        // Ifgnore if not a valid sensor
-        if ($sensor instanceof WaterSensor) {
-            switch ($messageType) {
-                case 'identify':
-                    if (isset($messageObj->reading)) {
-                        $sensor->last_reading = $messageObj->reading;
-                    }
-                    if (isset($messageObj->battery_level)) {
-                        $sensor->battery_level = $messageObj->battery_level;
-                    }
-                    $sensor->last_signal_date = date('Y-m-d H:i:s');
-                    $sensor->last_signal = 'identify';
-                    $sensor->save();
-                    break;
-                case 'update':
-
-                    if (isset($messageObj->reading)) {
-                        $sensor->last_reading = $messageObj->reading;
-                    }
-                    if (isset($messageObj->battery_level)) {
-                        $sensor->battery_level = $messageObj->battery_level;
-                    }
-                    $sensor->last_signal_date = date('Y-m-d H:i:s');
-                    $sensor->last_signal = 'reading';
-                    $sensor->save();
-
-
-                    break;
-                default:
-                    break;
-            }
-        }
     }
 }

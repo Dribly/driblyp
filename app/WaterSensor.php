@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\MQTTEndpointTrait;
 use App\Library\Services\CloudMQTT;
+use App\Exceptions\SensorNotFoundException;
 
 class WaterSensor extends Model {
     use MQTTEndpointTrait;
@@ -47,6 +48,19 @@ class WaterSensor extends Model {
         return $needsWater;
     }
 
+    public static function getSensor(int $ownerId, int $sensorID, string $uid = null): WaterSensor {
+// find by UID if presented
+        if (!is_null($uid)) {
+            $sensor = WaterSensor::where(['uid' => $uid, 'owner' => $ownerId])->first();
+        } else {
+            $sensor = WaterSensor::where(['id' => (int)$sensorID, 'owner' => $ownerId])->first();
+        }
+        if (!$sensor instanceof WaterSensor) {
+            throw new SensorNotFoundException();
+        }
+        return $sensor;
+    }
+
     public function sendFakeValue($value) {
         $customServiceInstance = $this->getMQTTService();
         $message = $this->makeMessage($this->uid, ['reading' => $value]);
@@ -56,5 +70,36 @@ class WaterSensor extends Model {
     public function taps() {
         return $this->belongsToMany('App\Tap');
     }
+    /**
+     * This handles whatever comes in from presumably mqtt. Should be in WaterSensorHandler
+     * @param string $uid
+     * @param string $messageType
+     * @param \stdClass $messageObj The object we made above with the message in it.
+     * @throws SensorNotFoundException
+     */
+    public static function handleMessage(string $uid, string $messageType, \stdClass $messageObj) {
 
+        $sensor = WaterSensor::where(['uid' => $uid])->first();
+
+        // Ifgnore if not a valid sensor
+        if ($sensor instanceof WaterSensor) {
+            switch ($messageType) {
+                case 'identify':
+                    break;
+                case 'update':
+                    if (isset($messageObj->reading)) {
+                        $sensor->last_reading = $messageObj->reading;
+                    }
+                    break;
+                default:
+                    break;
+            }
+            if (isset($messageObj->battery_level)) {
+                $sensor->battery_level = $messageObj->battery_level;
+            }
+            $sensor->last_signal_date = date('Y-m-d H:i:s');
+            $sensor->last_signal = 'identify';
+            $sensor->save();
+        }
+    }
 }

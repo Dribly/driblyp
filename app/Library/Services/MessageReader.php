@@ -3,6 +3,9 @@ namespace App\Library\Services;
 
 Use App\MessageLog;
 use App\Exceptions\InvalidMessageException;
+use App\WaterSensor;
+use App\Tap;
+
 class MessageReader {
 
     /**
@@ -39,12 +42,10 @@ class MessageReader {
         switch ($routeParts[1]) {
             
             case 'watersensors':
-                $controller = new \App\Http\Controllers\SensorsController();
-                $controller->handleMessage($messageObj->uid, $routeParts[2], $messageObj);
+                WaterSensor::handleMessage($messageObj->uid, $routeParts[2], $messageObj);
                 
             case 'taps':
-                $controller = new \App\Http\Controllers\TapsController();
-                $controller->handleMessage($messageObj->uid, $routeParts[2], $messageObj);
+                Tap::handleMessage($messageObj->uid, $routeParts[2], $messageObj);
                 // EEP this should not happen, we should not be reading tap messages
                 ;
                 break;
