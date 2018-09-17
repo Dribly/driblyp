@@ -32,18 +32,20 @@
                     <hr class="light"/>
 
                     {{ Form::model($sensor, array('route' => array('sensors.sendFakeValue', $sensor->id))) }}
-                    {{ Form::select('value', $fakeValues, null, ['class' => 'form-control']) }}
+                    {{ Form::select('last_reading', $fakeValues, null, ['class' => 'form-control']) }}
 
 
                     {{ Form::submit('Send Fake Value', ['class' => 'btn btn-primary']) }}
                     {{ Form::Close() }}
+
+
 
                     <hr class="light"/>
                     @if  (count($taps) > 0)
                         <h3>{{count($taps)}} tap{{(count($taps) == 1 ? '':'s')}} controlled by this sensor</h3>
                         @foreach ($taps as $tap)
 
-                            <p><a href="{{$tap->getUrl()}}" class="btn btn-default">{{ $tap->description }}
+                            <p><a href="{{$tap->getUrl()}}" class="btn btn-default">{{ $tap->description }} ({{ $tap->reported_state }})
                                 </a></p>
                         @endforeach
                     @endif

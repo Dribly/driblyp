@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Library\Services;
 
 use Lightning\App as LightningApp;
@@ -36,18 +37,18 @@ class CloudMQTT {
      * @param string $uid
      * @return type
      */
-    public static function makeFeedName(int $type, string $uid):string {
-        $cleanUID = str_replace('/','',$uid);
-        return str_replace('/uid/','/'.$cleanUID.'/', self::FEED_TYPES[$type]);
+    public static function makeFeedName(int $type, string $uid): string {
+        $cleanUID = str_replace('/', '', $uid);
+        return str_replace('/uid/', '/' . $cleanUID . '/', self::FEED_TYPES[$type]);
     }
 
     /**
-     * 
+     *
      * @param string $feed which feed the message goes to
      * @param type $message
      * @param int $retain
      */
-    public function sendMessage(string $feed, $message, int $retain=0) {
+    public function sendMessage(string $feed, $message, int $retain = 0) {
 
         if (!is_object($message)) {
             $object = new \stdClass();
@@ -65,19 +66,21 @@ class CloudMQTT {
 
     /**
      * timeout in seconds
-     * @param string $feed
+     * @param arraay $feeds
      */
-    public function readMessage(string $feed) {
+    public function readMessage(array $feeds) {
         $this->initMqtt();
         static::$mqtt->connect();
-        static::$mqtt->subscribe($feed, 0, function (\Lightning\Response $response) {
-            try {
-                $reader = new MessageReader();
-                $reader->readMessage($response->getMessage(), $response->getRoute(), $response->getReceived(), $response->getAttributes());
-            } catch (InvalidMessageException $ex) {
-                
-            }
-        });
+        foreach ($feeds as $feed) {
+            static::$mqtt->subscribe($feed, 0, function (\Lightning\Response $response) {
+                try {
+                    $reader = new MessageReader();
+                    $reader->readMessage($response->getMessage(), $response->getRoute(), $response->getReceived(), $response->getAttributes());
+                } catch (InvalidMessageException $ex) {
+
+                }
+            });
+        }
         static::$mqtt->listen(true);
         static::$mqtt->close();
     }

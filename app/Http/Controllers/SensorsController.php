@@ -28,7 +28,7 @@ class SensorsController extends Controller {
         } catch (SensorNotFoundException $ex) {
             return view('404');
         }
-        $value = (float)$request->post('value');
+        $value = (float)$request->post('last_reading');
 
         if (0.0 < $value && 100.0 >= $value) {
             $sensor->sendFakeValue($value);

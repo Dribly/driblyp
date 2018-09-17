@@ -48,6 +48,10 @@ class WaterSensor extends Model {
         return $needsWater;
     }
 
+    public function isActive(): bool {
+        return $this->status = 'active';
+    }
+
     public static function getSensor(int $ownerId, int $sensorID, string $uid = null): WaterSensor {
 // find by UID if presented
         if (!is_null($uid)) {
@@ -64,12 +68,15 @@ class WaterSensor extends Model {
     public function sendFakeValue($value) {
         $customServiceInstance = $this->getMQTTService();
         $message = $this->makeMessage($this->uid, ['reading' => $value]);
-        echo "writing message to " . CloudMQTT::makeFeedName(CloudMQTT::FEED_WATERSENSOR, $this->uid);
-        $customServiceInstance->sendMessage(CloudMQTT::makeFeedName(CloudMQTT::FEED_WATERSENSOR, $this->uid), $message);
+        $feedName = CloudMQTT::makeFeedName(CloudMQTT::FEED_WATERSENSOR, $this->uid);
+        echo "writing message to " . $feedName;
+        $customServiceInstance->sendMessage($feedName, $message);
     }
+
     public function taps() {
         return $this->belongsToMany('App\Tap');
     }
+
     /**
      * This handles whatever comes in from presumably mqtt. Should be in WaterSensorHandler
      * @param string $uid
@@ -98,8 +105,12 @@ class WaterSensor extends Model {
                 $sensor->battery_level = $messageObj->battery_level;
             }
             $sensor->last_signal_date = date('Y-m-d H:i:s');
-            $sensor->last_signal = 'identify';
+            $sensor->last_signal = $messageType;
+echo 'savig water sensor'."\n";
             $sensor->save();
+        }
+        else{
+            var_dump('not a water sensor '.$uid);
         }
     }
 }

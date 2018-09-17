@@ -10,6 +10,7 @@ use App\Exceptions\TapNotFoundException;
 use Illuminate\Database\QueryException;
 use App\Exceptions\TapAlreadyRegisteredException;
 
+
 class TapsController extends Controller {
 
     private $tapStatuses = ['active' => 'Active', 'inactive' => 'Inactive', 'deleted' => 'Deleted'];
@@ -38,7 +39,7 @@ class TapsController extends Controller {
         $sensors = $tap->waterSensors;
 
         $allAddedSensorsAry = [];
-        foreach ($sensors as $sensor){
+        foreach ($sensors as $sensor) {
             $allAddedSensorsAry[$sensor->id] = $sensor->description;
         }
 
@@ -65,10 +66,6 @@ class TapsController extends Controller {
 
     public function add(Request $request) {
         if ($request->isMethod('POST')) {
-            $tap = new Tap();
-            $tap->owner = Auth::user()->id;
-            $tap->description = $request->post('description');
-            $tap->uid = $request->post('uid');
             try {
                 $dupeCheck = Tap::where('uid', $tap->uid)->first();
                 if ($dupeCheck instanceof Tap) {
@@ -76,7 +73,12 @@ class TapsController extends Controller {
                 }
                 unset($dupeCheck);
 
+                $tap = new Tap();
+                $tap->owner = Auth::user()->id;
+                $tap->description = $request->post('description');
+                $tap->uid = $request->post('uid');
                 $tap->save();
+
                 $request->session()->flash('success', 'Tap added successfully');
                 return redirect(Route('taps.show', $tap->id), 302);
             } catch (TapAlreadyRegisteredException $e) {
@@ -122,11 +124,12 @@ class TapsController extends Controller {
         } catch (TapNotFoundException $ex) {
             return view('404');
         }
-        $status = $request->post('expected_state');
-        if (in_array($status, array_keys($this->onOrOff))) {
-            $tap->turnTap($status);
+        $state = $request->post('expected_state');
+        if (in_array($state, array_keys($this->onOrOff))) {
+            $tap->turnTap($state);
+            $request->session()->flash('success', 'State saved');
         } else {
-            die(var_dump($status));
+            $request->session()->flash('warning', 'Could not change state to ' . $status . ': ' . $e->getMessage());
         }
 
         return redirect(Route('taps.show', (int)$id), 302);
@@ -167,4 +170,41 @@ class TapsController extends Controller {
         }
     }
 
+    public function sendFakeStateReport(Request $request, int $id) {
+        try {
+            $tap = Tap::getTap(Auth::user()->id, $id);
+        } catch (TapNotFoundException $ex) {
+            return view('404');
+        }
+        $value = $request->reported_state;
+
+        $tap->sendFakeStateReport($value);
+
+        $request->session()->flash('success', 'Fake value of ' . $value . ' sent');
+//            $request->session()->flash('warning', 'Could not set fake value of ' . $value . ' to tap ' . $id . ' because the number given was <1 or > 100');
+
+
+        return redirect(Route('taps.show', (int)$id), 302);
+    }
+
+    /**
+     * Simply consumes an MQTT report and responds to it
+     * @param Request $request
+     * @param int $id
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|\Illuminate\View\View
+     */
+    public function fakeConsumeMQTT(Request $request, int $id) {
+        try {
+            $tap = Tap::getTap(Auth::user()->id, $id);
+        } catch (TapNotFoundException $ex) {
+            return view('404');
+        }
+        $value = $request->reported_state;
+
+        $tap->sendFakeStateReport($value);
+
+        $request->session()->flash('success', 'Fake value of ' . $value . ' sent');
+
+        return redirect(Route('taps.show', (int)$id), 302);
+    }
 }

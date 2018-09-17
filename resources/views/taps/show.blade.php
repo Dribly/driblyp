@@ -25,6 +25,7 @@
                     {{ $tap->status }}
                     {{ Form::submit('Save Status', ['class' => 'btn btn-primary']) }}
                     {{ Form::close() }}
+                        <hr class="light"/>
 
                     {{ Form::model($tap, array('route' => array('taps.turntap', $tap->id))) }}
                     {{ Form::select('expected_state', $onOrOffs, null, ['class' => 'form-control']) }}
@@ -35,6 +36,14 @@
                     Current State: {{$tap->reported_state}}
                     {{ Form::submit('Save Status', ['class' => 'btn btn-primary']) }}
                     {{ Form::close() }}
+                        <hr class="light"/>
+
+                        {{ Form::model($tap, array('route' => array('taps.sendFakeValue', $tap->id))) }}
+                        {{ Form::select('reported_state', $onOrOffs, null, ['class' => 'form-control narrow-control']) }}
+                        {{ Form::submit('Send Fake State Report', ['class' => 'btn btn-primary']) }}
+                        {{ Form::Close() }}
+
+                        <hr class="light"/>
                     ({{$tap->uid}})
                     <br/>
                     <h3 class="section-heading text-white">Controls</h3>
@@ -43,7 +52,7 @@
                         <h3>{{count($sensors)}} sensor{{(count($sensors) == 1 ? ' controls':'s control')}} this
                             tap</h3>
                         @foreach ($sensors as $sensor)
-                            <p><a href="{{$sensor->getUrl()}}" class="btn btn-default">{{ $sensor->description }}</a>
+                            <p><a href="{{$sensor->getUrl()}}" class="btn btn-default">{{ $sensor->description }} ({{$sensor->last_reading}}%)</a>
                             </p>
                         @endforeach
                     @endif

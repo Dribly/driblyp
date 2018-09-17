@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use App\Observers\WaterSensorObserver;
+use App\Observers\TapObserver;
 use App\WaterSensor;
+use App\Tap;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -16,6 +18,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         WaterSensor::observe(WaterSensorObserver::class);//
+        Tap::observe(TapObserver::class);//
         //
     }
 

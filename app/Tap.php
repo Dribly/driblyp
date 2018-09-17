@@ -1,15 +1,14 @@
 <?php
+
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Exceptions\SensorNotFoundException;
 use App\Exceptions\TapNotFoundException;
 use App\Traits\MQTTEndpointTrait;
 use App\Library\Services\CloudMQTT;
 
-
-class Tap extends Model{
-use MQTTEndpointTrait;
+class Tap extends Model {
+    use MQTTEndpointTrait;
     /**
      * The attributes that are mass assignable.
      *
@@ -31,16 +30,36 @@ use MQTTEndpointTrait;
 
     public function turnTap(string $onOrOff = 'off') {
 
-        $customServiceInstance = $this->getMQTTService();
-
         // Belt and braces. You have to REALLY mean 'on' here
         if (trim(strToLower($onOrOff)) !== 'on') {
             $onOrOff = 'off';
         }
-        $message = $this->makeMessage($this->uid, ['action'=>'turntap', 'value' => $onOrOff]);
-        $customServiceInstance->sendMessage(CloudMQTT::makeFeedName(CloudMQTT::FEED_TAP, $this->uid), $message, 1);
-        $this->requested_state = $onOrOff;
+        $this->expected_state = $onOrOff;
         $this->save();
+    }
+
+    public function sendFakeStateReport($value) {
+        $customServiceInstance = $this->getMQTTService();
+        $message = $this->makeMessage($this->uid, ['state' => $value]);
+        $feedName = CloudMQTT::makeFeedName(CloudMQTT::FEED_TAPREPLY, $this->uid);
+        echo "writing message to " . $feedName;
+        $customServiceInstance->sendMessage($feedName, $message);
+        $this->clearCommand();
+    }
+
+    public function fakeConsumeMessage() {
+        $customServiceInstance = $this->getMQTTService();
+        $message = $this->makeMessage($this->uid, ['state' => $value]);
+        $feedName = CloudMQTT::makeFeedName(CloudMQTT::FEED_TAPREPLY, $this->uid);
+        echo "writing message to " . $feedName;
+        $customServiceInstance->sendMessage($feedName, $message);
+    }
+
+    public function clearCommand() {
+        $customServiceInstance = $this->getMQTTService();
+        $feedName = CloudMQTT::makeFeedName(CloudMQTT::FEED_TAP, $this->uid);
+        echo "writing message to " . $feedName;
+        $customServiceInstance->sendMessage($feedName, null);
     }
 
     public static function getTap(int $ownerId, int $tapID, string $uid = null): Tap {
@@ -64,35 +83,41 @@ use MQTTEndpointTrait;
     public function getUrl() {
         return route('taps.show', ['id' => $this->id]);
     }
+
     public static function handleMessage($uid, $messageType, \stdClass $messageObj) {
         $tap = Tap::where(['uid' => $uid])->first();
-
+        echo "got a message\n";
+        var_dump($messageObj);
+        echo "\nend of a message\n";
         if (($tap instanceof Tap)) {
+            switch ($messageType) {
+                case 'identify':
+                    throw new \Exception('Cannot use ' . $messageType . ' in taps ');
+                    break;
+                case 'update':
+                    if (isset($messageObj->state)) {
+                        switch ($messageObj->state) {
+                            case 'on':
+                                $tap->last_on = date('Y-m-d H:i:s');
+                                break;
+                            case 'off':
+                                $tap->last_off = date('Y-m-d H:i:s');
+                                break;
+                            default:
+                                throw new \Exception('Cannot use ' . $messageObj->state . ' as last state fpr ' . $messageType);
+                                break;
+                        }
+                    }
+                    if (isset($messageObj->state)) {
+                        $tap->reported_state = $messageObj->state;
+                    }
+
+                    break;
+            }
             $tap->last_signal = $messageType;
             $tap->last_signal_date = date('Y-m-d H:i:s');
             if (!empty($messageObj->battery_level)) {
                 $tap->last_battery_level = $messageObj->last_battery_level;
-            }
-            switch ($messageType) {
-                case 'identify':
-                    throw new \Exception('Cannot use ' . $messageType . ' in ' . $routeParts[1]);
-                    break;
-                case 'update':
-                    $tap->reported_state = $messageObj->state;
-                    switch ($tap->reported_state) {
-                        case 'on':
-                            $tap->last_on = date('Y-m-d H:i:s');
-                            break;
-                        case 'off':
-                            $tap->last_off = date('Y-m-d H:i:s');
-                            break;
-                        default:
-                            ;
-                            break;
-                    }
-                    throw new \Exception('Cannot use ' . $messageType . ' in ' . $routeParts[1]);
-
-                    break;
             }
             $tap->save();
         }
