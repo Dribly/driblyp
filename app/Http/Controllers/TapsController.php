@@ -67,7 +67,7 @@ class TapsController extends Controller {
     public function add(Request $request) {
         if ($request->isMethod('POST')) {
             try {
-                $dupeCheck = Tap::where('uid', $tap->uid)->first();
+                $dupeCheck = Tap::where('uid', $request->post('uid'))->first();
                 if ($dupeCheck instanceof Tap) {
                     throw new TapAlreadyRegisteredException();
                 }

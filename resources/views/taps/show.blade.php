@@ -18,17 +18,17 @@
                     @endforeach
                     <h2 class="section-heading text-white">Tap: {{$tap->description}}</h2>
                     <hr class="light">
-                    <p class="text-faded"></p>
-                    {{  Form::model($tap, array('route' => array('taps.changestatus', $tap->id))) }}
-                    {{ Form::select('status', $statuses, null, ['class' => 'form-control']) }}
+
+                    {{ Form::model($tap, array('route' => array('taps.changestatus', $tap->id))) }}
+                    {{ Form::select('status', $statuses, null, ['class' => 'form-control form-control-sm']) }}
 
                     {{ $tap->status }}
                     {{ Form::submit('Save Status', ['class' => 'btn btn-primary']) }}
                     {{ Form::close() }}
-                        <hr class="light"/>
+                    <hr class="light"/>
 
                     {{ Form::model($tap, array('route' => array('taps.turntap', $tap->id))) }}
-                    {{ Form::select('expected_state', $onOrOffs, null, ['class' => 'form-control']) }}
+                    {{ Form::select('expected_state', $onOrOffs, null, ['class' => 'form-control form-control-sm']) }}
 
                     @if ($tap->expected_state != $tap->reported_state)
                         Expected state: {{$tap->expected_state}},
@@ -36,25 +36,34 @@
                     Current State: {{$tap->reported_state}}
                     {{ Form::submit('Save Status', ['class' => 'btn btn-primary']) }}
                     {{ Form::close() }}
-                        <hr class="light"/>
+                    <hr class="light"/>
 
-                        {{ Form::model($tap, array('route' => array('taps.sendFakeValue', $tap->id))) }}
-                        {{ Form::select('reported_state', $onOrOffs, null, ['class' => 'form-control narrow-control']) }}
-                        {{ Form::submit('Send Fake State Report', ['class' => 'btn btn-primary']) }}
-                        {{ Form::Close() }}
+                    {{ Form::model($tap, array('route' => array('taps.sendFakeValue', $tap->id))) }}
+                    {{ Form::select('reported_state', $onOrOffs, null, ['class' => 'form-control form-control-sm']) }}
+                    {{ Form::submit('Send Fake State Report', ['class' => 'btn btn-primary']) }}
+                    {{ Form::Close() }}
 
-                        <hr class="light"/>
+                    <hr class="light"/>
                     ({{$tap->uid}})
-                    <br/>
-                    <h3 class="section-heading text-white">Controls</h3>
+                </div>
+                <div class="col-lg-3 mx-auto text-center">
+                    <h3 class="section-heading text-white">Attached Sensors</h3>
 
                     @if  (count($sensors) > 0)
-                        <h3>{{count($sensors)}} sensor{{(count($sensors) == 1 ? ' controls':'s control')}} this
-                            tap</h3>
+                        <h3>{{count($sensors)}} sensor{{(count($sensors) == 1 ? ' controls':'s control')}} this tap</h3>
                         @foreach ($sensors as $sensor)
-                            <p><a href="{{$sensor->getUrl()}}" class="btn btn-default">{{ $sensor->description }} ({{$sensor->last_reading}}%)</a>
+                            <p>
+                                    {{ $sensor->description }}
+                                    @if (!$sensor->isActive())
+                                        (inactive)
+                                    @endif
+                                    ({{$sensor->last_reading}}%)
+                                <br />
+                                <a href="{{$sensor->getUrl()}}" class="btn btn-default view">Show</a>
                             </p>
                         @endforeach
+                    @else
+                        There are no sensors connected to this tap yet
                     @endif
 
                     @if  (count($allSensors) > 0)

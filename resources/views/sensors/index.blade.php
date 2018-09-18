@@ -1,7 +1,7 @@
 @extends('layouts.bootstrap')
 
-@section('headertitle')Add a sensor @endsection
-@section('pagetitle')Add a sensor @endsection
+@section('headertitle')Sensors @endsection
+@section('pagetitle')Sensors @endsection
 
 @section('content')
 
@@ -9,13 +9,13 @@
       <div class="container">
         <div class="row">
           <div class="col-lg-8 mx-auto text-center">
-            <h2 class="section-heading text-white">Add Sensor</h2>
+            <h2 class="section-heading text-white">Sensors</h2>
             <hr class="light">
             <p class="text-faded"></p>
-            <a class="btn btn-default btn-xl js-scroll-trigger btn-add" href="{{route('sensors.add')}}">Register a new sensor</a>
 @foreach ($sensors as $sensor)
-<p>{{$sensor->id}}: <a href="{{$sensor->getUrl()}}" class="btn btn-default">{{ $sensor->description }} {{ $sensor->uid }}</a></p>
+<p>{{$sensor->id}}: {{ $sensor->description }} {{ $sensor->uid }}  <a href="{{$sensor->getUrl()}}" class="btn btn-default">Show</a></p>
 @endforeach
+              <a class="btn btn-default btn-xl js-scroll-trigger btn-add" href="{{route('sensors.add')}}">Register a new sensor</a>
           </div>
         </div>
       </div>

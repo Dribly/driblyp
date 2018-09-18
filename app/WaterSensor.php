@@ -49,7 +49,7 @@ class WaterSensor extends Model {
     }
 
     public function isActive(): bool {
-        return $this->status = 'active';
+        return $this->status == 'active';
     }
 
     public static function getSensor(int $ownerId, int $sensorID, string $uid = null): WaterSensor {
