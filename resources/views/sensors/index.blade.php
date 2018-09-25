@@ -13,7 +13,11 @@
             <hr class="light">
             <p class="text-faded"></p>
 @foreach ($sensors as $sensor)
-<p>{{$sensor->id}}: {{ $sensor->description }} {{ $sensor->uid }}  <a href="{{$sensor->getUrl()}}" class="btn btn-default">Show</a></p>
+<p>{{$sensor->id}}: {{ $sensor->description }}
+    @if ($sensor->last_reading)
+        {{$sensor->last_reading}}% humidity
+    @endif
+    <a href="{{$sensor->getUrl()}}" class="btn btn-default">Show</a></p>
 @endforeach
               <a class="btn btn-default btn-xl js-scroll-trigger btn-add" href="{{route('sensors.add')}}">Register a new sensor</a>
           </div>

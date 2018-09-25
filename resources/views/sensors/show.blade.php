@@ -51,7 +51,7 @@
                     <h3 class="section-heading text-white">Attached Taps</h3>
 
                     @if  (count($taps) > 0)
-                        <h3>{{count($taps)}} tap{{(count($taps) == 1 ? '':'s')}} controlled by this sensor</h3>
+                        <h3>{{ count($taps)}} tap{{(count($taps) == 1 ? '':'s')}} controlled by this sensor</h3>
                         @foreach ($taps as $tap)
 
                             <p>{{ ucfirst($tap->description) }}
@@ -67,7 +67,7 @@
                         {{ Form::select('tap_id', $allTaps, null, ['class' => 'form-control']) }}
 
                         {{ Form::submit('Link sensor to this Tap', ['class' => 'btn btn-primary']) }}
-                        {{Form::Close()}}
+                        {{ Form::Close() }}
                     @endif
 
 
