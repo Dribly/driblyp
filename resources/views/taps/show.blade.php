@@ -38,9 +38,9 @@
                     {{ Form::close() }}
                     <hr class="light"/>
 
-                    {{ Form::model($tap, array('route' => array('taps.sendFakeValue', $tap->id))) }}
+                    {{ Form::model($tap, array('route' => array('taps.sendFakeResponse', $tap->id))) }}
                     {{ Form::select('reported_state', $onOrOffs, null, ['class' => 'form-control form-control-sm']) }}
-                    {{ Form::submit('Send Fake State Report', ['class' => 'btn btn-primary']) }}
+                    {{ Form::submit('Pretend to respond to tap state change', ['class' => 'btn btn-primary']) }}
                     {{ Form::Close() }}
 
                     <hr class="light"/>

@@ -65,6 +65,14 @@ class CloudMQTT {
     }
 
     /**
+     * Function to clear a messaeg that is stuck
+     * @param string $feed
+     */
+    public function clearTopic(string $feed)
+    {
+        return $this->sendMessage($feed, '');
+    }
+    /**
      * timeout in seconds
      * @param arraay $feeds
      */

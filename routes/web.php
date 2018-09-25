@@ -55,8 +55,8 @@ Route::post('/taps/{id}/changestatus',
     ['as' => 'taps.changestatus',
         'uses' => 'TapsController@changestatus'])->middleware('auth');
 Route::post('/taps/{id}/sendFakeValue',
-    ['as' => 'taps.sendFakeValue',
-        'uses' => 'TapsController@sendFakeStateReport'])->middleware('auth');
+    ['as' => 'taps.sendFakeResponse',
+        'uses' => 'TapsController@sendFakeResponse'])->middleware('auth');
 Route::post('/taps/{id}/turntap',
     ['as' => 'taps.turntap',
         'uses' => 'TapsController@turnOnOrOff'])->middleware('auth');

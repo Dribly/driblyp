@@ -170,7 +170,7 @@ class TapsController extends Controller {
         }
     }
 
-    public function sendFakeStateReport(Request $request, int $id) {
+    public function sendFakeResponse(Request $request, int $id) {
         try {
             $tap = Tap::getTap(Auth::user()->id, $id);
         } catch (TapNotFoundException $ex) {
@@ -178,9 +178,9 @@ class TapsController extends Controller {
         }
         $value = $request->reported_state;
 
-        $tap->sendFakeStateReport($value);
+        $tap->sendFakeResponse($value);
 
-        $request->session()->flash('success', 'Fake value of ' . $value . ' sent');
+        $request->session()->flash('success', 'Fake value of \'' . $value . '\' sent');
 //            $request->session()->flash('warning', 'Could not set fake value of ' . $value . ' to tap ' . $id . ' because the number given was <1 or > 100');
 
 

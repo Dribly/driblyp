@@ -53,7 +53,6 @@ echo "Message address is " . $route."\n";
                 break;
             default:
 echo "IGNORED ".$routeParts[1] ." message\n";
-                '';
         }
 
         $messageLog->save();

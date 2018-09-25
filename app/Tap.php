@@ -28,38 +28,38 @@ class Tap extends Model {
         'owner'
     ];
 
+    /**
+     * @param string $onOrOff
+     * @TODO move this to observer
+     */
     public function turnTap(string $onOrOff = 'off') {
 
         // Belt and braces. You have to REALLY mean 'on' here
         if (trim(strToLower($onOrOff)) !== 'on') {
-            $onOrOff = 'off';
+            $this->last_off_request = date('Y-m-d H:i:s');
+
+        } else {
+            $this->last_off_request = date('Y-m-d H:i:s');
         }
         $this->expected_state = $onOrOff;
         $this->save();
     }
 
-    public function sendFakeStateReport($value) {
+    /**
+     * We want to pretend we are a tap, so we scrub the previous message then start the next
+     * @param $value
+     */
+    public function sendFakeResponse($value) {
         $customServiceInstance = $this->getMQTTService();
-        $message = $this->makeMessage($this->uid, ['state' => $value]);
-        $feedName = CloudMQTT::makeFeedName(CloudMQTT::FEED_TAPREPLY, $this->uid);
-        echo "writing message to " . $feedName;
-        $customServiceInstance->sendMessage($feedName, $message);
-        $this->clearCommand();
-    }
 
-    public function fakeConsumeMessage() {
-        $customServiceInstance = $this->getMQTTService();
-        $message = $this->makeMessage($this->uid, ['state' => $value]);
-        $feedName = CloudMQTT::makeFeedName(CloudMQTT::FEED_TAPREPLY, $this->uid);
-        echo "writing message to " . $feedName;
-        $customServiceInstance->sendMessage($feedName, $message);
-    }
-
-    public function clearCommand() {
-        $customServiceInstance = $this->getMQTTService();
+        // First, we clear the topic
         $feedName = CloudMQTT::makeFeedName(CloudMQTT::FEED_TAP, $this->uid);
+        $customServiceInstance->clearTopic($feedName);
+
+        $feedName = CloudMQTT::makeFeedName(CloudMQTT::FEED_TAPREPLY, $this->uid);
+        $message = $this->makeMessage($this->uid, ['state' => $value]);
         echo "writing message to " . $feedName;
-        $customServiceInstance->sendMessage($feedName, null);
+        $customServiceInstance->sendMessage($feedName, $message);
     }
 
     public static function getTap(int $ownerId, int $tapID, string $uid = null): Tap {
@@ -95,6 +95,25 @@ class Tap extends Model {
                     throw new \Exception('Cannot use ' . $messageType . ' in taps ');
                     break;
                 case 'update':
+                    if (isset($messageObj->state)) {
+                        switch ($messageObj->state) {
+                            case 'on':
+                                $tap->last_on_request = date('Y-m-d H:i:s');
+                                break;
+                            case 'off':
+                                $tap->last_off_request = date('Y-m-d H:i:s');
+                                break;
+                            default:
+                                throw new \Exception('Cannot use ' . $messageObj->state . ' as last state fpr ' . $messageType);
+                                break;
+                        }
+                    }
+                    if (isset($messageObj->state)) {
+                        $tap->reported_state = $messageObj->state;
+                    }
+
+                    break;
+                case 'response':
                     if (isset($messageObj->state)) {
                         switch ($messageObj->state) {
                             case 'on':
