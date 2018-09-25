@@ -22,7 +22,7 @@ class CloudMQTT {
         self::FEED_WATERSENSORIDENTIFY => "dribly/watersensors/identify/uid/",
         self::FEED_TAP => "dribly/taps/update/uid/",
         self::FEED_TAPIDENTIFY => "dribly/taps/identify/uid/",
-        self::FEED_TAPREPLY => "dribly/taps/update/uid/",
+        self::FEED_TAPREPLY => "dribly/taps/response/uid/",
     ];
 
     /*
