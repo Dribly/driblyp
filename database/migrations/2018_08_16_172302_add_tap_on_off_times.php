@@ -23,7 +23,7 @@ class AddTapOnOffTimes extends Migration {
      * @return void
      */
     public function down() {
-        Schema::table('message_logs', function (Blueprint $table) {
+        Schema::table('taps', function (Blueprint $table) {
             $table->dropColumn(['last_on']);
             $table->dropColumn(['last_off']);
         });
