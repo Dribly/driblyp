@@ -26,7 +26,7 @@ class StoreExpectedTapStatus extends Migration {
     public function down() {
         Schema::table('taps', function (Blueprint $table) {
             $table->dropColumn(['expected_state']);
-            $table->dropColumn(['known_state']);
+            $table->dropColumn(['reported_state']);
         });
     }
 }
