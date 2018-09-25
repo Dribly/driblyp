@@ -70,7 +70,11 @@ class CloudMQTT {
      */
     public function clearTopic(string $feed)
     {
-        return $this->sendMessage($feed, '');
+        echo "clearing with " . $feed."\n";
+        $this->initMqtt();
+        static::$mqtt->connect();
+        static::$mqtt->publish($feed, null, 0, 1);
+        static::$mqtt->close();
     }
     /**
      * timeout in seconds
