@@ -76,54 +76,6 @@ class SensorsController extends Controller {
     }
 
     /**
-     * check if a sensor can have any new taps asspcoated with it
-     * HINT: if it has one then no!
-     * @param WaterSensor $sensor the ID of the sensor
-     */
-    public static function canSensorControlNewTap(WaterSensor $sensor): bool {
-        if (0 === count($sensor->taps)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     *
-     * @param int $sensorID
-     * @param int $tapID
-     * @return bool
-     * @throws \App\Exceptions\TapNotFoundException
-     * @throws SensorIncompatibleWithTapException
-     */
-    public static function controlTapWithSensor(int $sensorID, int $tapID): bool {
-        try {
-            $sensor = WaterSensor::getSensor(Auth::user()->id, $sensorID);
-        } catch (SensorNotFoundException $ex) {
-            return view('404');
-        }
-        try {
-            $tap = Tap::getTap(Auth::user()->id, $tapID);
-        } catch (TapNotFoundException $e) {
-            return view('404');
-        }
-        // If the sensor has no taps, and they have the same owner
-        // Obvs we checked the owner above, but this protects against
-        // future changes
-        if (self::canSensorControlNewTap($sensor) && $sensor->owner === $tap->owner) {
-            try {
-                $tap->waterSensors()->attach($sensor);
-            } catch (\Exception $e) {
-                throw $e;
-            }
-        } else {
-            throw new SensorIncompatibleWithTapException('This sensor is not allowed to associate with this tap');
-        }
-        // If we got here then it must have worked right?
-        return true;
-    }
-
-    /**
      * Controller function to connect a sensor to a tap.
      * @param Request $request
      * @param int $id
@@ -131,8 +83,17 @@ class SensorsController extends Controller {
      */
     public function connectToTap(Request $request, int $id) {
         try {
-            self::controlTapWithSensor($id, (int)$request->post('tap_id'));
-            $request->session()->flash('success', 'Tap connected!');
+            $sensor = WaterSensor::getSensor(Auth::user()->id, $id);
+        } catch (SensorNotFoundException $ex) {
+            return view('404');
+        }
+        try {
+            $tap = Tap::getTap(Auth::user()->id, (int)$request->post('tap_id'));
+            if ($sensor->controlTap($tap)) {
+                $request->session()->flash('success', 'Tap connected!');
+            } else {
+                $request->session()->flash('warning', 'Could not connect the tap to the water sensor');
+            }
         } catch (\Exception $ex) {
             $request->session()->flash('warning', 'Tap could not be connected: ' . $ex->getMessage());
         }

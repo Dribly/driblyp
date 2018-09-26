@@ -48,7 +48,7 @@ class TapsController extends Controller {
         $allSensors = WaterSensor::where('owner', Auth::user()->id)->get(); //->list('description','id');
 // Yuck! don't know how to map model to select
         foreach ($allSensors as $sensor) {
-            if (!array_key_exists($sensor->id, $allAddedSensorsAry) && SensorsController::canSensorControlNewTap($sensor)) {
+            if (!array_key_exists($sensor->id, $allAddedSensorsAry) && $sensor->canControlTap($tap)) {
                 $allUnaddedSensorsAry[$sensor->id] = $sensor->description;
             }
         }
@@ -143,10 +143,21 @@ class TapsController extends Controller {
      */
     public function connectToSensor(Request $request, int $id) {
         try {
-            SensorsController::controlTapWithSensor((int)$request->post('sensor_id'), $id);
-            $request->session()->flash('success', 'Connected the tap to the water sensor');
+            $tap = Tap::getTap(Auth::user()->id, $id);
+        } catch (TapNotFoundException $ex) {
+            $request->session()->flash('warning', 'Tap does not exist');
+            return view('404');
+        }
+        try {
+            $sensor = WaterSensor::getSensor(Auth::user()->id, (int)$request->post('sensor_id'));
+            if ($sensor->controlTap($tap)) {
+                $request->session()->flash('success', 'Connected the tap to the water sensor');
+            } else {
+                $request->session()->flash('warning', 'Could not connect the tap to the water sensor');
+            }
+
         } catch (\Exception $ex) {
-            $request->session()->flash('warning', 'Could not connect the tap to the water sensor: ' . $e->getMessage());
+            $request->session()->flash('warning', 'Could not connect the tap to the water sensor: ' . $ex->getMessage());
         }
         return redirect(Route('taps.show', (int)$id), 302);
     }

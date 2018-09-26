@@ -10,5 +10,6 @@ export APPLICATION=../
 
 echo "Building ${CONTAINER_NAME_PREFIX}"
 
+
 docker-compose --project-name="Dribly" up -d web-nginx web-mariadb
 echo "All done. upping ${APP_NAME}  Hope it worked"

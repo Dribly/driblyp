@@ -52,6 +52,32 @@ class WaterSensor extends Model {
         return $this->status == 'active';
     }
 
+    /**
+     * check if a sensor can have any new taps asspcoated with it
+     * HINT: if it has one then no!
+     * @param Tap $tap
+     * @return bool
+     */
+    public function canControlTap(Tap $tap): bool {
+        return (0 === count($this->taps)
+            && $tap->owner === $this->owner
+            && $tap->isActive());
+    }
+
+    /**
+     * @param WaterSensor $sensor
+     * @return bool
+     */
+    public function controlTap(Tap $tap): bool {
+        $success = false;
+        if ($this->canControlTap($tap)) {
+            $this->taps()->attach($this);
+
+            $success = true;// attach returns void! Thanks!!!
+        }
+        return $success;
+    }
+
     public static function getSensor(int $ownerId, int $sensorID, string $uid = null): WaterSensor {
 // find by UID if presented
         if (!is_null($uid)) {
@@ -106,11 +132,10 @@ class WaterSensor extends Model {
             }
             $sensor->last_signal_date = date('Y-m-d H:i:s');
             $sensor->last_signal = $messageType;
-echo 'savig water sensor'."\n";
+            echo 'savig water sensor' . "\n";
             $sensor->save();
-        }
-        else{
-            var_dump('not a water sensor '.$uid);
+        } else {
+            var_dump('not a water sensor ' . $uid);
         }
     }
 }

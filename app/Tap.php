@@ -39,7 +39,7 @@ class Tap extends Model {
             $this->last_off_request = date('Y-m-d H:i:s');
 
         } else {
-            $this->last_off_request = date('Y-m-d H:i:s');
+            $this->last_on_request = date('Y-m-d H:i:s');
         }
         $this->expected_state = $onOrOff;
         $this->save();
@@ -74,6 +74,11 @@ class Tap extends Model {
         }
 
         return $tap;
+    }
+
+    public function isActive()
+    {
+        return $this->status == 'active';
     }
 
     public function waterSensors() {
