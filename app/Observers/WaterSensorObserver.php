@@ -19,10 +19,13 @@ class WaterSensorObserver {
                         $needsWater |= $sensor->needsWater();
                     }
                 }
+                // Note how we use the PLEASE version of this
+                // because the sensors are not gods, that's for the owner
+                // so if there is some good reason to ignore the sensor, this function does exactly that
                 if ($needsWater) {
-                    $tap->turnTap('on');
+                    $tap->pleaseTurnTap('on');
                 } else {
-                    $tap->turnTap('off');
+                    $tap->pleaseTurnTap('off');
                 }
 
             }

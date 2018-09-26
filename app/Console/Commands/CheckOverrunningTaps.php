@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
+use Faker\Provider\DateTime;
 use Illuminate\Console\Command;
 use App\Tap;
 
-class CheckOverrunningTaps extends Command
-{
+class CheckOverrunningTaps extends Command {
     /**
      * The name and signature of the console command.
      *
@@ -26,8 +26,7 @@ class CheckOverrunningTaps extends Command
      *
      * @return void
      */
-    public function __construct()
-    {
+    public function __construct() {
         parent::__construct();
     }
 
@@ -36,8 +35,14 @@ class CheckOverrunningTaps extends Command
      *
      * @return mixed
      */
-    public function handle()
-    {
-//        $tap = Tap::where()->
+    public function handle() {
+        $targetTime = new DateTime('now');
+        $targetTime->sub(new DateInterval('P2h'));
+//        $twoHoursAgo = date_sub(new \DateTime('now'), '');
+        $taps = Tap::where('reported_state', 'on')->whereDate('last_on', '>=',$targetTime->format('Y-m-d H:i:s'));
+        foreach ($taps as $naughtyTap)
+        {
+            $naughtyTap->turnTap('off');
+        }
     }
 }

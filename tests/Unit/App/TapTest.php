@@ -85,4 +85,38 @@ class TapTest extends TestCase
             $this->assertNotSame($falseDate,  $this->sut->last_off_request);
         }
     }
+
+    public function providerpleaseTurnTap():array
+    {
+        // Force a adte to 1 year in the futre
+        //@TODO this is WAY Too complex for a test
+        $someFutureDAte = date((date('Y')+1) . '-m-d H:i:s');
+        $somePastDate = '2017-01-01 15:04:04';
+        return [
+            [true, 'on', 1,null],
+            [true, 'off', 1,null],
+            [true, 'on', 1, $somePastDate],
+            [true, 'off', 1, $somePastDate],
+            [false, 'on', 0, $someFutureDAte ],
+            [false, 'off', 0, $someFutureDAte],
+
+        ];
+    }
+
+    /**
+     * @param $expected
+     * @param string $onOrOff
+     * @param int $expectTurnTap
+     * @param $ignore_sensor_input_until
+     * @dataProvider providerpleaseTurnTap
+     */
+    public function testpleaseTurnTap($expected, string $onOrOff, int $expectTurnTap, ?string $ignore_sensor_input_until)
+    {
+        $this->sut = $this->getMockBuilder(Tap::class)->setMethods(['turnTap'])->disableOriginalConstructor()->getMock();
+        $this->sut->expects($this->exactly($expectTurnTap))->method('turnTap')->willReturn(true);
+        $this->sut->ignore_sensor_input_until = $ignore_sensor_input_until;
+
+        $this->assertSame($expected, $this->sut->pleaseTurnTap($onOrOff));
+
+    }
 }

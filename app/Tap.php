@@ -29,6 +29,22 @@ class Tap extends Model {
     ];
 
     /**
+     * This function is for sensors to politeley request more or no more water
+     * It differs from turnTap in that the tap is able to deny the request
+     * due to having had a manual override
+     * @param string $onOrOff
+     * @return bool
+     */
+    public function pleaseTurnTap(string $onOrOff = 'off'): bool {
+        if (is_null($this->ignore_sensor_input_until)
+            || strtotime($this->ignore_sensor_input_until) < time()) {
+            return $this->turnTap($onOrOff);
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * @param string $onOrOff
      * @TODO move this to observer
      */
@@ -42,7 +58,7 @@ class Tap extends Model {
             $this->last_on_request = date('Y-m-d H:i:s');
         }
         $this->expected_state = $onOrOff;
-        $this->save();
+        return $this->save();
     }
 
     /**
