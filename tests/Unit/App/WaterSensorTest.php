@@ -118,4 +118,13 @@ class WaterSensorTest extends TestCase {
         $this->assertSame($expected, $this->sut->controlTap($mockTap));
 
     }
+
+    public function testtaps()
+    {
+        $this->sut = new WaterSensor();
+        $taps = $this->sut->taps();
+        $this->assertInstanceOf('Illuminate\Database\Eloquent\Relations\BelongsToMany',$taps);
+        $this->assertsame('tap_water_sensor', $taps->getTable());
+        $this->assertsame('taps', $taps->getRelationName());
+    }
 }

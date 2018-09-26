@@ -76,8 +76,7 @@ class Tap extends Model {
         return $tap;
     }
 
-    public function isActive()
-    {
+    public function isActive() {
         return $this->status == 'active';
     }
 
