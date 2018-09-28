@@ -5,21 +5,19 @@ namespace Tests\Unit;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Tap;
-class TapTest extends TestCase
-{
+
+class TapTest extends TestCase {
     /**
      *
      * @return void
      */
-    public function testGetUrl()
-    {
+    public function testGetUrl() {
         $this->sut = new Tap();
         $this->sut->id = 4;
-        $this->assertSame($_SERVER['APP_URL'].'/taps/4', $this->sut->getUrl());
+        $this->assertSame($_SERVER['APP_URL'] . '/taps/4', $this->sut->getUrl());
     }
 
-    public function providerisActive()
-    {
+    public function providerisActive() {
         return [
             [true, 'active'],
             [false, 'inactive']
@@ -31,29 +29,26 @@ class TapTest extends TestCase
      * @param $status
      * @dataProvider providerisActive
      */
-    public function testisActive(bool $expected, string $status)
-    {
+    public function testisActive(bool $expected, string $status) {
         $this->sut = new Tap();
         $this->sut->status = $status;
-        $this->assertSame ($expected, $this->sut->isActive());
+        $this->assertSame($expected, $this->sut->isActive());
         $this->sut->status = 'inactive';
-        $this->assertSame (false, $this->sut->isActive());
+        $this->assertSame(false, $this->sut->isActive());
     }
 
-    public function testwaterSensors()
-    {
+    public function testwaterSensors() {
         $this->sut = new Tap();
         $waterSensors = $this->sut->waterSensors();
-        $this->assertInstanceOf('Illuminate\Database\Eloquent\Relations\BelongsToMany',$waterSensors);
+        $this->assertInstanceOf('Illuminate\Database\Eloquent\Relations\BelongsToMany', $waterSensors);
         $this->assertsame('tap_water_sensor', $waterSensors->getTable());
         $this->assertsame('waterSensors', $waterSensors->getRelationName());
     }
 
-    public function providerturnTap()
-    {
+    public function providerturnTap() {
         return [
-            ['off','off'],
-            ['on','on']
+            ['off', 'off'],
+            ['on', 'on']
         ];
     }
 
@@ -62,8 +57,7 @@ class TapTest extends TestCase
      * @param $turnonValue
      * @dataProvider providerturnTap
      */
-    public function testturnTap(string $expected, string $turnonValue)
-    {
+    public function testturnTap(string $expected, string $turnonValue) {
         $falseDate = '2017-01-01 11:11:11';
 
         $this->sut = $this->getMockBuilder(Tap::class)->setMethods(['save'])->disableOriginalConstructor()->getMock();
@@ -74,30 +68,26 @@ class TapTest extends TestCase
 
         $this->sut->turnTap($turnonValue);
         $this->assertSame($expected, $this->sut->expected_state);
-        if ('on' == $turnonValue)
-        {
-            $this->assertSame($falseDate,  $this->sut->last_off_request);
-            $this->assertNotSame($falseDate,  $this->sut->last_on_request);
-        }
-        else
-        {
-            $this->assertSame($falseDate,  $this->sut->last_on_request);
-            $this->assertNotSame($falseDate,  $this->sut->last_off_request);
+        if ('on' == $turnonValue) {
+            $this->assertSame($falseDate, $this->sut->last_off_request);
+            $this->assertNotSame($falseDate, $this->sut->last_on_request);
+        } else {
+            $this->assertSame($falseDate, $this->sut->last_on_request);
+            $this->assertNotSame($falseDate, $this->sut->last_off_request);
         }
     }
 
-    public function providerpleaseTurnTap():array
-    {
+    public function providerpleaseTurnTap(): array {
         // Force a adte to 1 year in the futre
         //@TODO this is WAY Too complex for a test
-        $someFutureDAte = date((date('Y')+1) . '-m-d H:i:s');
+        $someFutureDAte = date((date('Y') + 1) . '-m-d H:i:s');
         $somePastDate = '2017-01-01 15:04:04';
         return [
-            [true, 'on', 1,null],
-            [true, 'off', 1,null],
+            [true, 'on', 1, null],
+            [true, 'off', 1, null],
             [true, 'on', 1, $somePastDate],
             [true, 'off', 1, $somePastDate],
-            [false, 'on', 0, $someFutureDAte ],
+            [false, 'on', 0, $someFutureDAte],
             [false, 'off', 0, $someFutureDAte],
 
         ];
@@ -110,13 +100,65 @@ class TapTest extends TestCase
      * @param $ignore_sensor_input_until
      * @dataProvider providerpleaseTurnTap
      */
-    public function testpleaseTurnTap($expected, string $onOrOff, int $expectTurnTap, ?string $ignore_sensor_input_until)
-    {
+    public function testpleaseTurnTap($expected, string $onOrOff, int $expectTurnTap, ?string $ignore_sensor_input_until) {
         $this->sut = $this->getMockBuilder(Tap::class)->setMethods(['turnTap'])->disableOriginalConstructor()->getMock();
         $this->sut->expects($this->exactly($expectTurnTap))->method('turnTap')->willReturn(true);
         $this->sut->ignore_sensor_input_until = $ignore_sensor_input_until;
 
         $this->assertSame($expected, $this->sut->pleaseTurnTap($onOrOff));
+
+    }
+
+    public function providerhasSchedule():array
+    {
+        $futureYear = ((int)date('Y'))+1;
+        return [
+            [false, null],
+            [false, ''],
+            [false, '2011-08-14 11:00:02'],
+            [true, $futureYear.'-08-14 11:00:02'],
+        ];
+    }
+    /**
+     * @param bool $expected
+     * @param string $nextEventScheduled
+     * @dataProvider providerhasSchedule
+     */
+    public function testhasSchedule(bool $expected, string $nextEventScheduled=null)
+    {
+        $this->sut = $this->getMockBuilder(Tap::class)->setMethods(['turnTap'])->disableOriginalConstructor()->getMock();
+        $this->sut->next_event_scheduled = $nextEventScheduled;
+        $this->assertSame($expected, $this->sut->hasSchedule());
+    }
+
+    public function providergetTurnOffData():array
+    {
+        $futureYear = ((int)date('Y'))+1;
+        $pastYear = ((int)date('Y'))+2;
+        return [
+            ['', false, '', ''],
+            ['', false, null, null],
+            ['', false, '{"action":"off","deadline":"'.$pastYear.'-09-27 16:50:30"}', $pastYear.'-09-27 16:50:30'],
+            ['The tap will turn off at 27 Sep 2019 at 16:50', true, '{"action":"off","deadline":"'.$futureYear.'-09-27 16:50:30"}', $futureYear.'-09-27 16:50:30'],
+//            ['', true, null],
+        ];
+    }
+    /**
+     * @param string $expected
+     * @param bool $hssSchedule
+     * @param string $nextEvent
+     * @param string $nextEventScheduled
+     *
+     * @dataProvider providergetTurnOffData
+     */
+    public function testgetTurnOffDate(string $expected, bool $hssSchedule, ?string $nextEvent, ?string $nextEventScheduled )
+    {
+        $this->sut = $this->getMockBuilder(Tap::class)->setMethods(['hasSchedule'])->disableOriginalConstructor()->getMock();
+        $this->sut->next_event_scheduled = $nextEventScheduled;
+        $this->sut->next_event = $nextEvent;
+        $this->sut->expects($this->any())->method('hasSchedule')->willReturn($hssSchedule);
+
+        $this->assertSame($expected, $this->sut->getTurnOffDate());
 
     }
 }

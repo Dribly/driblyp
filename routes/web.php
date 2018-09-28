@@ -38,9 +38,12 @@ Route::post('/sensors/{id}/changestatus',
 Route::post('/sensors/{id}/sendFakeValue', 
         ['as' => 'sensors.sendFakeValue',
     'uses' => 'SensorsController@sendFakeValue'])->middleware('auth');
-Route::post('/sensors/{id}/connectToTap', 
-        ['as' => 'sensors.connectToTap',
-    'uses' => 'SensorsController@connectToTap'])->middleware('auth');
+Route::post('/sensors/{id}/connectToTap',
+    ['as' => 'sensors.connectToTap',
+        'uses' => 'SensorsController@connectToTap'])->middleware('auth');
+Route::post('/sensors/{id}/detatch',
+    ['as' => 'sensors.detatch',
+        'uses' => 'SensorsController@detatchFromTap'])->middleware('auth');
 
 Route::get('/taps', 
         ['as' => 'taps.index',
@@ -59,7 +62,7 @@ Route::post('/taps/{id}/sendFakeValue',
         'uses' => 'TapsController@sendFakeResponse'])->middleware('auth');
 Route::post('/taps/{id}/turntap',
     ['as' => 'taps.turntap',
-        'uses' => 'TapsController@turnOnOrOff'])->middleware('auth');
+        'uses' => 'TapsController@manualTurnOnOrOff'])->middleware('auth');
 Route::get('/taps/{id}',
         ['as' => 'taps.show',
     'uses' => 'TapsController@show'])->middleware('auth');

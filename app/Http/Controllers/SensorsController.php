@@ -100,6 +100,35 @@ class SensorsController extends Controller {
         return redirect(Route('sensors.show', (int)$id), 302);
     }
 
+    /**
+ * Controller function to connect a sensor to a tap.
+ * @param Request $request
+ * @param int $id
+ * @return type
+ */
+    public function detatchFromTap(Request $request, int $id) {
+        try {
+            $sensor = WaterSensor::getSensor(Auth::user()->id, $id);
+        } catch (SensorNotFoundException $ex) {
+            return view('404');
+        }
+        try {
+            $taps = $sensor->taps;
+            if (0 < count($taps)){
+            foreach ($taps as $tap)
+            {
+                $sensor->taps()->detach($tap->id);
+            }                $request->session()->flash('success', 'Tap detatched');
+
+            } else {
+                $request->session()->flash('warning', 'There were no taps to detatch');
+            }
+        } catch (\Exception $ex) {
+            $request->session()->flash('warning', 'Tap could not be detatched: ' . $ex->getMessage());
+        }
+        return redirect(Route('sensors.show', (int)$id), 302);
+    }
+
     public function changestatus(Request $request, $id) {
         try {
             $sensor = WaterSensor::getSensor(Auth::user()->id, $id);

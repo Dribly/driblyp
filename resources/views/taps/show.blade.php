@@ -18,29 +18,37 @@
                     @endforeach
                     <h2 class="section-heading text-white">Tap: {{$tap->description}}</h2>
                     <hr class="light">
-
+                        <div class="col-lg-3 mx-auto text-center">
                     {{ Form::model($tap, array('route' => array('taps.changestatus', $tap->id))) }}
                     {{ Form::select('status', $statuses, null, ['class' => 'form-control form-control-sm']) }}
 
                     {{ $tap->status }}
                     {{ Form::submit('Save Status', ['class' => 'btn btn-primary']) }}
-                    {{ Form::close() }}
+                    {{ Form::close() }}</div>
                     <hr class="light"/>
 
                     {{ Form::model($tap, array('route' => array('taps.turntap', $tap->id))) }}
-                    {{ Form::select('expected_state', $onOrOffs, null, ['class' => 'form-control form-control-sm']) }}
+                        <div class="col-lg-3 mx-auto text-center">
+                           The Tap should be  {{ Form::select('expected_state', $onOrOffs, null, ['class' => 'form-control form-control-sm']) }}
+                        </div>
+                            <div class="col-lg-6 mx-auto text-center">
+                            for {{ Form::select('off_for_minutes', $timeLengths, null, ['class' => 'form-control form-control-sm']) }}
 
                     @if ($tap->expected_state != $tap->reported_state)
                         Expected state: {{$tap->expected_state}},
                     @endif
                     Current State: {{$tap->reported_state}}
+                    @if ($tap->hasSchedule())
+                                    {{$tap->getTurnOffDate()}}
+                        @endif
+                        </div>
                     {{ Form::submit('Save Status', ['class' => 'btn btn-primary']) }}
                     {{ Form::close() }}
                     <hr class="light"/>
 
                     {{ Form::model($tap, array('route' => array('taps.sendFakeResponse', $tap->id))) }}
                     {{ Form::select('reported_state', $onOrOffs, null, ['class' => 'form-control form-control-sm']) }}
-                    {{ Form::submit('Pretend to respond to tap state change', ['class' => 'btn btn-primary']) }}
+                    {{ Form::submit('Pretend to respond to tap state change', ['class' => 'btn btn-debug']) }}
                     {{ Form::Close() }}
 
                     <hr class="light"/>

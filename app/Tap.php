@@ -45,19 +45,80 @@ class Tap extends Model {
     }
 
     /**
+     * Check if this event has a schedule
+     * @return bool
+     */
+    public function hasSchedule() : bool{
+        $hasSchedule = false;
+        if ( !is_null($this->next_event_scheduled)) {
+            $nextEventDate = strToTime($this->next_event_scheduled);
+            $hasSchedule =  ($nextEventDate > time());
+
+        }
+        return $hasSchedule;
+    }
+
+    /**
+     * work out some text to show the exturn off or on event
+     * @return string
+     */
+    public function getTurnOffDate(): string {
+        $string = '';
+        if (!is_null($this->next_event) && $this->hasSchedule()) {
+            $nextEventDate = strToTime($this->next_event_scheduled);
+            $event = @json_decode($this->next_event);
+            if (is_object($event)) {
+                $next_event = $event->action;
+                $date = date('d M Y \a\t H:i', $nextEventDate);
+                $string = 'The tap will turn ' . $next_event . ' at ' . $date;
+            }
+        }
+        return $string;
+    }
+
+    /**
+     * @param $event
+     * @param string $date
+     * @return bool
+     */
+    public function setEvent($event, string $date): bool {
+        $eventObj = new \stdClass();
+        $eventObj->action = $event;
+        $eventObj->deadline = $date;
+        $this->next_event = json_encode($eventObj);
+        $this->next_event_scheduled = $date;
+        return true;
+    }
+
+    /**
+     * @return bool
+     */
+    public function clearEvent(): bool {
+        $this->next_event = null;
+        $this->next_event_scheduled = null;
+        return true;
+    }
+
+    /**
      * @param string $onOrOff
+     * @param int $timePeriodMinutes
      * @TODO move this to observer
      */
-    public function turnTap(string $onOrOff = 'off') {
-
+    public function turnTap(string $onOrOff = 'off', int $timePeriodMinutes = 0) {
         // Belt and braces. You have to REALLY mean 'on' here
         if (trim(strToLower($onOrOff)) !== 'on') {
-            $this->last_off_request = date('Y-m-d H:i:s');
+            $this->last_off_request = gmdate('Y-m-d H:i:s');
+            $this->clearEvent();
 
         } else {
-            $this->last_on_request = date('Y-m-d H:i:s');
+            // If we turn the tap on, make sure we set an event to turn it off
+            if (0 < $timePeriodMinutes) {
+                $this->setEvent('off', gmdate('Y-m-d H:i:s', time() + (abs($timePeriodMinutes) * 60)));
+            }
+            $this->last_on_request = gmdate('Y-m-d H:i:s');
         }
         $this->expected_state = $onOrOff;
+        $this->ignore_sensor_input_until = gmdate('Y-m-d H:i:s', time() + (abs($timePeriodMinutes) * 60));
         return $this->save();
     }
 
@@ -118,10 +179,10 @@ class Tap extends Model {
                     if (isset($messageObj->state)) {
                         switch ($messageObj->state) {
                             case 'on':
-                                $tap->last_on_request = date('Y-m-d H:i:s');
+                                $tap->last_on_request = gmdate('Y-m-d H:i:s');
                                 break;
                             case 'off':
-                                $tap->last_off_request = date('Y-m-d H:i:s');
+                                $tap->last_off_request = gmdate('Y-m-d H:i:s');
                                 break;
                             default:
                                 throw new \Exception('Cannot use ' . $messageObj->state . ' as last state fpr ' . $messageType);
@@ -137,10 +198,10 @@ class Tap extends Model {
                     if (isset($messageObj->state)) {
                         switch ($messageObj->state) {
                             case 'on':
-                                $tap->last_on = date('Y-m-d H:i:s');
+                                $tap->last_on = gmdate('Y-m-d H:i:s');
                                 break;
                             case 'off':
-                                $tap->last_off = date('Y-m-d H:i:s');
+                                $tap->last_off = gmdate('Y-m-d H:i:s');
                                 break;
                             default:
                                 throw new \Exception('Cannot use ' . $messageObj->state . ' as last state fpr ' . $messageType);
@@ -154,7 +215,7 @@ class Tap extends Model {
                     break;
             }
             $tap->last_signal = $messageType;
-            $tap->last_signal_date = date('Y-m-d H:i:s');
+            $tap->last_signal_date = gmdate('Y-m-d H:i:s');
             if (!empty($messageObj->battery_level)) {
                 $tap->last_battery_level = $messageObj->last_battery_level;
             }

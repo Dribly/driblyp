@@ -43,7 +43,7 @@
                         {{ Form::select('last_reading', $fakeValues, null, ['class' => 'form-control  form-control-sm ']) }}
 
 
-                        {{ Form::submit('Send Fake Value', ['class' => 'btn btn-primary']) }}
+                        {{ Form::submit('Send Fake Value', ['class' => 'btn btn-debug']) }}
                         {{ Form::Close() }}
                     </div>
                 </div>
@@ -56,7 +56,11 @@
 
                             <p>{{ ucfirst($tap->description) }}
                                 ({{ $tap->reported_state }})<br/>
-                                <a href="{{$tap->getUrl()}}" class="btn btn-default view">Show</a></p>
+                                <a href="{{$tap->getUrl()}}" class="btn btn-default view">Show</a>
+                                {{ Form::model($sensor, array('route' => array('sensors.detatch', $sensor->id))) }}
+                                {{ Form::submit('Detatch', ['class' => 'btn btn-default']) }}
+
+                            {{Form::Close()}}</p>
                         @endforeach
                     @else
                         There are no taps attached to this sensor yet

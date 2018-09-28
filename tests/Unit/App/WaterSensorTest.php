@@ -105,10 +105,10 @@ class WaterSensorTest extends TestCase {
      * @dataProvider providercontrolTap
      */
     public function testcontrolTap(bool $expected,  bool $canControlTap) {
-        $mockRelationship  = $this->getMockBuilder('relationship')->setMethods(['attach'])->disableOriginalConstructor()->getMock();
-        $mockRelationship->method('attach')->willReturn(null);
-
         $mockTap = $this->getMockBuilder(Tap::class)->setMethods(['save'])->disableOriginalConstructor()->getMock();
+
+        $mockRelationship  = $this->getMockBuilder('relationship')->setMethods(['attach'])->disableOriginalConstructor()->getMock();
+        $mockRelationship->method('attach')->with($mockTap)->willReturn(null);
 
         $this->sut = $this->getMockBuilder(WaterSensor::class)->setMethods(['save', 'taps', 'canControlTap'])->disableOriginalConstructor()->getMock();
         $this->sut->method('save')->willReturn(true);

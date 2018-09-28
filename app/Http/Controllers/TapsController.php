@@ -56,6 +56,7 @@ class TapsController extends Controller {
         return view('taps.show', [
             'statuses' => $this->tapStatuses,
             'onOrOffs' => $this->onOrOff,
+            'timeLengths' =>[0=>'How Long...', 1=>'1 minute', 10=>'10 minutes',20=>'20 minutes',30=>'half an hour',40=>'40 minutes',60=>'1 hour',90=>'1 and a half hours',120=>'2 hours'],
             'tap' => $tap,
             'lastvalue' => 0,
             'sensors' => $sensors,
@@ -118,7 +119,7 @@ class TapsController extends Controller {
         return redirect(Route('taps.show', (int)$id), 302);
     }
 
-    public function turnOnOrOff(Request $request, $id) {
+    public function manualTurnOnOrOff(Request $request, $id) {
         try {
             $tap = Tap::getTap(Auth::user()->id, $id);
         } catch (TapNotFoundException $ex) {
@@ -126,10 +127,10 @@ class TapsController extends Controller {
         }
         $state = $request->post('expected_state');
         if (in_array($state, array_keys($this->onOrOff))) {
-            $tap->turnTap($state);
+            $tap->turnTap($state, (int)$request->post('off_for_minutes'));
             $request->session()->flash('success', 'State saved');
         } else {
-            $request->session()->flash('warning', 'Could not change state to ' . $status . ': ' . $e->getMessage());
+            $request->session()->flash('warning', 'Could not change state to ' . $state . ': ' );
         }
 
         return redirect(Route('taps.show', (int)$id), 302);
