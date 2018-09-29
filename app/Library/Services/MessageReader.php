@@ -45,11 +45,11 @@ echo "Message address is " . $route."\n";
             case 'watersensors':
                 WaterSensor::handleMessage($messageObj->uid, $routeParts[2], $messageObj);
                 echo "processed watersensors message ".$routeParts[2]." for ".$messageObj->uid."\n";
+                break;
             case 'taps':
                 Tap::handleMessage($messageObj->uid, $routeParts[2], $messageObj);
                 // EEP this should not happen, we should not be reading tap messages
                 echo "processed tap message ".$routeParts[2]." for ".$messageObj->uid."\n";
-                ;
                 break;
             default:
 echo "IGNORED ".$routeParts[1] ." message\n";

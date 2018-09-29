@@ -36,6 +36,6 @@ class ListenMqtt extends Command
         $sensorIdentify = rtrim($client->makeFeedName(CloudMQTT::FEED_WATERSENSORIDENTIFY, '#'), '/');
         $feeds = [$tapReply, $tapIdentify, $sensorReading, $sensorIdentify];
         vaR_dump($feeds);
-        $client->readMessage($feeds);//
+        $client->readMessage($feeds);
     }
 }

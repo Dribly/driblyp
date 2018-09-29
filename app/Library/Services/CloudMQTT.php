@@ -39,7 +39,7 @@ class CloudMQTT {
      * @var phpMQTT $mqtt 
      */
 
-    static $mqtt;
+    private $mqtt;
 
     /**
      * Create a feed name from a feed and a UID
@@ -69,9 +69,7 @@ class CloudMQTT {
 
 
         $this->initMqtt();
-        static::$mqtt->connect();
-        static::$mqtt->publish($feed, json_encode($object), 0, $retain);
-        static::$mqtt->close();
+        $this->mqtt->publish($feed, json_encode($object), 0, $retain);
     }
 
     /**
@@ -82,9 +80,7 @@ class CloudMQTT {
     {
         echo "clearing with " . $feed."\n";
         $this->initMqtt();
-        static::$mqtt->connect();
-        static::$mqtt->publish($feed, null, 0, 1);
-        static::$mqtt->close();
+        $this->mqtt->publish($feed, null, 0, 1);
     }
     /**
      * timeout in seconds
@@ -92,9 +88,8 @@ class CloudMQTT {
      */
     public function readMessage(array $feeds) {
         $this->initMqtt();
-        static::$mqtt->connect();
         foreach ($feeds as $feed) {
-            static::$mqtt->subscribe($feed, 0, function (\Lightning\Response $response) {
+            $this->mqtt->subscribe($feed, 0, function (\Lightning\Response $response) {
                 try {
                     $reader = new MessageReader();
                     $reader->readMessage($response->getMessage(), $response->getRoute(), $response->getReceived(), $response->getAttributes());
@@ -103,25 +98,31 @@ class CloudMQTT {
                 }
             });
         }
-        static::$mqtt->listen(true);
-        static::$mqtt->close();
+        $this->mqtt->listen(true);
     }
 
     /**
      * Simply initiates the MQTT if it is not already done
      */
     private function initMqtt() {
-        if (!static::$mqtt) {
+        if (!$this->mqtt) {
             try {
-                static::$mqtt = new LightningApp(
+                $this->mqtt = new LightningApp(
                     $this->SERVER, $this->PORT, 'powellblythconnection' . md5(uniqid()), $this->USERNAME, $this->PASSWORD);
 //                        new Client(, self::USERNAME,"HeresJohnny");
+                $this->mqtt->connect();
             } catch (Exception $e) {
                 var_dump($e);
                 exit;
             }
-            static::$mqtt->debug = true;
+            $this->mqtt->debug = true;
         }
+    }
+
+    public function __destruct() {
+        // TODO: Implement __destruct() method.
+       echo "\nCLOSING MQTT\n";
+        $this->mqtt->close();
     }
 
 }
