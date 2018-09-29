@@ -94,7 +94,7 @@ class WaterSensor extends Model {
     public function sendFakeValue($value) {
         $customServiceInstance = $this->getMQTTService();
         $message = $this->makeMessage($this->uid, ['reading' => $value]);
-        $feedName = CloudMQTT::makeFeedName(CloudMQTT::FEED_WATERSENSOR, $this->uid);
+        $feedName = $customServiceInstance->makeFeedName(CloudMQTT::FEED_WATERSENSOR, $this->uid);
         echo "writing message to " . $feedName;
         $customServiceInstance->sendMessage($feedName, $message);
     }

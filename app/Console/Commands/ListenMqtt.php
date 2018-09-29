@@ -30,10 +30,10 @@ class ListenMqtt extends Command
      */
     public function handle(\App\Library\Services\CloudMQTT $client)
     {
-        $tapReply = rtrim(CloudMQTT::makeFeedName(CloudMQTT::FEED_TAPREPLY, '#'), '/');
-        $tapIdentify = rtrim(CloudMQTT::makeFeedName(CloudMQTT::FEED_TAPIDENTIFY, '#'), '/');
-        $sensorReading = rtrim(CloudMQTT::makeFeedName(CloudMQTT::FEED_WATERSENSOR, '#'), '/');
-        $sensorIdentify = rtrim(CloudMQTT::makeFeedName(CloudMQTT::FEED_WATERSENSORIDENTIFY, '#'), '/');
+        $tapReply = rtrim($client->makeFeedName(CloudMQTT::FEED_TAPREPLY, '#'), '/');
+        $tapIdentify = rtrim($client->makeFeedName(CloudMQTT::FEED_TAPIDENTIFY, '#'), '/');
+        $sensorReading = rtrim($client->makeFeedName(CloudMQTT::FEED_WATERSENSOR, '#'), '/');
+        $sensorIdentify = rtrim($client->makeFeedName(CloudMQTT::FEED_WATERSENSORIDENTIFY, '#'), '/');
         $feeds = [$tapReply, $tapIdentify, $sensorReading, $sensorIdentify];
         vaR_dump($feeds);
         $client->readMessage($feeds);//

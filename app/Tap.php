@@ -132,10 +132,10 @@ class Tap extends Model {
         $customServiceInstance = $this->getMQTTService();
 
         // First, we clear the topic
-        $feedName = CloudMQTT::makeFeedName(CloudMQTT::FEED_TAP, $this->uid);
+        $feedName = $customServiceInstance->makeFeedName(CloudMQTT::FEED_TAP, $this->uid);
         $customServiceInstance->clearTopic($feedName);
 
-        $feedName = CloudMQTT::makeFeedName(CloudMQTT::FEED_TAPREPLY, $this->uid);
+        $feedName = $customServiceInstance->makeFeedName(CloudMQTT::FEED_TAPREPLY, $this->uid);
         $message = $this->makeMessage($this->uid, ['state' => $value]);
         echo "writing message to " . $feedName;
         $customServiceInstance->sendMessage($feedName, $message);

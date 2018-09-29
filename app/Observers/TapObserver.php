@@ -15,7 +15,7 @@ class TapObserver {
         if ($original['expected_state'] !== $tap->expected_state) {
             $customServiceInstance = $this->getMQTTService();
             $message = $this->makeMessage($tap->uid, ['action' => 'turntap', 'state' => $tap->expected_state]);
-            $customServiceInstance->sendMessage(CloudMQTT::makeFeedName(CloudMQTT::FEED_TAP, $tap->uid), $message, 1);
+            $customServiceInstance->sendMessage($customServiceInstance->makeFeedName(CloudMQTT::FEED_TAP, $tap->uid), $message, 1);
         }
     }
 }

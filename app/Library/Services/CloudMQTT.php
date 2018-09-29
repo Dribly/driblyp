@@ -7,23 +7,33 @@ use App\Exceptions\InvalidMessageException;
 
 class CloudMQTT {
 
-    const SERVER = 'm21.cloudmqtt.com';
-    const USERNAME = 'powellblyth';
-    const PASSWORD = 'moomoomoo';
-    const PORT = 16317;
-    const KEY = '8c3a186e-97ee-4fd2-99bd-a6d158d55999';
+    private $SERVER;
+    private $USERNAME;
+    private $PASSWORD;
+    private $PORT;
+    private $KEY;
+    private $PREFIX;
     const FEED_WATERSENSOR = 10;
     const FEED_WATERSENSORIDENTIFY = 11;
     const FEED_TAP = 20;
     const FEED_TAPIDENTIFY = 21;
     const FEED_TAPREPLY = 22;
     const FEED_TYPES = [
-        self::FEED_WATERSENSOR => "dribly/watersensors/update/uid/",
-        self::FEED_WATERSENSORIDENTIFY => "dribly/watersensors/identify/uid/",
-        self::FEED_TAP => "dribly/taps/update/uid/",
-        self::FEED_TAPIDENTIFY => "dribly/taps/identify/uid/",
-        self::FEED_TAPREPLY => "dribly/taps/response/uid/",
+        self::FEED_WATERSENSOR => "watersensors/update/uid/",
+        self::FEED_WATERSENSORIDENTIFY => "watersensors/identify/uid/",
+        self::FEED_TAP => "taps/update/uid/",
+        self::FEED_TAPIDENTIFY => "taps/identify/uid/",
+        self::FEED_TAPREPLY => "taps/response/uid/",
     ];
+
+    public function __construct(){
+        $this->SERVER = config('cloudmqtt.server.server_name');
+        $this->USERNAME = config('cloudmqtt.server.username');
+        $this->PASSWORD = config('cloudmqtt.server.password');
+        $this->PORT = config('cloudmqtt.server.port');
+        $this->KEY = config('cloudmqtt.server.key');
+        $this->PREFIX = config('cloudmqtt.server.prefix');
+    }
 
     /*
      * @var phpMQTT $mqtt 
@@ -37,9 +47,9 @@ class CloudMQTT {
      * @param string $uid
      * @return type
      */
-    public static function makeFeedName(int $type, string $uid): string {
+    public function makeFeedName(int $type, string $uid): string {
         $cleanUID = str_replace('/', '', $uid);
-        return str_replace('/uid/', '/' . $cleanUID . '/', self::FEED_TYPES[$type]);
+        return rtrim($this->PREFIX,'/').'/' . str_replace('/uid/', '/' . $cleanUID . '/', self::FEED_TYPES[$type]);
     }
 
     /**
@@ -104,7 +114,7 @@ class CloudMQTT {
         if (!static::$mqtt) {
             try {
                 static::$mqtt = new LightningApp(
-                    self::SERVER, self::PORT, 'powellblythconnection' . md5(uniqid()), self::USERNAME, self::PASSWORD);
+                    $this->SERVER, $this->PORT, 'powellblythconnection' . md5(uniqid()), $this->USERNAME, $this->PASSWORD);
 //                        new Client(, self::USERNAME,"HeresJohnny");
             } catch (Exception $e) {
                 var_dump($e);
