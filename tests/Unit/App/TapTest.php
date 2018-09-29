@@ -47,8 +47,8 @@ class TapTest extends TestCase {
 
     public function providerturnTap() {
         return [
-            ['off', 'off'],
-            ['on', 'on']
+            [Tap::OFF, Tap::OFF],
+            [Tap::ON, Tap::ON]
         ];
     }
 
@@ -68,7 +68,7 @@ class TapTest extends TestCase {
 
         $this->sut->turnTap($turnonValue);
         $this->assertSame($expected, $this->sut->expected_state);
-        if ('on' == $turnonValue) {
+        if (Tap::ON == $turnonValue) {
             $this->assertSame($falseDate, $this->sut->last_off_request);
             $this->assertNotSame($falseDate, $this->sut->last_on_request);
         } else {
@@ -83,12 +83,12 @@ class TapTest extends TestCase {
         $someFutureDAte = date((date('Y') + 1) . '-m-d H:i:s');
         $somePastDate = '2017-01-01 15:04:04';
         return [
-            [true, 'on', 1, null],
-            [true, 'off', 1, null],
-            [true, 'on', 1, $somePastDate],
-            [true, 'off', 1, $somePastDate],
-            [false, 'on', 0, $someFutureDAte],
-            [false, 'off', 0, $someFutureDAte],
+            [true, Tap::ON, 1, null],
+            [true, Tap::OFF, 1, null],
+            [true, Tap::ON, 1, $somePastDate],
+            [true, Tap::OFF, 1, $somePastDate],
+            [false, Tap::ON, 0, $someFutureDAte],
+            [false, Tap::OFF, 0, $someFutureDAte],
 
         ];
     }
@@ -109,56 +109,72 @@ class TapTest extends TestCase {
 
     }
 
-    public function providerhasSchedule():array
-    {
-        $futureYear = ((int)date('Y'))+1;
+    public function providerhasSchedule(): array {
+        $futureYear = ((int)date('Y')) + 1;
         return [
             [false, null],
             [false, ''],
             [false, '2011-08-14 11:00:02'],
-            [true, $futureYear.'-08-14 11:00:02'],
+            [true, $futureYear . '-08-14 11:00:02'],
         ];
     }
+
     /**
      * @param bool $expected
      * @param string $nextEventScheduled
      * @dataProvider providerhasSchedule
      */
-    public function testhasSchedule(bool $expected, string $nextEventScheduled=null)
-    {
+    public function testhasSchedule(bool $expected, string $nextEventScheduled = null) {
         $this->sut = $this->getMockBuilder(Tap::class)->setMethods(['turnTap'])->disableOriginalConstructor()->getMock();
         $this->sut->next_event_scheduled = $nextEventScheduled;
         $this->assertSame($expected, $this->sut->hasSchedule());
     }
 
-    public function providergetTurnOffData():array
-    {
-        $futureYear = ((int)date('Y'))+1;
-        $pastYear = ((int)date('Y'))+2;
+    public function providergetTurnOffData(): array {
+        $futureYear = ((int)date('Y')) + 2;
+        $pastYear = ((int)date('Y')) - 1;
         return [
-            ['', false, '', ''],
-            ['', false, null, null],
-            ['', false, '{"action":"off","deadline":"'.$pastYear.'-09-27 16:50:30"}', $pastYear.'-09-27 16:50:30'],
-            ['The tap will turn off at 27 Sep 2019 at 16:50', true, '{"action":"off","deadline":"'.$futureYear.'-09-27 16:50:30"}', $futureYear.'-09-27 16:50:30'],
+            ['', '', ''],
+            ['', null, null],
+            ['', 'off', $pastYear . '-09-27 16:50:30'],//because the date is in the past, hasSchedule is fales
+            ['', 'on', $pastYear . '-09-27 16:50:30'],//because the date is in the past, hasSchedule is fales
+            ['The tap will turn off at 27 Sep ' . $futureYear . ' at 16:50', 'off', $futureYear . '-09-27 16:50:30'],
 //            ['', true, null],
         ];
     }
+
     /**
      * @param string $expected
-     * @param bool $hssSchedule
      * @param string $nextEvent
      * @param string $nextEventScheduled
      *
      * @dataProvider providergetTurnOffData
      */
-    public function testgetTurnOffDate(string $expected, bool $hssSchedule, ?string $nextEvent, ?string $nextEventScheduled )
-    {
-        $this->sut = $this->getMockBuilder(Tap::class)->setMethods(['hasSchedule'])->disableOriginalConstructor()->getMock();
+    public function testgetTurnOffDate(string $expected, ?string $nextEvent, ?string $nextEventScheduled) {
+        $this->sut = $this->getMockBuilder(Tap::class)->setMethods(['save'])->disableOriginalConstructor()->getMock();
         $this->sut->next_event_scheduled = $nextEventScheduled;
         $this->sut->next_event = $nextEvent;
-        $this->sut->expects($this->any())->method('hasSchedule')->willReturn($hssSchedule);
+//        $this->sut->expects($this->any())->method('hasSchedule')->willReturn($hasSchedule);
 
         $this->assertSame($expected, $this->sut->getTurnOffDate());
-
     }
+
+    /**
+     * @covers Tap::hasSchedule
+     * @covers Tap::clearEvent
+     * @covers Tap::setEvent
+     */
+    public function testsetEvent() {
+        $futureYear = ((int)date('Y')) + 2;
+        $this->sut = $this->getMockBuilder(Tap::class)->setMethods(['save'])->disableOriginalConstructor()->getMock();
+        $this->assertFalse($this->sut->hasSchedule());
+        $this->sut->setEvent('woof', '2015-01-01 11:44:44');
+        $this->assertFalse($this->sut->hasSchedule());
+        $this->sut->setEvent(Tap::OFF, $futureYear . '-01-01 11:44:44');
+        $this->assertTrue($this->sut->hasSchedule());
+        $this->sut->clearEvent();
+        $this->assertFalse($this->sut->hasSchedule());
+    }
+
+
 }

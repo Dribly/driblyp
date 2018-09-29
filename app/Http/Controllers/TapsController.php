@@ -14,7 +14,7 @@ use App\Exceptions\TapAlreadyRegisteredException;
 class TapsController extends Controller {
 
     private $tapStatuses = ['active' => 'Active', 'inactive' => 'Inactive', 'deleted' => 'Deleted'];
-    private $onOrOff = ['on' => 'On', 'off' => 'Off'];
+    private $onOrOff = [Tap::ON => 'On', Tap::OFF => 'Off'];
 
     /**
      * Create a new controller instance.

@@ -39,10 +39,10 @@ class CheckOverrunningTaps extends Command {
         $targetTime = new DateTime('now');
         $targetTime->sub(new DateInterval('P2h'));
 //        $twoHoursAgo = date_sub(new \DateTime('now'), '');
-        $taps = Tap::where('reported_state', 'on')->whereDate('last_on', '>=',$targetTime->format('Y-m-d H:i:s'));
+        $taps = Tap::where('reported_state', Tap::ON)->whereDate('next_event_scheduled', '>=',$targetTime->format('Y-m-d H:i:s'));
         foreach ($taps as $naughtyTap)
         {
-            $naughtyTap->turnTap('off');
+            $naughtyTap->turnTap($naughtyTap->next_event);
         }
     }
 }

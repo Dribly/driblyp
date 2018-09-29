@@ -8,6 +8,9 @@ use App\Traits\MQTTEndpointTrait;
 use App\Library\Services\CloudMQTT;
 
 class Tap extends Model {
+    const OFF = 'off';
+    const ON = 'on';
+    public static $validEvents = [self::ON, self::OFF];
     use MQTTEndpointTrait;
     /**
      * The attributes that are mass assignable.
@@ -35,7 +38,7 @@ class Tap extends Model {
      * @param string $onOrOff
      * @return bool
      */
-    public function pleaseTurnTap(string $onOrOff = 'off'): bool {
+    public function pleaseTurnTap(string $onOrOff = Tap::OFF): bool {
         if (is_null($this->ignore_sensor_input_until)
             || strtotime($this->ignore_sensor_input_until) < time()) {
             return $this->turnTap($onOrOff);
@@ -48,11 +51,11 @@ class Tap extends Model {
      * Check if this event has a schedule
      * @return bool
      */
-    public function hasSchedule() : bool{
+    public function hasSchedule(): bool {
         $hasSchedule = false;
-        if ( !is_null($this->next_event_scheduled)) {
+        if (!is_null($this->next_event_scheduled)) {
             $nextEventDate = strToTime($this->next_event_scheduled);
-            $hasSchedule =  ($nextEventDate > time());
+            $hasSchedule = ($nextEventDate > time());
 
         }
         return $hasSchedule;
@@ -66,12 +69,9 @@ class Tap extends Model {
         $string = '';
         if (!is_null($this->next_event) && $this->hasSchedule()) {
             $nextEventDate = strToTime($this->next_event_scheduled);
-            $event = @json_decode($this->next_event);
-            if (is_object($event)) {
-                $next_event = $event->action;
-                $date = date('d M Y \a\t H:i', $nextEventDate);
-                $string = 'The tap will turn ' . $next_event . ' at ' . $date;
-            }
+            $next_event = $this->next_event;
+            $date = date('d M Y \a\t H:i', $nextEventDate);
+            $string = 'The tap will turn ' . $next_event . ' at ' . $date;
         }
         return $string;
     }
@@ -82,12 +82,14 @@ class Tap extends Model {
      * @return bool
      */
     public function setEvent($event, string $date): bool {
-        $eventObj = new \stdClass();
-        $eventObj->action = $event;
-        $eventObj->deadline = $date;
-        $this->next_event = json_encode($eventObj);
-        $this->next_event_scheduled = $date;
-        return true;
+        $result = false;
+        if (in_array($event, static::$validEvents))
+        {
+            $this->next_event = $event;
+            $this->next_event_scheduled = $date;
+            $result = true;
+        }
+        return $result;
     }
 
     /**
@@ -104,16 +106,16 @@ class Tap extends Model {
      * @param int $timePeriodMinutes
      * @TODO move this to observer
      */
-    public function turnTap(string $onOrOff = 'off', int $timePeriodMinutes = 0) {
-        // Belt and braces. You have to REALLY mean 'on' here
-        if (trim(strToLower($onOrOff)) !== 'on') {
+    public function turnTap(string $onOrOff = Tap::OFF, int $timePeriodMinutes = 0) {
+        // Belt and braces. You have to REALLY mean Tap::ON here
+        if (trim(strToLower($onOrOff)) !== Tap::ON) {
             $this->last_off_request = gmdate('Y-m-d H:i:s');
             $this->clearEvent();
 
         } else {
             // If we turn the tap on, make sure we set an event to turn it off
             if (0 < $timePeriodMinutes) {
-                $this->setEvent('off', gmdate('Y-m-d H:i:s', time() + (abs($timePeriodMinutes) * 60)));
+                $this->setEvent(Tap::OFF, gmdate('Y-m-d H:i:s', time() + (abs($timePeriodMinutes) * 60)));
             }
             $this->last_on_request = gmdate('Y-m-d H:i:s');
         }
@@ -177,11 +179,11 @@ class Tap extends Model {
                     break;
                 case 'update':
                     if (isset($messageObj->state)) {
-                        switch ($messageObj->state) {
-                            case 'on':
+                        switch (trim(strToLower($messageObj->state))) {
+                            case Tap::ON:
                                 $tap->last_on_request = gmdate('Y-m-d H:i:s');
                                 break;
-                            case 'off':
+                            case Tap::OFF:
                                 $tap->last_off_request = gmdate('Y-m-d H:i:s');
                                 break;
                             default:
@@ -196,11 +198,11 @@ class Tap extends Model {
                     break;
                 case 'response':
                     if (isset($messageObj->state)) {
-                        switch ($messageObj->state) {
-                            case 'on':
+                        switch (trim(strToLower($messageObj->state))) {
+                            case Tap::ON:
                                 $tap->last_on = gmdate('Y-m-d H:i:s');
                                 break;
-                            case 'off':
+                            case Tap::OFF:
                                 $tap->last_off = gmdate('Y-m-d H:i:s');
                                 break;
                             default:
