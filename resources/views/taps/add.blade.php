@@ -1,4 +1,4 @@
-@extends('layouts.material')
+@extends('layouts.material2')
 
 @section('headertitle')Add a Tap @endsection
 @section('pagetitle')Add a Tap @endsection

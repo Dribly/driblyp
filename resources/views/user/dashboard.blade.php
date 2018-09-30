@@ -1,4 +1,4 @@
-@extends('layouts.material')
+@extends('layouts.material2')
 
 @section('headertitle') Welcome to your dashboard @endsection
 @section('pagetitle') Dribly Dashboard @endsection

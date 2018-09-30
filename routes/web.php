@@ -16,11 +16,15 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', 
-        ['as' => 'users.dashboard',
-    'uses' => 'UsersController@dashboard'])->middleware('auth');
+Route::get('/dashboard',
+    ['as' => 'users.dashboard',
+        'uses' => 'UsersController@dashboard'])->middleware('auth');
 
-Route::get('/sensors', 
+Route::get('/profile',
+    ['as' => 'users.profile',
+        'uses' => 'UsersController@profile'])->middleware('auth');
+
+Route::get('/sensors',
         ['as' => 'sensors.index',
     'uses' => 'SensorsController@index'])->middleware('auth');
 Route::get('/sensors/add', 

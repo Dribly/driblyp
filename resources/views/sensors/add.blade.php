@@ -1,4 +1,4 @@
-@extends('layouts.material')
+@extends('layouts.material2')
 
 @section('headertitle')Add a sensor @endsection
 @section('pagetitle')Add a sensor @endsection

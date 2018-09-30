@@ -43,7 +43,7 @@ class SensorsController extends Controller {
 
     public function index(Request $request) {
         $sensors = WaterSensor::where('owner', Auth::user()->id)->get();
-        return view('sensors.index', ['sensors' => $sensors]);
+        return view('sensors.index', ['sensors' => $sensors, 'navHighlight' => 'sensors']);
     }
 
     public function show(Request $request, int $id) {
@@ -54,7 +54,7 @@ class SensorsController extends Controller {
         }
         $taps = $sensor->taps;
         $addedTapsArray = [];
-        foreach ($taps as $tap){
+        foreach ($taps as $tap) {
             $addedTapsArray[$tap->id] = $tap->description;
         }
         $allUnaddedTapsAry = [];
@@ -72,7 +72,8 @@ class SensorsController extends Controller {
             'lastvalue' => 0,
             'taps' => $taps,
             'allTaps' => $allUnaddedTapsAry,
-            'fakeValues' => [0 => 0, 1 => 1, 2 => 2, 5 => 5, 7 => 7, 9 => 9, 10 => 10, 20 => 20, 30 => 30, 40 => 40, 55 => 55, 66 => 66, 77 => 77, 88 => 88, 99 => 99, 100 => 100, 101 => 101]]);
+            'fakeValues' => [0 => 0, 1 => 1, 2 => 2, 5 => 5, 7 => 7, 9 => 9, 10 => 10, 20 => 20, 30 => 30, 40 => 40, 55 => 55, 66 => 66, 77 => 77, 88 => 88, 99 => 99, 100 => 100, 101 => 101],
+            'navHighlight' => 'sensors']);
     }
 
     /**
@@ -101,11 +102,11 @@ class SensorsController extends Controller {
     }
 
     /**
- * Controller function to connect a sensor to a tap.
- * @param Request $request
- * @param int $id
- * @return type
- */
+     * Controller function to connect a sensor to a tap.
+     * @param Request $request
+     * @param int $id
+     * @return type
+     */
     public function detatchFromTap(Request $request, int $id) {
         try {
             $sensor = WaterSensor::getSensor(Auth::user()->id, $id);
@@ -114,11 +115,11 @@ class SensorsController extends Controller {
         }
         try {
             $taps = $sensor->taps;
-            if (0 < count($taps)){
-            foreach ($taps as $tap)
-            {
-                $sensor->taps()->detach($tap->id);
-            }                $request->session()->flash('success', 'Tap detatched');
+            if (0 < count($taps)) {
+                foreach ($taps as $tap) {
+                    $sensor->taps()->detach($tap->id);
+                }
+                $request->session()->flash('success', 'Tap detatched');
 
             } else {
                 $request->session()->flash('warning', 'There were no taps to detatch');
@@ -171,12 +172,12 @@ class SensorsController extends Controller {
             }
             return redirect(Route('sensors.show', $sensor->id), 302);
         } else {
-            return view('sensors.add');
+            return view('sensors.add', ['navHighlight'=>'sensors']);
         }
     }
 
     public function remove(Request $request) {
-        return view('sensors.remove');
+        return view('sensors.remove',['navHighlight'=>'sensors']);
     }
 
     public function apiUpdate(Request $request, int $id) {

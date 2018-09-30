@@ -27,7 +27,7 @@ class TapsController extends Controller {
 
     public function index(Request $request) {
         $taps = Tap::where('owner', Auth::user()->id)->get();
-        return view('taps.index', ['taps' => $taps]);
+        return view('taps.index', ['taps' => $taps, 'navHighlight'=>'taps']);
     }
 
     public function show(Request $request, $id) {
@@ -60,7 +60,7 @@ class TapsController extends Controller {
             'tap' => $tap,
             'lastvalue' => 0,
             'sensors' => $sensors,
-            'allSensors' => $allUnaddedSensorsAry]);
+            'allSensors' => $allUnaddedSensorsAry, 'navHighlight'=>'taps']);
 //            return view('taps.add', );
     }
 
@@ -93,7 +93,7 @@ class TapsController extends Controller {
                 return view('taps.add', ['statuses' => $this->tapStatuses]);
             }
         } else {
-            return view('taps.add', ['statuses' => $this->tapStatuses]);
+            return view('taps.add', ['statuses' => $this->tapStatuses, 'navHighlight'=>'taps']);
         }
     }
 
@@ -164,7 +164,7 @@ class TapsController extends Controller {
     }
 
     public function remove(Request $request) {
-        return view('taps.remove');
+        return view('taps.remove', ['navHighlight'=>'taps']);
     }
 
     public function changeTapValveRoute(Request $request, int $id) {
