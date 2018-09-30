@@ -1,16 +1,10 @@
-@extends('layouts.bootstrap')
+@extends('layouts.material')
 
 @section('headertitle')Taps @endsection
 @section('pagetitle')Your Tap '{{$tap->description}}'@endsection
 
 @section('content')
-    <section class="bg-primary" id="about">
-        <div class="container">
-            <div class="row">
-                <a class=" text-white" href="{{route('taps.index', [])}}">&laquo; Back to Taps </a>
-            </div>
-            <div class="row">
-                <div class="col-lg-8 mx-auto text-center">
+
                     @foreach (['danger', 'warning', 'success', 'info'] as $key)
                         @if(Session::has($key))
                             <p class="alert alert-{{ $key }}">{{ Session::get($key) }}</p>
@@ -81,10 +75,7 @@
                         {{ Form::submit('Control Tap with this Sensor', ['class' => 'btn btn-primary']) }}
                         {{Form::Close()}}
                     @endif
-                </div>
-            </div>
-        </div>
-    </section>
+
 
 
 @endsection
