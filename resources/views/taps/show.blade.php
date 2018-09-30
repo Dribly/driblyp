@@ -44,7 +44,7 @@
             </div>
             <div class="row">
                 <div class="col-lg-12">
-                    <hr class="light"/>
+                    <h4>Pretending to be a tap</h4>
 
                     {{ Form::model($tap, array('route' => array('taps.sendFakeResponse', $tap->id))) }}
                     {{ Form::select('reported_state', $onOrOffs, null, ['class' => 'form-control form-control-sm']) }}
