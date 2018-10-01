@@ -33,14 +33,13 @@ class UsersController extends Controller {
                 } else {
                     $request->session()->flash('error', 'Something went wrong saving the user');
                 }
-                return redirect(Route('users.profile'), 302);
             } else {
                 $request->session()->flash('error', 'Incorrect User ID. You can only change your own details');
             }
 //            $request->session()->flash('warning', 'Could not set fake value of ' . $value . ' to tap ' . $id . ' because the number given was <1 or > 100');
 
+            return redirect(Route('users.profile'), 302);
 
-            return redirect(Route('taps.show', (int)$id), 302);
         } else {
             return view('user.profile', ['user' => Auth()->user()]);
 

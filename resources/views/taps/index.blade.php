@@ -15,7 +15,7 @@
             </div>
             <div class="card-body table-responsive">
                 <table class="table table-hover">
-                    <thead class="text-warning">
+                    <thead class="text-success">
                     <th>ID</th>
                     <th>Name</th>
                     <th>Current Status</th>
