@@ -24,6 +24,10 @@ Route::get('/profile',
     ['as' => 'users.profile',
         'uses' => 'UsersController@profile'])->middleware('auth');
 
+Route::post('/profile',
+    ['as' => 'user.update',
+        'uses' => 'UsersController@profile'])->middleware('auth');
+
 Route::get('/sensors',
         ['as' => 'sensors.index',
     'uses' => 'SensorsController@index'])->middleware('auth');

@@ -15,13 +15,11 @@
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
         <!-- CSS Files -->
         <link href="../material2/css/material-dashboard.css?v=2.1.0" rel="stylesheet"/>
-        <!-- CSS Just for demo purpose, don't include it in your project -->
-        <link href="../material2/demo/demo.css" rel="stylesheet"/>
         </head>
 
 <body class="">
 <div class="wrapper ">
-    <div class="sidebar" data-color="purple" data-background-color="white" data-image="../material2/img/sidebar-1.jpg">
+    <div class="sidebar" data-color="@yield('pageColour', 'purple')" data-background-color="white" data-image="../material2/img/sidebar-1.jpg">
         <!--
           Tip 1: You can change the color of the sidebar using: data-color="purple | azure | green | orange | danger"
 
@@ -116,7 +114,7 @@
                     </form>
                     <ul class="navbar-nav">
                         <li class="nav-item">
-                            <a class="nav-link" href="#pablo">
+                            <a class="nav-link" href="{{route('users.dashboard')}}">
                                 <i class="material-icons">dashboard</i>
                                 <p class="d-lg-none d-md-block">
                                     Stats
@@ -160,37 +158,37 @@
         </div>
         <footer class="footer">
             <div class="container-fluid">
-                <nav class="float-left">
-                    <ul>
-                        <li>
-                            <a href="https://www.creative-tim.com">
-                                Creative Tim
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://creative-tim.com/presentation">
-                                About Us
-                            </a>
-                        </li>
-                        <li>
-                            <a href="http://blog.creative-tim.com">
-                                Blog
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://www.creative-tim.com/license">
-                                Licenses
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
+                {{--<nav class="float-left">--}}
+                    {{--<ul>--}}
+                        {{--<li>--}}
+                            {{--<a href="https://www.creative-tim.com">--}}
+                                {{--Creative Tim--}}
+                            {{--</a>--}}
+                        {{--</li>--}}
+                        {{--<li>--}}
+                            {{--<a href="https://creative-tim.com/presentation">--}}
+                                {{--About Us--}}
+                            {{--</a>--}}
+                        {{--</li>--}}
+                        {{--<li>--}}
+                            {{--<a href="http://blog.creative-tim.com">--}}
+                                {{--Blog--}}
+                            {{--</a>--}}
+                        {{--</li>--}}
+                        {{--<li>--}}
+                            {{--<a href="https://www.creative-tim.com/license">--}}
+                                {{--Licenses--}}
+                            {{--</a>--}}
+                        {{--</li>--}}
+                    {{--</ul>--}}
+                {{--</nav>--}}
                 <div class="copyright float-right">
                     &copy;
                     <script>
                         document.write(new Date().getFullYear())
                     </script>
-                    , made with <i class="material-icons">favorite</i> by
-                    <a href="https://www.creative-tim.com" target="_blank">Creative Tim</a> for a better web.
+                    ,
+                    <a href="https://www.dribly.com" target="_blank">Dribly</a>.
                 </div>
             </div>
         </footer>
@@ -204,7 +202,7 @@
 <!--  Google Maps Plugin    -->
 {{--<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY_HERE"></script>--}}
 <!-- Chartist JS -->
-<script src="../material2/js/plugins/chartist.min.js"></script>
+{{--<script src="../material2/js/plugins/chartist.min.js"></script>--}}
 <!--  Notifications Plugin    -->
 <script src="../material2/js/plugins/bootstrap-notify.js"></script>
 <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->

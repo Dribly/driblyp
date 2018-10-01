@@ -2,6 +2,7 @@
 
 @section('headertitle')Sensors @endsection
 @section('pagetitle')Sensors @endsection
+@section('pageColour', 'orange')
 
 @section('content')
 <div class="row">

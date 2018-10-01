@@ -4,11 +4,12 @@
 @section('headertitle')Your Taps @endsection
 
 @section('content')
+@section('pageColour', 'green')
 
 
     <div class="col-lg-8 col-md-12">
         <div class="card">
-            <div class="card-header card-header-warning">
+            <div class="card-header card-header-success">
                 <h4 class="card-title">All my taps</h4>
                 <p class="card-category">=-</p>
             </div>
@@ -36,6 +37,6 @@
     </div>
 
 
-              <a class="btn btn-default btn-xl js-scroll-trigger btn-add" href="{{route('taps.add')}}">Register a new tap</a>
+              <a class="btn btn-default btn-xl " href="{{route('taps.add')}}">Register a new tap</a>
 
 @endsection

@@ -2,6 +2,7 @@
 
 @section('headertitle')Add a sensor @endsection
 @section('pagetitle')Add a sensor @endsection
+@section('pageColour', 'orange')
 
 @section('content')
     @foreach (['danger', 'warning', 'success', 'info'] as $key)

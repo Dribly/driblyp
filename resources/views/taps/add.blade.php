@@ -2,6 +2,7 @@
 
 @section('headertitle')Add a Tap @endsection
 @section('pagetitle')Add a Tap @endsection
+@section('pageColour', 'green')
 
 @section('content')
 
