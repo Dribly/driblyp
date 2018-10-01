@@ -26,27 +26,38 @@
             </div>
             <div class="row">
                 <div class="col-lg-6">
-                    <p><b>Status:</b><br/>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="tab-content">
+                                <p><b>Status:</b><br/></p>
                     {{ Form::model($sensor, array('route' => array('sensors.changestatus', $sensor->id))) }}
                     {{ Form::select('status', $statuses, null, ['class' => 'form-control  form-control-sm']) }}
 
                     {{ Form::submit('Save Status', ['class' => 'btn btn-primary']) }}
 
                     {{ Form::close() }}
+                    </div></div></div>
                 </div>
                 <div class="col-lg-6">
-                    <p><b>Fake Values:</b><br/>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="tab-content">
+                                <p><b>Fake Values:</b><br/></p>
                     {{ Form::model($sensor, array('route' => array('sensors.sendFakeValue', $sensor->id))) }}
                     {{ Form::select('last_reading', $fakeValues, null, ['class' => 'form-control  form-control-sm ']) }}
 
 
                     {{ Form::submit('Send Fake Value', ['class' => 'btn btn-debug']) }}
                     {{ Form::Close() }}
+                            </div></div></div>
                 </div>
             </div>
         </div>
         <div class="col-lg-4 mx-auto text-center">
-            <h3 class="section-heading "><b>Attached Taps</b></h3>
+            <div class="card">
+                <div class="card-body">
+                    <div class="tab-content">
+                        <h3 class="section-heading "><b>Attached Taps</b></h3>
 
             @if  (count($taps) > 0)
                 <h3>{{ count($taps)}} tap{{(count($taps) == 1 ? '':'s')}} controlled by this sensor</h3>
@@ -55,9 +66,9 @@
                     <p>{{ ucfirst($tap->description) }}
                         ({{ $tap->reported_state }})<br/>
                         <a href="{{$tap->getUrl()}}"
-                           class="btn btn-default view">Show</a>
+                           class="btn btn-primary view">Show</a>
                         {{ Form::model($sensor, array('route' => array('sensors.detatch', $sensor->id))) }}
-                        {{ Form::submit('Detatch', ['class' => 'btn btn-default btn-warn']) }}
+                        {{ Form::submit('Detatch', ['class' => 'btn btn-default ']) }}
 
                         {{Form::Close()}}</p>
                 @endforeach
@@ -72,6 +83,7 @@
                 {{ Form::submit('Link sensor to this Tap', ['class' => 'mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored mdl-color-text--white']) }}
                 {{ Form::Close() }}
             @endif
+                    </div></div></div>
         </div>
     </div>
 
