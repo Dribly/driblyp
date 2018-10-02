@@ -38,8 +38,8 @@
                 </div>
                 <div class="row">
                     <div class="col-md-6">
-                            {{ Form::label('email', 'Your email address', ['class' => 'bmd-label-floating']) }}
-                            {{ Form::text('email', null, ['class' => 'form-control']) }}
+                        {{ Form::label('email', 'Your email address', ['class' => 'bmd-label-floating']) }}
+                        {{ Form::text('email', null, ['class' => 'form-control']) }}
                     </div>
                 </div>
                 {{ Form::hidden('id') }}

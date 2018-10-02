@@ -48,7 +48,7 @@
                             {{ Form::model($sensor, array('route' => array('sensors.changestatus', $sensor->id))) }}
                             {{ Form::select('status', $statuses, null, ['class' => 'form-control  form-control-sm']) }}
 
-                            {{ Form::submit('Save Status', ['class' => 'btn btn-primary']) }}
+                            {{ Form::submit('Save Status', ['class' => 'btn btn-warning pull-right']) }}
 
                             {{ Form::close() }}
                         </div>
@@ -65,7 +65,7 @@
                             {{ Form::select('last_reading', $fakeValues, null, ['class' => 'form-control  form-control-sm ']) }}
 
 
-                            {{ Form::submit('Send Fake Value', ['class' => 'btn btn-debug']) }}
+                            {{ Form::submit('Send Fake Value', ['class' => 'btn btn-debug pull-right']) }}
                             {{ Form::Close() }}
                         </div>
                     </div>

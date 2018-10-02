@@ -28,7 +28,7 @@
                         <td> @if ($sensor->last_reading)
                                 {{$sensor->last_reading}}% humidity
                             @endif</td>
-                        <td> <a href="{{$sensor->getUrl()}}" class="btn btn-default">Show</a></td>
+                        <td> <a href="{{$sensor->getUrl()}}" class="btn btn-warning">Show</a></td>
                     </tr>
                         @endforeach
                     </tbody>

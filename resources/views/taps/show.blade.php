@@ -23,7 +23,15 @@
                             <h4 class="card-title">Tap overview</h4>
                         </div>
                         <div class="card-body">
-                            ({{$tap->uid}})
+                            <p><b>UID:</b> ({{$tap->uid}})</p>
+                            This tap is currently: <b>{{$tap->reported_state}}</b>
+                            @if ($tap->hasSchedule())
+                                {{$tap->getTurnOffDate()}}
+                            @endif
+
+                            @if ($tap->expected_state != $tap->reported_state)
+                                we have sent a message to turn it: {{$tap->expected_state}},
+                            @endif
 
 
                             {{--<p><b>ID:</b> - {{$sensor->uid}}</p>--}}
@@ -45,12 +53,11 @@
                             <h4 class="card-title">Disable / enable</h4>
                         </div>
                         <div class="card-body">
-                            <p>If your sensor is inactive, we will ignore any signals from it</p>
+                            <p>If your sensor is inactive, we will ignore any signals from it. This tap is currently <b>{{ucfirst($tap->status)}}</b></p>
                             {{ Form::model($tap, array('route' => array('taps.changestatus', $tap->id))) }}
                             {{ Form::select('status', $statuses, null, ['class' => 'form-control form-control-sm']) }}
 
-                            {{ $tap->status }}
-                            {{ Form::submit('Save Status', ['class' => 'btn btn-success']) }}
+                            {{ Form::submit('Save Status', ['class' => 'btn btn-success pull-right']) }}
                             {{ Form::close() }}
                         </div>
                     </div>
@@ -62,18 +69,20 @@
                         </div>
                         <div class="card-body ">
                             {{ Form::model($tap, array('route' => array('taps.turntap', $tap->id))) }}
+                            <div class="row">
+                                <div class="col-md-6">
                             The Tap should
                             be {{ Form::select('expected_state', $onOrOffs, null, ['class' => 'form-control form-control-sm']) }}
+                                </div>
+                                <div class="col-md-6">
                             for {{ Form::select('off_for_minutes', $timeLengths, null, ['class' => 'form-control form-control-sm']) }}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
 
-                            @if ($tap->expected_state != $tap->reported_state)
-                                Expected state: {{$tap->expected_state}},
-                            @endif
-                            Current State: {{$tap->reported_state}}
-                            @if ($tap->hasSchedule())
-                                {{$tap->getTurnOffDate()}}
-                            @endif
-                            {{ Form::submit('Save Status', ['class' => 'btn btn-success']) }}
+                            {{ Form::submit('Save Status', ['class' => 'btn btn-success pull-right']) }}
+                            </div>
                             {{ Form::close() }}
                         </div>
                     </div>
@@ -82,7 +91,7 @@
             <div class="row">
                 <div class="col-lg-8">
                     <div class="card">
-                        <div class="card-header card-header-error">
+                        <div class="card-header card-header-danger">
                             <h4 class="card-title">Debug use only</h4>
                         </div>
                         <div class="card-body">
