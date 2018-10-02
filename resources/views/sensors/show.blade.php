@@ -26,7 +26,7 @@
                         <div class="card-body">
 
                             <p><b>ID:</b> - {{$sensor->uid}}</p>
-                            <p><b>First registered:</b>b> - {{date('d M Y',strToTime($sensor->created_at))}}</p>
+                            <p><b>First registered:</b>  {{date('d M Y',strToTime($sensor->created_at))}}</p>
 
                             <p><b>Last Reading:</b> {{$sensor->last_reading}}%
                                 at {{date('d M H:i',strToTime($sensor->last_signal_date))}}</p>
