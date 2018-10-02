@@ -24,7 +24,7 @@
                         </div>
                         <div class="card-body">
                             <p><b>UID:</b> ({{$tap->uid}})</p>
-                            This tap is currently: <b>{{$tap->reported_state}}</b>
+                            This tap is currently: <b>{{ucfirst($tap->reported_state)}}</b> and <b>{{ucfirst($tap->status)}}</b>
                             @if ($tap->hasSchedule())
                                 {{$tap->getTurnOffDate()}}
                             @endif
@@ -53,7 +53,8 @@
                             <h4 class="card-title">Disable / enable</h4>
                         </div>
                         <div class="card-body">
-                            <p>If your sensor is inactive, we will ignore any signals from it. This tap is currently <b>{{ucfirst($tap->status)}}</b></p>
+                            <p>If your sensor is inactive, we will ignore any signals from it. This tap is currently
+                                <b>{{ucfirst($tap->status)}}</b></p>
                             {{ Form::model($tap, array('route' => array('taps.changestatus', $tap->id))) }}
                             {{ Form::select('status', $statuses, null, ['class' => 'form-control form-control-sm']) }}
 
@@ -71,19 +72,20 @@
                             {{ Form::model($tap, array('route' => array('taps.turntap', $tap->id))) }}
                             <div class="row">
                                 <div class="col-md-6">
-                            The Tap should
-                            be {{ Form::select('expected_state', $onOrOffs, null, ['class' => 'form-control form-control-sm']) }}
+                                    The Tap should
+                                    be {{ Form::select('expected_state', $onOrOffs, null, ['class' => 'form-control form-control-sm']) }}
                                 </div>
                                 <div class="col-md-6">
-                            for {{ Form::select('off_for_minutes', $timeLengths, null, ['class' => 'form-control form-control-sm']) }}
+                                    for {{ Form::select('off_for_minutes', $timeLengths, null, ['class' => 'form-control form-control-sm']) }}
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-12">
 
-                            {{ Form::submit('Save Status', ['class' => 'btn btn-success pull-right']) }}
+                                    {{ Form::submit('Save Status', ['class' => 'btn btn-success pull-right']) }}
+                                </div>
+                                {{ Form::close() }}
                             </div>
-                            {{ Form::close() }}
                         </div>
                     </div>
                 </div>
