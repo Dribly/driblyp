@@ -219,4 +219,26 @@ class TapsController extends Controller {
 
         return redirect(Route('taps.show', (int)$id), 302);
     }
+
+    /**
+     * Controller function to connect a sensor to a tap.
+     * @param Request $request
+     * @param int $id
+     * @return type
+     */
+    public function detachFromSensor(Request $request, int $id) {
+        try {
+            $tap = Tap::getTap(Auth::user()->id, $id);
+        } catch (SensorNotFoundException $ex) {
+            return view('404');
+        }
+        try {
+            $tap->sensors()->detach($request->post('sensor_id'));
+        } catch (\Exception $ex) {
+            $request->session()->flash('warning', 'Sensor could not be detached: ' . $ex->getMessage());
+        }
+        return redirect(Route('taps.show', (int)$id), 302);
+    }
+
+
 }

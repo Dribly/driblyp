@@ -13,32 +13,37 @@
             @endforeach
         </div>
     </div>
-    <div class="card">
+    <div class="card col-md-8">
+        <div class="card-header card-header-primary">
+            <h4 class="card-title">Edit Profile</h4>
+            <p class="card-category">Complete your profile</p>
+        </div>
         <div class="card-body">
             <div class="tab-content">
-                <h2>Your details</h2>
 
                 {{Form::model($user, array('route' => array('user.update', $user->id)))}}
-
-                <div class="form-group">
-                    <table>
-                        <tr>
-                            <td>{{ Form::label('firstname', 'Your First name', ['class' => 'control-label']) }}</td>
-                            <td>{{ Form::text('firstname', null, ['class' => 'form-control']) }}</td>
-                        </tr>
-                        <tr>
-                            <td>{{ Form::label('lastname', 'Your Last or Family Name', ['class' => 'control-label']) }}</td>
-                            <td>{{ Form::text('lastname', null, ['class' => 'form-control']) }}</td>
-                        </tr>
-                        <tr>
-                            <td>{{ Form::label('email', 'Your email address', ['class' => 'control-label']) }}</td>
-                            <td>{{ Form::text('email', null, ['class' => 'form-control']) }}</td>
-                        </tr>
-
-                    </table>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group bmd-form-group">
+                            {{ Form::label('firstname', 'Your First name', ['class' => 'bmd-label-floating']) }}
+                            {{ Form::text('firstname', null, ['class' => 'form-control']) }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group bmd-form-group">
+                            {{ Form::label('lastname', 'Your Last or Family Name', ['class' => 'bmd-label-floating']) }}
+                            {{ Form::text('lastname', null, ['class' => 'form-control']) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                            {{ Form::label('email', 'Your email address', ['class' => 'bmd-label-floating']) }}
+                            {{ Form::text('email', null, ['class' => 'form-control']) }}
+                    </div>
                 </div>
                 {{ Form::hidden('id') }}
-                {{ Form::submit('Change your details', ['class' => 'btn-primary btn btn-xl ']) }}
+                {{ Form::submit('Change your details', ['class' => 'btn btn-primary pull-right']) }}
             </div>
         </div>
     </div>

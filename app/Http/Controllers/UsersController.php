@@ -41,7 +41,7 @@ class UsersController extends Controller {
             return redirect(Route('users.profile'), 302);
 
         } else {
-            return view('user.profile', ['user' => Auth()->user()]);
+            return view('user.profile', ['user' => Auth()->user(),'navHighlight'=>'profile']);
 
         }
     }
