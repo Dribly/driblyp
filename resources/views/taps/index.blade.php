@@ -2,9 +2,9 @@
 
 @section('pagetitle')Your Taps @endsection
 @section('headertitle')Your Taps @endsection
+@section('pageColour', 'green')
 
 @section('content')
-@section('pageColour', 'green')
 
 
     <div class="col-lg-8 col-md-12">
@@ -27,7 +27,7 @@
                             <td>{{$tap->id}}</td>
                             <td> {{ $tap->description }}</td>
                             <td> {{$tap->status}}</td>
-                            <td> <a href="{{$tap->getUrl()}}" class="btn btn-default">Show</a></td>
+                            <td> <a href="{{$tap->getUrl()}}" class="btn btn-success">Show</a></td>
                         </tr>
                     @endforeach
                     </tbody>
@@ -37,6 +37,6 @@
     </div>
 
 
-              <a class="btn btn-default btn-xl " href="{{route('taps.add')}}">Register a new tap</a>
+              <a class="btn btn-success btn-xl " href="{{route('taps.add')}}">Register a new tap</a>
 
 @endsection

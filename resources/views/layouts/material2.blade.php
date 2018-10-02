@@ -3,8 +3,8 @@
 
 <head>
     <meta charset="utf-8"/>
-    <link rel="apple-touch-icon" sizes="76x76" href="../material2/img/apple-icon.png">
-    <link rel="icon" type="image/png" href="../material2/img/favicon.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="../themes/material2/img/apple-icon.png">
+    <link rel="icon" type="image/png" href="../themes/material2/img/favicon.png">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
     <title>@yield('pagetitle') - Dribly</title>
         <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no'
@@ -14,13 +14,13 @@
               href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:400,700|Material+Icons"/>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
         <!-- CSS Files -->
-    <link href="../material2/css/material-dashboard.css?v=2.1.0" rel="stylesheet"/>
-    <link href="../material2/css/app.css" rel="stylesheet"/>
+    <link href="../themes/material2/css/material-dashboard.css?v=2.1.0" rel="stylesheet"/>
+    <link href="../themes/material2/css/app.css" rel="stylesheet"/>
         </head>
 
 <body class="">
 <div class="wrapper ">
-    <div class="sidebar" data-color="@yield('pageColour', 'purple')" data-background-color="white" data-image="../material2/img/sidebar-1.jpg">
+    <div class="sidebar" data-color="@yield('pageColour', 'purple')" data-background-color="white" data-image="../themes/material2/img/sidebar-1.jpg">
         <!--
           Tip 1: You can change the color of the sidebar using: data-color="purple | azure | green | orange | danger"
 
@@ -196,20 +196,20 @@
     </div>
 </div>
 <!--   Core JS Files   -->
-<script src="../material2/js/core/jquery.min.js" type="text/javascript"></script>
-<script src="../material2/js/core/popper.min.js" type="text/javascript"></script>
-<script src="../material2/js/core/bootstrap-material-design.min.js" type="text/javascript"></script>
-<script src="../material2/js/plugins/perfect-scrollbar.jquery.min.js"></script>
+<script src="../themes/material2/js/core/jquery.min.js" type="text/javascript"></script>
+<script src="../themes/material2/js/core/popper.min.js" type="text/javascript"></script>
+<script src="../themes/material2/js/core/bootstrap-material-design.min.js" type="text/javascript"></script>
+<script src="../themes/material2/js/plugins/perfect-scrollbar.jquery.min.js"></script>
 <!--  Google Maps Plugin    -->
 {{--<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY_HERE"></script>--}}
 <!-- Chartist JS -->
-{{--<script src="../material2/js/plugins/chartist.min.js"></script>--}}
+{{--<script src="../themes/material2/js/plugins/chartist.min.js"></script>--}}
 <!--  Notifications Plugin    -->
-<script src="../material2/js/plugins/bootstrap-notify.js"></script>
+<script src="../themes/material2/js/plugins/bootstrap-notify.js"></script>
 <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
-<script src="../material2/js/material-dashboard.min.js?v=2.1.0" type="text/javascript"></script>
+<script src="../themes/material2/js/material-dashboard.min.js?v=2.1.0" type="text/javascript"></script>
 <!-- Material Dashboard DEMO methods, don't include it in your project! -->
-<script src="../material2/demo/demo.js"></script>
+<script src="../themes/material2/demo/demo.js"></script>
 <script>
     $(document).ready(function () {
         // Javascript method's body can be found in assets/js/demos.js
