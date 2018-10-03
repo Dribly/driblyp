@@ -161,14 +161,14 @@
                                 </div>
                             @endforeach
                         @else
-                            There are no sensors connected to this tap yet
+                            There are no sensors connected to this tap yet. Choose one below to begin controlling this tap with it
                         @endif
 
                         @if  (count($allSensors) > 0)
                             {{ Form::model($tap, array('route' => array('taps.connectToSensor', $tap->id))) }}
                             {{ Form::select('sensor_id', $allSensors, null, ['class' => 'form-control']) }}
 
-                            {{ Form::submit('Control Tap with this Sensor', ['class' => 'btn btn-primary']) }}
+                            {{ Form::submit('Control Tap with this Sensor', ['class' => 'btn btn-warn']) }}
                             {{Form::Close()}}
                         @endif
                     </div>
