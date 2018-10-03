@@ -7,27 +7,29 @@
     <link rel="icon" type="image/png" href="../themes/material2/img/favicon.png">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
     <title>@yield('pagetitle') - Dribly</title>
-        <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no'
-              name='viewport'/>
-        <!--     Fonts and icons     -->
-        <link rel="stylesheet" type="text/css"
-              href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:400,700|Material+Icons"/>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
-        <!-- CSS Files -->
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no'
+          name='viewport'/>
+    <!--     Fonts and icons     -->
+    <link rel="stylesheet" type="text/css"
+          href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:400,700|Material+Icons"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
+    <!-- CSS Files -->
     <link href="../themes/material2/css/material-dashboard.css?v=2.1.0" rel="stylesheet"/>
     <link href="../themes/material2/css/app.css" rel="stylesheet"/>
-        </head>
+</head>
 
 <body class="">
 <div class="wrapper ">
-    <div class="sidebar" data-color="@yield('pageColour', 'purple')" data-background-color="white" data-image="../themes/material2/img/sidebar-1.jpg">
+    <div class="sidebar" data-color="@yield('pageColour', 'purple')" data-background-color="white"
+         data-image="../themes/material2/img/sidebar-1.jpg">
         <!--
           Tip 1: You can change the color of the sidebar using: data-color="purple | azure | green | orange | danger"
 
           Tip 2: you can also add an image using data-image tag
       -->
         <div class="logo">
-            <a href="http://www.creative-tim.com" class="simple-text logo-normal">
+            <a href="/" class="simple-text logo-normal">
+                {{--<img stc="/themes/material2/img/apple-icon.png" alt="Dribly Logo"/>--}}
                 Dribly
             </a>
         </div>
@@ -53,7 +55,7 @@
                         </a>
                     </li>
 
-                    @else
+                @else
                     <div class="mdl-layout-spacer"></div>
                     <li class="nav-item @if(isset($navHighlight)&& $navHighlight == 'profile')active @endif  ">
                         <a class="nav-link" href="{{route('users.profile')}}">
@@ -62,25 +64,25 @@
                         </a>
                     </li>
                     <li class="nav-item @if(isset($navHighlight)&& $navHighlight == 'sensors')active @endif  ">
-                    <a class="nav-link" href="{{route('sensors.index')}}">
-                        <i class="material-icons">content_paste</i>
-                        <p>Sensors</p>
-                    </a>
-                </li>
+                        <a class="nav-link " href="{{route('sensors.index')}}">
+                            <i class="material-icons">content_paste</i>
+                            <p>Sensors</p>
+                        </a>
+                    </li>
                     <li class="nav-item @if(isset($navHighlight)&& $navHighlight == 'taps')active @endif  ">
-                    <a class="nav-link" href="{{route('taps.index')}}">
-                        <i class="material-icons">library_books</i>
-                        <p>Taps</p>
-                    </a>
-                </li>
-                <li class="nav-item ">
-                    <a class="nav-link" href="{{route('logout')}}">
-                        <i class="material-icons">bubble_chart</i>
-                        <p>Log out</p>
-                    </a>
-                </li>
+                        <a class="nav-link" href="{{route('taps.index')}}">
+                            <i class="material-icons">library_books</i>
+                            <p>Taps</p>
+                        </a>
+                    </li>
+                    <li class="nav-item ">
+                        <a class="nav-link" href="{{route('logout')}}">
+                            <i class="material-icons">bubble_chart</i>
+                            <p>Log out</p>
+                        </a>
+                    </li>
             @endif
-                <!-- <li class="nav-item active-pro ">
+            <!-- <li class="nav-item active-pro ">
                       <a class="nav-link" href="./upgrade.html">
                           <i class="material-icons">unarchive</i>
                           <p>Upgrade to PRO</p>
@@ -160,28 +162,28 @@
         <footer class="footer">
             <div class="container-fluid">
                 {{--<nav class="float-left">--}}
-                    {{--<ul>--}}
-                        {{--<li>--}}
-                            {{--<a href="https://www.creative-tim.com">--}}
-                                {{--Creative Tim--}}
-                            {{--</a>--}}
-                        {{--</li>--}}
-                        {{--<li>--}}
-                            {{--<a href="https://creative-tim.com/presentation">--}}
-                                {{--About Us--}}
-                            {{--</a>--}}
-                        {{--</li>--}}
-                        {{--<li>--}}
-                            {{--<a href="http://blog.creative-tim.com">--}}
-                                {{--Blog--}}
-                            {{--</a>--}}
-                        {{--</li>--}}
-                        {{--<li>--}}
-                            {{--<a href="https://www.creative-tim.com/license">--}}
-                                {{--Licenses--}}
-                            {{--</a>--}}
-                        {{--</li>--}}
-                    {{--</ul>--}}
+                {{--<ul>--}}
+                {{--<li>--}}
+                {{--<a href="https://www.creative-tim.com">--}}
+                {{--Creative Tim--}}
+                {{--</a>--}}
+                {{--</li>--}}
+                {{--<li>--}}
+                {{--<a href="https://creative-tim.com/presentation">--}}
+                {{--About Us--}}
+                {{--</a>--}}
+                {{--</li>--}}
+                {{--<li>--}}
+                {{--<a href="http://blog.creative-tim.com">--}}
+                {{--Blog--}}
+                {{--</a>--}}
+                {{--</li>--}}
+                {{--<li>--}}
+                {{--<a href="https://www.creative-tim.com/license">--}}
+                {{--Licenses--}}
+                {{--</a>--}}
+                {{--</li>--}}
+                {{--</ul>--}}
                 {{--</nav>--}}
                 <div class="copyright float-right">
                     &copy;
@@ -208,8 +210,8 @@
 <script src="../themes/material2/js/plugins/bootstrap-notify.js"></script>
 <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
 <script src="../themes/material2/js/material-dashboard.min.js?v=2.1.0" type="text/javascript"></script>
-<!-- Material Dashboard DEMO methods, don't include it in your project! -->
-<script src="../themes/material2/demo/demo.js"></script>
+{{--<!-- Material Dashboard DEMO methods, don't include it in your project! -->--}}
+{{--<script src="../themes/material2/demo/demo.js"></script>--}}
 <script>
     $(document).ready(function () {
         // Javascript method's body can be found in assets/js/demos.js

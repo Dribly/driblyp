@@ -11,7 +11,6 @@
         <div class="card">
             <div class="card-header card-header-success">
                 <h4 class="card-title">All my taps</h4>
-                <p class="card-category">=-</p>
             </div>
             <div class="card-body table-responsive">
                 <table class="table table-hover">

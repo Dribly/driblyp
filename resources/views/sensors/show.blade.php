@@ -18,21 +18,39 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-lg-10">
+                <div class="col-lg-12">
                     <div class="card">
                         <div class="card-header card-header-warning">
-                            <h4 class="card-title">Sensor overview</h4>
+                            <h4 class="card-title">Sensor Overview</h4>
                         </div>
                         <div class="card-body">
-
-                            <p><b>ID:</b> - {{$sensor->uid}}</p>
-                            <p><b>First registered:</b>  {{date('d M Y',strToTime($sensor->created_at))}}</p>
-
-                            <p><b>Last Reading:</b> {{$sensor->last_reading}}%
-                                at {{date('d M H:i',strToTime($sensor->last_signal_date))}}</p>
-                            <p><b>Battery Strength:</b> {{$sensor->last_battery_level}}%
-                                at {{date('d M H:i',strToTime($sensor->last_signal_date))}}</p>
-                            <p><b>Dryness Threshold:</b> {{$sensor->threshold}}%</p>
+                            <div class="row">
+                                <div class="col-sm-2"><b class="text-warning">ID:</b></div>
+                                <div class="col-sm-10"> {{$sensor->uid}}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-2"><b class="text-warning">First registered:</b></div>
+                                <div class="col-sm-10"> {{date('d M Y',strToTime($sensor->created_at))}}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-2"><b class="text-warning">Last Reading:</b></div>
+                                <div class="col-sm-10">{{$sensor->last_reading}}%
+                                    at {{date('d M H:i',strToTime($sensor->last_signal_date))}}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-2">
+                                    <b class="text-warning">Battery Strength:</b></div>
+                                <div class="col-sm-10"> {{$sensor->last_battery_level}}%
+                                    at {{date('d M H:i',strToTime($sensor->last_signal_date))}}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-2">
+                                    <p><b class="text-warning">Dryness Threshold:</b></div>
+                                <div class="col-sm-10"> {{$sensor->threshold}}%</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -74,52 +92,52 @@
         </div>
         <div class="col-lg-4 mx-auto text-center">
             <div class="card">
+                <div class="card-header card-header-success">
+                    <h4 class="card-title">Attached Taps</h4>
+                </div>
                 <div class="card-body">
-                    <div class="tab-content">
-                        <h3 class="section-heading "><b>Attached Taps</b></h3>
 
-                        @if  (count($taps) > 0)
-                            <h3>{{ count($taps)}} tap{{(count($taps) == 1 ? '':'s')}} controlled by this sensor</h3>
-                            @foreach ($taps as $tap)
-                                <div class="row">
-                                    <div class="col-sm-6 pull-right">
+                    @if  (count($taps) > 0)
+                        <h3>{{ count($taps)}} tap{{(count($taps) == 1 ? '':'s')}} controlled by this sensor</h3>
+                        @foreach ($taps as $tap)
+                            <div class="row">
+                                <div class="col-sm-6 pull-right">
 
-                                        {{ ucfirst($tap->description) }}
-                                        ({{ $tap->reported_state }})
-                                    </div>
-                                    <div class="col-sm-6">
-                                        {{--<a href="{{$tap->getUrl()}}" rel="tooltip"--}}
-                                        {{--class="btn btn-warning btn-link btn-sm">Show</a>--}}
-                                        <a href="{{$tap->getUrl()}}" rel="tooltip" title=""
-                                           class="btn btn-warning btn-link btn-sm"
-                                           data-original-title="Show">
-                                            <i class="material-icons">visibility</i>
-                                        </a>
-                                        {{ Form::model($sensor, array('route' => array('sensors.detach', $sensor->id), 'class'=>'button-form')) }}
-                                        {{--{{ Form::submit('Detach', ['class' => 'btn btn-icon btn-round ']) }}--}}
-                                        <button type="submit" rel="tooltip" title=""
-                                                class="btn btn-warning btn-link btn-sm"
-                                                data-original-title="Detach">
-                                            <i class="material-icons">delete</i>
-                                            <div class="ripple-container"></div>
-                                        </button>
-                                        {{Form::hidden('tap_id', $tap->id)}}
-                                        {{Form::Close()}}
-                                    </div>
+                                    {{ ucfirst($tap->description) }}
+                                    ({{ $tap->reported_state }})
                                 </div>
-                            @endforeach
-                        @else
-                            There are no taps attached to this sensor yet
-                        @endif
+                                <div class="col-sm-6">
+                                    {{--<a href="{{$tap->getUrl()}}" rel="tooltip"--}}
+                                    {{--class="btn btn-warning btn-link btn-sm">Show</a>--}}
+                                    <a href="{{$tap->getUrl()}}" rel="tooltip" title=""
+                                       class="btn btn-success btn-link btn-sm"
+                                       data-original-title="Show">
+                                        <i class="material-icons">visibility</i>
+                                    </a>
+                                    {{ Form::model($sensor, array('route' => array('sensors.detach', $sensor->id), 'class'=>'button-form')) }}
+                                    {{--{{ Form::submit('Detach', ['class' => 'btn btn-icon btn-round ']) }}--}}
+                                    <button type="submit" rel="tooltip" title=""
+                                            class="btn btn-success btn-link btn-sm"
+                                            data-original-title="Detach">
+                                        <i class="material-icons">delete</i>
+                                        <div class="ripple-container"></div>
+                                    </button>
+                                    {{Form::hidden('tap_id', $tap->id)}}
+                                    {{Form::Close()}}
+                                </div>
+                            </div>
+                        @endforeach
+                    @else
+                        There are no taps attached to this sensor yet
+                    @endif
 
-                        @if  (count($taps)== 0 && count($allTaps) > 0)
-                            {{ Form::model($sensor, array('route' => array('sensors.connectToTap', $sensor->id))) }}
-                            {{ Form::select('tap_id', $allTaps, null, ['class' => 'form-control']) }}
+                    @if  (count($taps)== 0 && count($allTaps) > 0)
+                        {{ Form::model($sensor, array('route' => array('sensors.connectToTap', $sensor->id))) }}
+                        {{ Form::select('tap_id', $allTaps, null, ['class' => 'form-control']) }}
 
-                            {{ Form::submit('Link sensor to this Tap', ['class' => 'mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored mdl-color-text--white']) }}
-                            {{ Form::Close() }}
-                        @endif
-                    </div>
+                        {{ Form::submit('Link sensor to this Tap', ['class' => 'mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored mdl-color-text--white']) }}
+                        {{ Form::Close() }}
+                    @endif
                 </div>
             </div>
         </div>

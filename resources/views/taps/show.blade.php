@@ -17,31 +17,34 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-lg-10">
+                <div class="col-lg-12">
                     <div class="card">
                         <div class="card-header card-header-success">
-                            <h4 class="card-title">Tap overview</h4>
+                            <h4 class="card-title">Tap Overview</h4>
                         </div>
                         <div class="card-body">
-                            <p><b>UID:</b> ({{$tap->uid}})</p>
-                            This tap is currently: <b>{{ucfirst($tap->reported_state)}}</b> and <b>{{ucfirst($tap->status)}}</b>
-                            @if ($tap->hasSchedule())
-                                {{$tap->getTurnOffDate()}}
-                            @endif
+                            <div class="row">
+                                <div class="col-sm-2">
+                                    <p><b class="text-success">UID:</b>
+                                </div>
+                                <div class="col-sm-10">
+                                    {{$tap->uid}}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    This tap is currently: <b>{{ucfirst($tap->reported_state)}}</b> and
+                                    <b>{{ucfirst($tap->status)}}</b>
+                                    @if ($tap->hasSchedule())
+                                        {{$tap->getTurnOffDate()}}
+                                    @endif
 
-                            @if ($tap->expected_state != $tap->reported_state)
-                                we have sent a message to turn it: {{$tap->expected_state}},
-                            @endif
+                                    @if ($tap->expected_state != $tap->reported_state)
+                                        we have sent a message to turn it: {{$tap->expected_state}},
+                                    @endif
+                                </div>
+                            </div>
 
-
-                            {{--<p><b>ID:</b> - {{$sensor->uid}}</p>--}}
-                            {{--<p><b>First registered:</b>b> - {{date('d M Y',strToTime($sensor->created_at))}}</p>--}}
-
-                            {{--<p><b>Last Reading:</b> {{$sensor->last_reading}}%--}}
-                            {{--at {{date('d M H:i',strToTime($sensor->last_signal_date))}}</p>--}}
-                            {{--<p><b>Battery Strength:</b> {{$sensor->last_battery_level}}%--}}
-                            {{--at {{date('d M H:i',strToTime($sensor->last_signal_date))}}</p>--}}
-                            {{--<p><b>Dryness Threshold:</b> {{$sensor->threshold}}%</p>--}}
                         </div>
                     </div>
                 </div>
@@ -108,9 +111,11 @@
         </div>
         <div class="col-sm-4">
             <div class="card mx-auto text-center">
+                <div class="card-header card-header-warning">
+                    <h4 class="card-title">Attached Sensors</h4>
+                </div>
                 <div class="card-body">
                     <div class="tab-content">
-                        <h3 class="section-heading "><b>Attached Sensors</b></h3>
 
                         @if  (count($sensors) > 0)
                             <h3>{{count($sensors)}} sensor{{(count($sensors) == 1 ? ' controls':'s control')}} this
@@ -129,14 +134,14 @@
                                         {{--<a href="{{$tap->getUrl()}}" rel="tooltip"--}}
                                         {{--class="btn btn-warning btn-link btn-sm">Show</a>--}}
                                         <a href="{{$sensor->getUrl()}}" rel="tooltip" title=""
-                                           class="btn btn-success btn-link btn-sm"
+                                           class="btn btn-warning btn-link btn-sm"
                                            data-original-title="Show">
                                             <i class="material-icons">visibility</i>
                                         </a>
                                         {{ Form::model($sensor, array('route' => array('taps.detach', $tap->id), 'class'=>'button-form')) }}
                                         {{--                                    {{ Form::submit('Detach', ['class' => 'btn btn-icon btn-round ']) }}--}}
                                         <button type="submit" rel="tooltip" title=""
-                                                class="btn btn-success btn-link btn-sm"
+                                                class="btn btn-warning btn-link btn-sm"
                                                 data-original-title="Detach">
                                             <i class="material-icons">delete</i>
                                             <div class="ripple-container"></div>
