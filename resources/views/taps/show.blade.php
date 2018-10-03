@@ -25,6 +25,14 @@
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-sm-2">
+                                    <p><b class="text-success">Name:</b>
+                                </div>
+                                <div class="col-sm-10">
+                                    {{$tap->description}}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-2">
                                     <p><b class="text-success">UID:</b>
                                 </div>
                                 <div class="col-sm-10">
