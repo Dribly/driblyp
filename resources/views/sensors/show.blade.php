@@ -128,14 +128,14 @@
                             </div>
                         @endforeach
                     @else
-                        There are no taps attached to this sensor yet
+                        There are no taps attached to this sensor yet. Choose one below to begin controlling it with this sensor
                     @endif
 
                     @if  (count($taps)== 0 && count($allTaps) > 0)
                         {{ Form::model($sensor, array('route' => array('sensors.connectToTap', $sensor->id))) }}
                         {{ Form::select('tap_id', $allTaps, null, ['class' => 'form-control']) }}
 
-                        {{ Form::submit('Link sensor to this Tap', ['class' => 'mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored mdl-color-text--white']) }}
+                        {{ Form::submit('Link sensor to this Tap', ['class' => 'btn btn-success pull-right']) }}
                         {{ Form::Close() }}
                     @endif
                 </div>
