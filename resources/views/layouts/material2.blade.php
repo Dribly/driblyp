@@ -76,7 +76,7 @@
                         </a>
                     </li>
                     <li class="nav-item ">
-                        <a class="nav-link" href="{{route('logout')}}">
+                        <a class="nav-link" href="{{route('logout')}}" onclick="event.preventDefault(); document.getElementById('frm-logout').submit();return false">
                             <i class="material-icons">bubble_chart</i>
                             <p>Log out</p>
                         </a>
@@ -197,6 +197,10 @@
         </footer>
     </div>
 </div>
+<form id="frm-logout" action="{{ route('logout') }}" method="POST" style="display: none;">
+    {{ csrf_field() }}
+</form>
+
 <!--   Core JS Files   -->
 <script src="../themes/material2/js/core/jquery.min.js" type="text/javascript"></script>
 <script src="../themes/material2/js/core/popper.min.js" type="text/javascript"></script>

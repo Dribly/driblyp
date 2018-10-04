@@ -108,6 +108,10 @@
                             <h4 class="card-title">Debug use only</h4>
                         </div>
                         <div class="card-body">
+                            <div class="md-form">
+                                <input placeholder="Selected time" type="text" id="input_starttime" class="form-control timepicker">
+                                <label for="input_starttime">Light version, 12hours</label>
+                            </div>
                             {{ Form::model($tap, array('route' => array('taps.sendFakeResponse', $tap->id))) }}
                             {{ Form::select('reported_state', $onOrOffs, null, ['class' => 'form-control form-control-sm']) }}
                             {{ Form::submit('Pretend to respond to tap state change', ['class' => 'btn btn-debug']) }}
