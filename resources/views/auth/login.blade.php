@@ -1,8 +1,9 @@
-@extends('layouts.bootstrap')
-@section('pagetitle')
-Log In
-@endsection
+@extends('layouts.material2')
+@section('pagetitle', 'Log In')
+@section('loginNavHighlight', 'active')
+
 @section('content')
+
 <!-- resources/views/auth/login.blade.php -->
 @if ($errors->any())
     <div class="alert alert-danger">
@@ -13,28 +14,49 @@ Log In
         </ul>
     </div>
 @endif
-<form method="POST" action="/login">
-    {!! csrf_field() !!}
 
-    <div>
-        Email
-        <input type="email" name="email" value="{{ old('email') }}">
+<div class="row">
+    <div class="col-lg-8">
+        <div class="row">
+            <div class="col-lg-12 mx-auto text-center">
+                @foreach (['danger', 'warning', 'success', 'info'] as $key)
+                    @if(Session::has($key))
+                        <p class="alert alert-{{ $key }}">{{ Session::get($key) }}</p>
+                    @endif
+                @endforeach
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-header card-header-primary">
+                        <h4 class="card-title">Sign in</h4>
+                    </div>
+                    <div class="card-body">
+                            {{ Form::open(['route' => 'login']) }}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group bmd-form-group">
+                                        {{ Form::label('email', 'Your Email Address', ['class' => 'bmd-label-floating']) }}
+                                        {{ Form::text('email', null, ['class' => 'form-control']) }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group bmd-form-group">
+                                        {{ Form::label('password', 'Your Password', ['class' => 'bmd-label-floating']) }}
+                                        {{ Form::password('password', ['class' => ' form-control']) }}
+                                    </div>
+                                </div>
+                            </div>
+                        {{Form::Submit('Sign in', ['class'=>'pull-right btn btn-primary'])}}
+                            {{Form::close()}}
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
 
-    <div>
-        Password
-        <input type="password" name="password" id="password">
-    </div>
-
-    <div>
-        <input type="checkbox" name="remember"> Remember Me
-    </div>
-
-    <div>
-        <button type="submit">Login</button>
-    </div>
-</form>
-
-
-      
 @endsection

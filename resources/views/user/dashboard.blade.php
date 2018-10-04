@@ -2,6 +2,7 @@
 
 @section('headertitle') Welcome to your dashboard @endsection
 @section('pagetitle') Dribly Dashboard @endsection
+@section('dashboardNavHighlight', 'active')
 
 @section('content')
 

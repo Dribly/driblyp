@@ -35,48 +35,49 @@
         </div>
         <div class="sidebar-wrapper">
             <ul class="nav">
-                <li class="nav-item @if(!isset($navHighlight))active @endif  ">
-                    <a class="nav-link" href="{{route('users.dashboard')}}">
-                        <i class="material-icons">dashboard</i>
-                        <p>Dashboard</p>
-                    </a>
-                </li>
                 @if (Auth::guest())
-                    <li class="nav-item @if(isset($navHighlight) && $navHighlight == 'register')active @endif  ">
+                    <li class="nav-item @yield('registerNavHighlight', '')  ">
                         <a class="nav-link" href="{{route('register')}}">
-                            <i class="material-icons">Register</i>
+                            <i class="material-icons">assignment</i>
                             <p>Register</p>
                         </a>
                     </li>
-                    <li class="nav-item @if(isset($navHighlight)&& $navHighlight == 'login')active @endif  ">
+                    <li class="nav-item @yield('loginNavHighlight', '') ">
                         <a class="nav-link" href="{{route('login')}}">
-                            <i class="material-icons">log in</i>
+                            <i class="material-icons">person_outline</i>
                             <p>Log in</p>
                         </a>
                     </li>
 
                 @else
+                    <li class="nav-item @yield('dashboardNavHighlight', '') ">
+                        <a class="nav-link" href="{{route('users.dashboard')}}">
+                            <i class="material-icons">dashboard</i>
+                            <p>Dashboard</p>
+                        </a>
+                    </li>
                     <div class="mdl-layout-spacer"></div>
-                    <li class="nav-item @if(isset($navHighlight)&& $navHighlight == 'profile')active @endif  ">
+                    <li class="nav-item @yield('profileNavHighlight', '') ">
                         <a class="nav-link" href="{{route('users.profile')}}">
                             <i class="material-icons">person</i>
                             <p>{{ Auth::user()->firstname }}'s Profile</p>
                         </a>
                     </li>
-                    <li class="nav-item @if(isset($navHighlight)&& $navHighlight == 'sensors')active @endif  ">
+                    <li class="nav-item @yield('sensorsNavHighlight', '') ">
                         <a class="nav-link " href="{{route('sensors.index')}}">
                             <i class="material-icons">content_paste</i>
                             <p>Sensors</p>
                         </a>
                     </li>
-                    <li class="nav-item @if(isset($navHighlight)&& $navHighlight == 'taps')active @endif  ">
+                    <li class="nav-item @yield('tapsNavHighlight', '')">
                         <a class="nav-link" href="{{route('taps.index')}}">
                             <i class="material-icons">library_books</i>
                             <p>Taps</p>
                         </a>
                     </li>
-                    <li class="nav-item ">
-                        <a class="nav-link" href="{{route('logout')}}" onclick="event.preventDefault(); document.getElementById('frm-logout').submit();return false">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{route('logout')}}"
+                           onclick="event.preventDefault(); document.getElementById('frm-logout').submit();return false">
                             <i class="material-icons">bubble_chart</i>
                             <p>Log out</p>
                         </a>
@@ -106,6 +107,7 @@
                     <span class="navbar-toggler-icon icon-bar"></span>
                 </button>
                 <div class="collapse navbar-collapse justify-content-end">
+                    @if (!Auth::guest())
                     <form class="navbar-form">
                         <div class="input-group no-border">
                             <input type="text" value="" class="form-control" placeholder="Search...">
@@ -115,41 +117,42 @@
                             </button>
                         </div>
                     </form>
-                    <ul class="navbar-nav">
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{route('users.dashboard')}}">
-                                <i class="material-icons">dashboard</i>
-                                <p class="d-lg-none d-md-block">
-                                    Stats
-                                </p>
-                            </a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link" href="http://example.com" id="navbarDropdownMenuLink"
-                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="material-icons">notifications</i>
-                                <span class="notification">5</span>
-                                <p class="d-lg-none d-md-block">
-                                    Some Actions
-                                </p>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-                                <a class="dropdown-item" href="#">Mike John responded to your email</a>
-                                <a class="dropdown-item" href="#">You have 5 new tasks</a>
-                                <a class="dropdown-item" href="#">You're now friend with Andrew</a>
-                                <a class="dropdown-item" href="#">Another Notification</a>
-                                <a class="dropdown-item" href="#">Another One</a>
-                            </div>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#pablo">
-                                <i class="material-icons">person</i>
-                                <p class="d-lg-none d-md-block">
-                                    Account
-                                </p>
-                            </a>
-                        </li>
-                    </ul>
+                        <ul class="navbar-nav">
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{route('users.dashboard')}}">
+                                    <i class="material-icons">dashboard</i>
+                                    <p class="d-lg-none d-md-block">
+                                        Stats
+                                    </p>
+                                </a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link" href="http://example.com" id="navbarDropdownMenuLink"
+                                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="material-icons">notifications</i>
+                                    <span class="notification">5</span>
+                                    <p class="d-lg-none d-md-block">
+                                        Some Actions
+                                    </p>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+                                    <a class="dropdown-item" href="#">Mike John responded to your email</a>
+                                    <a class="dropdown-item" href="#">You have 5 new tasks</a>
+                                    <a class="dropdown-item" href="#">You're now friend with Andrew</a>
+                                    <a class="dropdown-item" href="#">Another Notification</a>
+                                    <a class="dropdown-item" href="#">Another One</a>
+                                </div>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#pablo">
+                                    <i class="material-icons">person</i>
+                                    <p class="d-lg-none d-md-block">
+                                        Account
+                                    </p>
+                                </a>
+                            </li>
+                        </ul>
+                    @endif
                 </div>
             </div>
         </nav>

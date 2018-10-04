@@ -3,6 +3,7 @@
 @section('pagetitle')Your Taps @endsection
 @section('headertitle')Your Taps @endsection
 @section('pageColour', 'green')
+@section('tapsNavHighlight', 'active')
 
 @section('content')
 

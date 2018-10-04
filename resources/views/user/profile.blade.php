@@ -2,6 +2,7 @@
 
 @section('headertitle') Your Profile @endsection
 @section('pagetitle') Your Profile @endsection
+@section('profileNavHighlight', 'active')
 
 @section('content')
     <div class="row">

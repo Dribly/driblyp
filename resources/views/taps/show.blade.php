@@ -3,6 +3,7 @@
 @section('headertitle')Your Tap '{{$tap->description}}' @endsection
 @section('pagetitle')Your Tap '{{$tap->description}}' @endsection
 @section('pageColour', 'green')
+@section('tapsNavHighlight', 'active')
 
 @section('content')
     <div class="row">

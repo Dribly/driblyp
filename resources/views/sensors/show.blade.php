@@ -3,6 +3,7 @@
 @section('headertitle')Water Sensor: {{$sensor->description}} @endsection
 @section('pagetitle')Water Sensor: {{$sensor->description}} @endsection
 @section('pageColour', 'orange')
+@section('sensorsNavHighlight', 'active')
 
 @section('content')
 
