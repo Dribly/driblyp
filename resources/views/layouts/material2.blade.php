@@ -65,20 +65,20 @@
                     </li>
                     <li class="nav-item @yield('sensorsNavHighlight', '') ">
                         <a class="nav-link " href="{{route('sensors.index')}}">
-                            <i class="material-icons">content_paste</i>
+                            <i class="material-icons">brightness_medium</i>
                             <p>Sensors</p>
                         </a>
                     </li>
-                    <li class="nav-item @yield('tapsNavHighlight', '')">
+                    <li class="nav-item@yield('tapsNavHighlight', '')">
                         <a class="nav-link" href="{{route('taps.index')}}">
-                            <i class="material-icons">library_books</i>
+                            <i class="material-icons">opacity</i>
                             <p>Taps</p>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{route('logout')}}"
                            onclick="event.preventDefault(); document.getElementById('frm-logout').submit();return false">
-                            <i class="material-icons">bubble_chart</i>
+                            <i class="material-icons" >directions_run</i>
                             <p>Log out</p>
                         </a>
                     </li>
@@ -108,15 +108,15 @@
                 </button>
                 <div class="collapse navbar-collapse justify-content-end">
                     @if (!Auth::guest())
-                    <form class="navbar-form">
-                        <div class="input-group no-border">
-                            <input type="text" value="" class="form-control" placeholder="Search...">
-                            <button type="submit" class="btn btn-white btn-round btn-just-icon">
-                                <i class="material-icons">search</i>
-                                <div class="ripple-container"></div>
-                            </button>
-                        </div>
-                    </form>
+                        <form class="navbar-form">
+                            <div class="input-group no-border">
+                                <input type="text" value="" class="form-control" placeholder="Search...">
+                                <button type="submit" class="btn btn-white btn-round btn-just-icon">
+                                    <i class="material-icons">search</i>
+                                    <div class="ripple-container"></div>
+                                </button>
+                            </div>
+                        </form>
                         <ul class="navbar-nav">
                             <li class="nav-item">
                                 <a class="nav-link" href="{{route('users.dashboard')}}">

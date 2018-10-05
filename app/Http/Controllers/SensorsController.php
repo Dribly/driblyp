@@ -55,14 +55,14 @@ class SensorsController extends Controller {
         $taps = $sensor->taps;
         $addedTapsArray = [];
         foreach ($taps as $tap) {
-            $addedTapsArray[$tap->id] = $tap->description;
+            $addedTapsArray[$tap->id] = $tap->name;
         }
         $allUnaddedTapsAry = [];
         $allTaps = Tap::where('owner', Auth::user()->id)->get(); //->list('description','id');
 // Yuck! don't know how to map model to select
         foreach ($allTaps as $tap) {
             if (!array_key_exists($tap->id, $addedTapsArray)) {
-                $allUnaddedTapsAry[$tap->id] = $tap->description;
+                $allUnaddedTapsAry[$tap->id] = $tap->name;
             }
         }
 
@@ -147,6 +147,7 @@ class SensorsController extends Controller {
         if ($request->isMethod('POST')) {
             $sensor = new WaterSensor();
             $sensor->owner = Auth::user()->id;
+            $sensor->name = $request->post('name');
             $sensor->description = $request->post('description');
             $sensor->uid = $request->post('uid');
             try {

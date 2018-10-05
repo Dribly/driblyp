@@ -40,7 +40,7 @@ class TapsController extends Controller {
 
         $allAddedSensorsAry = [];
         foreach ($sensors as $sensor) {
-            $allAddedSensorsAry[$sensor->id] = $sensor->description;
+            $allAddedSensorsAry[$sensor->id] = $sensor->name;
         }
 
         $allUnaddedSensorsAry = [];
@@ -49,7 +49,7 @@ class TapsController extends Controller {
 // Yuck! don't know how to map model to select
         foreach ($allSensors as $sensor) {
             if (!array_key_exists($sensor->id, $allAddedSensorsAry) && $sensor->canControlTap($tap)) {
-                $allUnaddedSensorsAry[$sensor->id] = $sensor->description;
+                $allUnaddedSensorsAry[$sensor->id] = $sensor->name;
             }
         }
 
@@ -76,6 +76,7 @@ class TapsController extends Controller {
 
                 $tap = new Tap();
                 $tap->owner = Auth::user()->id;
+                $tap->name = $request->post('name');
                 $tap->description = $request->post('description');
                 $tap->uid = $request->post('uid');
                 $tap->save();

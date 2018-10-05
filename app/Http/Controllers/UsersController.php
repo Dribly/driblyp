@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\User;
 use Illuminate\Support\Facades\Auth;
+use App\Tap;
+use App\WaterSensor;
 
 class UsersController extends Controller {
 
@@ -18,7 +20,10 @@ class UsersController extends Controller {
     }
 
     public function dashboard(Request $request) {
-        return view('user.dashboard');
+        $taps = Tap::where('owner', Auth::user()->id)->get();
+        $sensors = WaterSensor::where('owner', Auth::user()->id)->get();
+//        var_dump($sensors);die();
+        return view('user.dashboard', ['taps' => $taps, 'sensors' => $sensors]);
     }
 
     public function profile(Request $request) {
@@ -41,7 +46,7 @@ class UsersController extends Controller {
             return redirect(Route('users.profile'), 302);
 
         } else {
-            return view('user.profile', ['user' => Auth()->user(),'navHighlight'=>'profile']);
+            return view('user.profile', ['user' => Auth()->user(), 'navHighlight' => 'profile']);
 
         }
     }

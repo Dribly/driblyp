@@ -36,6 +36,14 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group bmd-form-group">
+                                        {{ Form::label('name', 'Chose a name (20 characters max)', ['class' => 'bmd-label-floating']) }}
+                                        {{ Form::text('name', null, ['class' => 'form-control']) }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group bmd-form-group">
                                         {{ Form::label('description', 'Description - e.g. Front Tap, Kitchen Tap', ['class' => 'bmd-label-floating']) }}
                                         {{ Form::text('description', null, ['class' => 'form-control']) }}
                                     </div>

@@ -34,6 +34,14 @@
                                 <div class="col-sm-10"> {{date('d M Y',strToTime($sensor->created_at))}}</div>
                             </div>
                             <div class="row">
+                                <div class="col-sm-2"><b class="text-warning">Name:</b></div>
+                                <div class="col-sm-10"> {{$sensor->name}}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-2"><b class="text-warning">Description:</b></div>
+                                <div class="col-sm-10"> {{$sensor->description}}</div>
+                            </div>
+                            <div class="row">
                                 <div class="col-sm-2"><b class="text-warning">Last Reading:</b></div>
                                 <div class="col-sm-10">{{$sensor->last_reading}}%
                                     at {{date('d M H:i',strToTime($sensor->last_signal_date))}}
@@ -104,7 +112,7 @@
                             <div class="row">
                                 <div class="col-sm-6 pull-right">
 
-                                    {{ ucfirst($tap->description) }}
+                                    {{ ucfirst($tap->name) }}
                                     ({{ $tap->reported_state }})
                                 </div>
                                 <div class="col-sm-6">

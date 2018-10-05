@@ -29,6 +29,14 @@
                                     <p><b class="text-success">Name:</b>
                                 </div>
                                 <div class="col-sm-10">
+                                    {{$tap->name}}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-2">
+                                    <p><b class="text-success">Description:</b>
+                                </div>
+                                <div class="col-sm-10">
                                     {{$tap->description}}
                                 </div>
                             </div>
@@ -136,7 +144,7 @@
                             @foreach ($sensors as $sensor)
                                 <div class="row">
                                     <div class="col-sm-6 pull-right">
-                                        {{ $sensor->description }}
+                                        {{ $sensor->name }}
                                         @if (!$sensor->isActive())
                                             (inactive)
                                         @endif
