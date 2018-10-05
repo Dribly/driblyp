@@ -69,7 +69,7 @@
                             <p>Sensors</p>
                         </a>
                     </li>
-                    <li class="nav-item@yield('tapsNavHighlight', '')">
+                    <li class="nav-item @yield('tapsNavHighlight', '')">
                         <a class="nav-link" href="{{route('taps.index')}}">
                             <i class="material-icons">opacity</i>
                             <p>Taps</p>
