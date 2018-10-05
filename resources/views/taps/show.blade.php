@@ -122,6 +122,7 @@
                                 <label for="input_starttime">Light version, 12hours</label>
                             </div>
                             {{ Form::model($tap, array('route' => array('taps.sendFakeResponse', $tap->id))) }}
+                            {{ Form::select('off_for_minutes', $timeLengths, null, ['class' => 'form-control form-control-sm']) }}
                             {{ Form::select('reported_state', $onOrOffs, null, ['class' => 'form-control form-control-sm']) }}
                             {{ Form::submit('Pretend to respond to tap state change', ['class' => 'btn btn-debug']) }}
                             {{ Form::Close() }}
