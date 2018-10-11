@@ -18,6 +18,8 @@
 
     <!-- Custom styles for this template -->
     <link href="/themes/creative/css/creative.css" rel="stylesheet">
+    <link rel="apple-touch-icon" sizes="76x76" href="../themes/material2/img/apple-icon.png">
+    <link rel="icon" type="image/png" href="../themes/material2/img/favicon.png">
     @yield('extra_head')
   <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
