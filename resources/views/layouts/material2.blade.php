@@ -16,6 +16,7 @@
     <!-- CSS Files -->
     <link href="../themes/material2/css/material-dashboard.css?v=2.1.0" rel="stylesheet"/>
     <link href="../themes/material2/css/app.css" rel="stylesheet"/>
+    <meta name="description" content="@yield('htmlmetadescription','Dribly automates your watering')" />
     <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
                 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],

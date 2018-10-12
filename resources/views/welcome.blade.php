@@ -1,10 +1,10 @@
 @extends('layouts.bootstrap')
-
+@section('htmlmetadescription','Dribly automates your watering, without crazy systems and complex installation')
 @section ('headerclass')masthead
 @endsection
 @section('headermore')
           <hr>
-          <p>Dribly automates your watering, without crazy systems and stuff</p>
+          <p>Dribly automates your watering, without crazy systems and complex installation</p>
           <a class="btn btn-primary btn-xl js-scroll-trigger" href="#about">Find Out More</a>
 
 @endsection
@@ -17,7 +17,7 @@
           <div class="col-lg-8 mx-auto text-center">
             <h2 class="section-heading text-white">We've got what you need!</h2>
             <hr class="light">
-            <p class="text-faded">Just attach the tap using hoselock connectors to your system, and use an online timer for free. Get a sensor (subscription required) and we will keep the garden watered. Monitor on our Dribbly app and your garden will be wet all year.</p>
+            <p class="text-faded">Just attach the tap using tap connectors to your system, and use an online timer for free. Get a sensor (subscription required) and we will keep the garden watered. Monitor on our Dribly app and your garden will be watered all year when it needs it.</p>
             <a class="btn btn-default btn-xl js-scroll-trigger" href="#services">Get Started!</a>
           </div>
         </div>
@@ -60,7 +60,7 @@
             <div class="service-box">
               <i class="fa fa-4x fa-heart text-primary sr-icons"></i>
               <h3>Sense and Sensibility</h3>
-              <p class="text-muted">Dribbly knows when it is raining, and doesn't waste your water.</p>
+              <p class="text-muted">Dribly knows when it is raining, and doesn't waste your water.</p>
             </div>
           </div>
         </div>
