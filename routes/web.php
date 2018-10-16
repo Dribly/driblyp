@@ -81,4 +81,8 @@ Route::post('/taps/{id}/detach',
     ['as' => 'taps.detach',
         'uses' => 'TapsController@detachFromSensor'])->middleware('auth');
 
+Route::post('/taps/{id}/storeTimeSlots',
+    ['as' => 'taps.storeTimeSlots',
+        'uses' => 'TapsController@storeTimeSlots'])->middleware('auth');
+
 

@@ -6,11 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 use App\Exceptions\TapNotFoundException;
 use App\Traits\MQTTEndpointTrait;
 use App\Library\Services\CloudMQTT;
+use App\TimeSlotManager;
 
 class Tap extends Model {
     const OFF = 'off';
     const ON = 'on';
     public static $validEvents = [self::ON, self::OFF];
+    protected $timeSlotManager;
     use MQTTEndpointTrait;
     /**
      * The attributes that are mass assignable.
@@ -83,8 +85,7 @@ class Tap extends Model {
      */
     public function setEvent($event, string $date): bool {
         $result = false;
-        if (in_array($event, static::$validEvents))
-        {
+        if (in_array($event, static::$validEvents)) {
             $this->next_event = $event;
             $this->next_event_scheduled = $date;
             $result = true;
@@ -157,6 +158,21 @@ class Tap extends Model {
 
     public function isActive() {
         return $this->status == 'active';
+    }
+
+    /**
+     * @param bool $loadFromDb choose whether to reset from DB or to load the current / blank one
+     * @return \App\TimeSlotManagerget the relevant timeslot manager for this tap.
+     */
+    public function getTimeSlotManager($loadFromDb=true): TimeSlotManager {
+
+        if (!isset($this->timeSlotManager)){
+           $this->timeSlotManager = new TimeSlotManager(($this->id));
+       }
+       if ($loadFromDb){
+           $this->timeSlotManager->load();
+       }
+       return $this->timeSlotManager;
     }
 
     public function waterSensors() {

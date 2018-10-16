@@ -20,7 +20,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-md-3">
+        <div class="col-md-4">
             <div class="card card-stats">
                 <div class="card-header card-header-warning card-header-icon">
                     <div class="card-icon">
@@ -32,8 +32,8 @@
                 <div class="card-body">
                     @foreach ($sensors as $sensor)
                         <div class="row">
-                            <div class="col-sm-8">{{$sensor->name}}</div>
-                            <div class="col-sm-2">@if(!is_null($sensor->last_reading)){{$sensor->last_reading}}%@endif</div>
+                            <div class="col-md-auto">{{$sensor->name}}</div>
+                            <div class="col-mr-auto">@if(!is_null($sensor->last_reading)){{$sensor->last_reading}}%@endif</div>
                             <div class="col-sm-2">
 
                                 <a href="{{$sensor->getUrl()}}" rel="tooltip" title="Show"
@@ -53,7 +53,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
             <div class="card card-stats">
                 <div class="card-header card-header-success card-header-icon">
                     <div class="card-icon">

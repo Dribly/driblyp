@@ -10,6 +10,7 @@ use App\Exceptions\TapNotFoundException;
 use Illuminate\Database\QueryException;
 use App\Exceptions\TapAlreadyRegisteredException;
 
+//use App\TimeSlotManager;
 
 class TapsController extends Controller {
 
@@ -27,7 +28,7 @@ class TapsController extends Controller {
 
     public function index(Request $request) {
         $taps = Tap::where('owner', Auth::user()->id)->get();
-        return view('taps.index', ['taps' => $taps, 'navHighlight'=>'taps']);
+        return view('taps.index', ['taps' => $taps, 'navHighlight' => 'taps']);
     }
 
     public function show(Request $request, $id) {
@@ -43,27 +44,51 @@ class TapsController extends Controller {
             $allAddedSensorsAry[$sensor->id] = $sensor->name;
         }
 
-        $allUnaddedSensorsAry = [];
+        $allUnAddedSensorsAry = [];
 
+//        $allSensors = $tap->waterSensors();//WaterSensor::where('owner', Auth::user()->id)->get(); //->list('description','id');
         $allSensors = WaterSensor::where('owner', Auth::user()->id)->get(); //->list('description','id');
-// Yuck! don't know how to map model to select
+        // Yuck! don't know how to map model to select
         foreach ($allSensors as $sensor) {
             if (!array_key_exists($sensor->id, $allAddedSensorsAry) && $sensor->canControlTap($tap)) {
-                $allUnaddedSensorsAry[$sensor->id] = $sensor->name;
+                $allUnAddedSensorsAry[$sensor->id] = $sensor->name;
             }
         }
 
         return view('taps.show', [
             'statuses' => $this->tapStatuses,
             'onOrOffs' => $this->onOrOff,
-            'timeLengths' =>[0=>'How Long...', 1=>'1 minute', 10=>'10 minutes',20=>'20 minutes',30=>'half an hour',40=>'40 minutes',60=>'1 hour',90=>'1 and a half hours',120=>'2 hours'],
+            'timeLengths' => [0 => 'How Long...', 1 => '1 minute', 10 => '10 minutes', 20 => '20 minutes', 30 => 'half an hour', 40 => '40 minutes', 60 => '1 hour', 90 => '1 and a half hours', 120 => '2 hours'],
             'tap' => $tap,
             'lastvalue' => 0,
             'sensors' => $sensors,
-            'allSensors' => $allUnaddedSensorsAry, 'navHighlight'=>'taps']);
+            'allSensors' => $allUnAddedSensorsAry,
+            'timeSlotsManager' => $tap->getTimeSlotManager(),
+            'navHighlight' => 'taps'
+            ]);
 //            return view('taps.add', );
     }
 
+    public function storeTimeSlots(Request $request, int $id) {
+        try {
+            $tap = Tap::getTap(Auth::user()->id, $id);
+        } catch (TapNotFoundException $ex) {
+            return view('404');
+        }
+        // We don't load from db, as we assume this is a POST request to replace.
+        $timeSlotManager = $tap->getTimeSlotManager(false);
+
+        foreach ($request->slots as $dayId => $blocks) {
+            foreach ($blocks as $hour => $isBlocked) {
+                if ($isBlocked) {
+                    $timeSlotManager->addBlock($dayId, $hour);
+                }
+            }
+        }
+        // Will override all previosu.
+        $timeSlotManager->save();
+        return redirect(Route('taps.show', $tap->id), 302);
+    }
 
     public function add(Request $request) {
         if ($request->isMethod('POST')) {
@@ -94,7 +119,7 @@ class TapsController extends Controller {
                 return view('taps.add', ['statuses' => $this->tapStatuses]);
             }
         } else {
-            return view('taps.add', ['statuses' => $this->tapStatuses, 'navHighlight'=>'taps']);
+            return view('taps.add', ['statuses' => $this->tapStatuses, 'navHighlight' => 'taps']);
         }
     }
 
@@ -131,7 +156,7 @@ class TapsController extends Controller {
             $tap->turnTap($state, (int)$request->post('off_for_minutes'));
             $request->session()->flash('success', 'State saved');
         } else {
-            $request->session()->flash('warning', 'Could not change state to ' . $state . ': ' );
+            $request->session()->flash('warning', 'Could not change state to ' . $state . ': ');
         }
 
         return redirect(Route('taps.show', (int)$id), 302);
@@ -165,7 +190,7 @@ class TapsController extends Controller {
     }
 
     public function remove(Request $request) {
-        return view('taps.remove', ['navHighlight'=>'taps']);
+        return view('taps.remove', ['navHighlight' => 'taps']);
     }
 
     public function changeTapValveRoute(Request $request, int $id) {
