@@ -9,7 +9,8 @@ use Illuminate\Database\Eloquent\Builder;
 class TimeSlotManager implements \Iterator {
     private $days;
     private $tapId;
-    private static $daysOfWeeName = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    private static $daysOfWeeName = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
     //
     public function __construct(int $tapId) {
         $this->initDays();
@@ -79,10 +80,14 @@ class TimeSlotManager implements \Iterator {
         return true;
     }
 
-    public static function getDayName($dayNum)
-    {
-return self::$daysOfWeeName[$dayNum];
+    public function dumpDays() {
+        return $this->days;
     }
+
+    public static function getDayName(int $dayNum) {
+        return self::$daysOfWeeName[$dayNum];
+    }
+
     /**
      * Add a single block to the record
      * @param int $day
@@ -101,7 +106,7 @@ return self::$daysOfWeeName[$dayNum];
     public function load(): bool {
         $slots = $this->getSlots()->get();
         foreach ($slots as $slot) {
-            $this->days[$slot->day_of_week][$slot->hour_start] = true;
+            $this->days[(int)$slot->day_of_week][(int)$slot->hour_start] = true;
         };
         return true;
     }
@@ -110,7 +115,7 @@ return self::$daysOfWeeName[$dayNum];
      * get all current slots for this tap
      * @return Collection
      */
-    private function getSlots(): Builder  {
+    private function getSlots(): Builder {
         return TimeSlot::where('tap_id', $this->tapId);
     }
 
@@ -120,6 +125,22 @@ return self::$daysOfWeeName[$dayNum];
      */
     private function getTrashedSlots(): Builder {
         return TimeSlot::onlyTrashed()->where('tap_id', $this->tapId);
+    }
+
+    public function toJSON() {
+        $result = new \stdClass();
+        $result->days = [];
+        foreach ($this->days as $dayOfWeek => $hourStarts) {
+            $result->days[$dayOfWeek] = [];
+            foreach ($hourStarts as $hour => $value) {
+                $result->days[$dayOfWeek][$hour] = $value;
+            }
+        }
+        $res = json_encode($result);
+        vaR_dump($res);
+        die();
+        return $res;
+//    return '{\'a\'=>\b\'}';
     }
 
     /**

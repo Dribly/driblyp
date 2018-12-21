@@ -4,3 +4,8 @@ Thumbs.DB
 nbproject
 logs/nginx/*
 .env
+node_modules
+public/css/app.css
+public/js/app.js
+.idea
+.idea/*

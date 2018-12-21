@@ -125,6 +125,7 @@ class WaterSensor extends Model {
                     }
                     break;
                 default:
+                    error_log('WaterSensor handler could not process message ' . json_encode($messageObj) . ' for ' . $uid);
                     break;
             }
             if (isset($messageObj->battery_level)) {
@@ -132,9 +133,12 @@ class WaterSensor extends Model {
             }
             $sensor->last_signal_date = date('Y-m-d H:i:s');
             $sensor->last_signal = $messageType;
-            echo 'savig water sensor' . "\n";
-            $sensor->save();
+            echo 'saving water sensor' . "\n";
+            if (!$sensor->save()) {
+                error_log('water sensor ' . $uid . ' could not be saved ' . json_encode($messageObj));
+            }
         } else {
+            error_log($uid . ' is not a valid UID for a WaterSensor in  ' . json_encode($messageObj));
             var_dump('not a water sensor ' . $uid);
         }
     }

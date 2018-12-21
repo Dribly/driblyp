@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\TimeSlotManager;
 use Illuminate\Http\Request;
 use App\Tap;
 use App\WaterSensor;
@@ -23,15 +24,40 @@ class TapsController extends Controller {
      * @return void
      */
     public function __construct() {
-        $this->middleware('auth');
+//        $this->middleware('auth');
     }
 
     public function index(Request $request) {
         $taps = Tap::where('owner', Auth::user()->id)->get();
         return view('taps.index', ['taps' => $taps, 'navHighlight' => 'taps']);
     }
+    public function apiIndex(Request $request)
+    {
+//        die('got here 1');
+        $taps = Tap::where('owner', Auth::user()->id)->get();
+        return $taps->toJson();
 
-    public function show(Request $request, $id) {
+    }
+    public function apiGetTimeSlots(int $tapID)
+    {
+        return response()->json(['slots'=>$this->getTimeSlots($tapID)], 200,[],JSON_OBJECT_AS_ARRAY );
+//        return response()->json(['slots'=>$this->getTimeSlots($tapID)]);
+
+    }
+    public function getTimeSlots(int $tapID):TimeSlotManager
+    {
+        $tap = Tap::getTap(Auth::user()->id, $tapID);
+        return $tap->getTimeSlotManager();
+
+
+    }
+    public function jsonGetTimeSlots(int $tapID){
+        $data = ['slots'=>$this->getTimeSlots($tapID)->dumpDays()];
+//        var_dump( response()->json($data));die();
+
+        return response()->json($data);
+    }
+    public function show(Request $request, int $id) {
         try {
             $tap = Tap::getTap(Auth::user()->id, $id);
         } catch (TapNotFoundException $ex) {
@@ -77,14 +103,20 @@ class TapsController extends Controller {
         }
         // We don't load from db, as we assume this is a POST request to replace.
         $timeSlotManager = $tap->getTimeSlotManager(false);
-
-        foreach ($request->slots as $dayId => $blocks) {
+//var_dump($request->post());
+        foreach ($request->post('slots') as $dayId => $blocks) {
+            echo ($dayId);echo " = DAY\n";
             foreach ($blocks as $hour => $isBlocked) {
+                echo ($hour);echo " = HOUR\n";
                 if ($isBlocked) {
+                    echo "IS BLOCKED \n";
                     $timeSlotManager->addBlock($dayId, $hour);
                 }
             }
         }
+        $timeSlotManager->save();
+        return response()->json(['slots'=>$this->getTimeSlots($tap->id)], 200,[],JSON_OBJECT_AS_ARRAY );
+
         // Will override all previosu.
         $timeSlotManager->save();
         return redirect(Route('taps.show', $tap->id), 302);

@@ -162,17 +162,17 @@ class Tap extends Model {
 
     /**
      * @param bool $loadFromDb choose whether to reset from DB or to load the current / blank one
-     * @return \App\TimeSlotManagerget the relevant timeslot manager for this tap.
+     * @return \App\TimeSlotManager get the relevant timeslot manager for this tap.
      */
-    public function getTimeSlotManager($loadFromDb=true): TimeSlotManager {
+    public function getTimeSlotManager($loadFromDb = true): TimeSlotManager {
 
-        if (!isset($this->timeSlotManager)){
-           $this->timeSlotManager = new TimeSlotManager(($this->id));
-       }
-       if ($loadFromDb){
-           $this->timeSlotManager->load();
-       }
-       return $this->timeSlotManager;
+        if (!isset($this->timeSlotManager)) {
+            $this->timeSlotManager = new TimeSlotManager($this->id);
+        }
+        if ($loadFromDb) {
+            $this->timeSlotManager->load();
+        }
+        return $this->timeSlotManager;
     }
 
     public function waterSensors() {
@@ -183,7 +183,7 @@ class Tap extends Model {
         return route('taps.show', ['id' => $this->id]);
     }
 
-    public static function handleMessage($uid, $messageType, \stdClass $messageObj) {
+    public static function handleMessage(string $uid, string $messageType, \stdClass $messageObj) {
         $tap = Tap::where(['uid' => $uid])->first();
         echo "got a message\n";
         var_dump($messageObj);
@@ -231,13 +231,22 @@ class Tap extends Model {
                     }
 
                     break;
+                default:
+                    error_log('Tap handler could not process message ' . json_encode($messageObj) . ' for ' . $uid);
+                    break;
+
             }
             $tap->last_signal = $messageType;
             $tap->last_signal_date = gmdate('Y-m-d H:i:s');
             if (!empty($messageObj->battery_level)) {
                 $tap->last_battery_level = $messageObj->last_battery_level;
             }
-            $tap->save();
+            if (!$tap->save()) {
+                error_log('Tap ' . $uid . ' could not be saved ' . json_encode($messageObj));
+            }
+        } else {
+            error_log($uid . ' is not a valid UID for a Tap in  ' . json_encode($messageObj));
+
         }
     }
 }

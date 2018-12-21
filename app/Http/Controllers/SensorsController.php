@@ -164,12 +164,12 @@ class SensorsController extends Controller {
             }
             return redirect(Route('sensors.show', $sensor->id), 302);
         } else {
-            return view('sensors.add', ['navHighlight'=>'sensors']);
+            return view('sensors.add', ['navHighlight' => 'sensors']);
         }
     }
 
     public function remove(Request $request) {
-        return view('sensors.remove',['navHighlight'=>'sensors']);
+        return view('sensors.remove', ['navHighlight' => 'sensors']);
     }
 
     public function apiUpdate(Request $request, int $id) {

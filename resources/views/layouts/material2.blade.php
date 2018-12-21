@@ -14,6 +14,7 @@
           href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:400,700|Material+Icons"/>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
     <!-- CSS Files -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="../themes/material2/css/material-dashboard.css?v=2.1.0" rel="stylesheet"/>
     <link href="../themes/material2/css/app.css" rel="stylesheet"/>
     <meta name="description" content="@yield('htmlmetadescription','Dribly automates your watering')" />
@@ -24,6 +25,7 @@
             'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
         })(window,document,'script','dataLayer','GTM-M79SC8L');</script>
     <!-- End Google Tag Manager -->
+{{--    <script src="{{ asset('js/app.js') }}"></script>--}}
 
 </head>
 
@@ -219,8 +221,7 @@
 </form>
 
 <!--   Core JS Files   -->
-<script src="../themes/material2/js/core/jquery.min.js" type="text/javascript"></script>
-<script src="../themes/material2/js/core/popper.min.js" type="text/javascript"></script>
+<script src="{{ mix('/js/app.js') }}"></script>
 <script src="../themes/material2/js/core/bootstrap-material-design.min.js" type="text/javascript"></script>
 <script src="../themes/material2/js/plugins/perfect-scrollbar.jquery.min.js"></script>
 <!--  Google Maps Plugin    -->
@@ -240,6 +241,7 @@
 
     });
 </script>
+@yield('footer_js')
 </body>
 
 </html>

@@ -5,6 +5,7 @@ export HOST_HTTP_PORT=$2
 export HOST_HTTPS_PORT=$3
 export PHP_FPM_PORT=$4
 export WORKSPACE_SSH_PORT=$5
+export WORKSPACE_INSTALL_NODE=true
 echo "${APP_NAME} going up"
 export CONTAINER_NAME_PREFIX=${APP_NAME}
 export COMPOSE_PROJECT_NAME="Dribly"

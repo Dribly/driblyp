@@ -52,6 +52,7 @@ echo "Message address is " . $route."\n";
                 echo "processed tap message ".$routeParts[2]." for ".$messageObj->uid."\n";
                 break;
             default:
+                error_log('could not process message '.$message);
 echo "IGNORED ".$routeParts[1] ." message\n";
         }
 

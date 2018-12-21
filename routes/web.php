@@ -81,8 +81,10 @@ Route::post('/taps/{id}/detach',
     ['as' => 'taps.detach',
         'uses' => 'TapsController@detachFromSensor'])->middleware('auth');
 
+Route::get('/json/taps/{id}/timeslots', ['as'=>'jsapi.taps.timeslots', 'uses'=>'TapsController@jsonGetTimeSlots'])->middleware('auth');
 Route::post('/taps/{id}/storeTimeSlots',
     ['as' => 'taps.storeTimeSlots',
-        'uses' => 'TapsController@storeTimeSlots'])->middleware('auth');
+        'uses' => 'TapsController@storeTimeSlots']);//->middleware('auth');
+Route::get('/v1/taps/{id}/timeslots', ['as'=>'taps.timeslots', 'uses'=>'TapsController@getTimeslots'])->middleware('auth');
 
 

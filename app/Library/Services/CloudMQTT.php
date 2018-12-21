@@ -26,7 +26,7 @@ class CloudMQTT {
         self::FEED_TAPREPLY => "taps/response/uid/",
     ];
 
-    public function __construct(){
+    public function __construct() {
         $this->SERVER = config('cloudmqtt.server.server_name');
         $this->USERNAME = config('cloudmqtt.server.username');
         $this->PASSWORD = config('cloudmqtt.server.password');
@@ -49,7 +49,7 @@ class CloudMQTT {
      */
     public function makeFeedName(int $type, string $uid): string {
         $cleanUID = str_replace('/', '', $uid);
-        return rtrim($this->PREFIX,'/').'/' . str_replace('/uid/', '/' . $cleanUID . '/', self::FEED_TYPES[$type]);
+        return rtrim($this->PREFIX, '/') . '/' . str_replace('/uid/', '/' . $cleanUID . '/', self::FEED_TYPES[$type]);
     }
 
     /**
@@ -76,12 +76,12 @@ class CloudMQTT {
      * Function to clear a messaeg that is stuck
      * @param string $feed
      */
-    public function clearTopic(string $feed)
-    {
-        echo "clearing with " . $feed."\n";
+    public function clearTopic(string $feed) {
+        echo "clearing with " . $feed . "\n";
         $this->initMqtt();
         $this->mqtt->publish($feed, null, 0, 1);
     }
+
     /**
      * timeout in seconds
      * @param arraay $feeds
@@ -121,8 +121,10 @@ class CloudMQTT {
 
     public function __destruct() {
         // TODO: Implement __destruct() method.
-       echo "\nCLOSING MQTT\n";
-        $this->mqtt->close();
+        echo "\nCLOSING MQTT\n";
+        if ($this->mqtt) {
+            $this->mqtt->close();
+        }
     }
 
 }
