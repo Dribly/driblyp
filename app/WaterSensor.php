@@ -72,7 +72,6 @@ class WaterSensor extends Model {
         $success = false;
         if ($this->canControlTap($tap)) {
             $this->taps()->attach($tap);
-
             $success = true;// attach returns void! Thanks!!!
         }
         return $success;

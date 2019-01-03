@@ -13,6 +13,7 @@ class CloudMQTT {
     private $PORT;
     private $KEY;
     private $PREFIX;
+
     const FEED_WATERSENSOR = 10;
     const FEED_WATERSENSORIDENTIFY = 11;
     const FEED_TAP = 20;
@@ -66,7 +67,6 @@ class CloudMQTT {
         } else {
             $object = $message;
         }
-
 
         $this->initMqtt();
         $this->mqtt->publish($feed, json_encode($object), 0, $retain);

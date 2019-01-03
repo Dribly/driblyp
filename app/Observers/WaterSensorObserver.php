@@ -27,7 +27,6 @@ class WaterSensorObserver {
                 } else {
                     $tap->pleaseTurnTap('off');
                 }
-
             }
         }
     }

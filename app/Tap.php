@@ -34,6 +34,16 @@ class Tap extends Model {
     ];
 
     /**
+     * work out if we are ignoring or not
+     * @return bool
+     */
+    protected function isTapIgnoringSensors(): bool {
+        $result = (!is_null($this->ignore_sensor_input_until)
+            && strtotime($this->ignore_sensor_input_until) >= time());
+        return $result;
+    }
+
+    /**
      * This function is for sensors to politeley request more or no more water
      * It differs from turnTap in that the tap is able to deny the request
      * due to having had a manual override
@@ -41,8 +51,7 @@ class Tap extends Model {
      * @return bool
      */
     public function pleaseTurnTap(string $onOrOff = Tap::OFF): bool {
-        if (is_null($this->ignore_sensor_input_until)
-            || strtotime($this->ignore_sensor_input_until) < time()) {
+        if (!$this->isTapIgnoringSensors() && !$this->isBlockedByTimer()) {
             return $this->turnTap($onOrOff);
         } else {
             return false;
@@ -106,8 +115,9 @@ class Tap extends Model {
      * @param string $onOrOff
      * @param int $timePeriodMinutes
      * @TODO move this to observer
+     * @return bool
      */
-    public function turnTap(string $onOrOff = Tap::OFF, int $timePeriodMinutes = 0) {
+    public function turnTap(string $onOrOff = Tap::OFF, int $timePeriodMinutes = 0): bool {
         // Belt and braces. You have to REALLY mean Tap::ON here
         if (trim(strToLower($onOrOff)) !== Tap::ON) {
             $this->last_off_request = gmdate('Y-m-d H:i:s');
@@ -156,7 +166,7 @@ class Tap extends Model {
         return $tap;
     }
 
-    public function isActive() {
+    public function isActive(): bool {
         return $this->status == 'active';
     }
 
@@ -165,24 +175,36 @@ class Tap extends Model {
      * @return \App\TimeSlotManager get the relevant timeslot manager for this tap.
      */
     public function getTimeSlotManager($loadFromDb = true): TimeSlotManager {
-
         if (!isset($this->timeSlotManager)) {
             $this->timeSlotManager = new TimeSlotManager($this->id);
         }
+        // Reset from database
         if ($loadFromDb) {
             $this->timeSlotManager->load();
         }
         return $this->timeSlotManager;
     }
 
-    public function waterSensors() {
+    public function isBlockedByTimer(): bool {
+        $timeSlotManager = $this->getTimeSlotManager();
+        return $timeSlotManager->isTimerBlocked();
+    }
+
+    public function waterSensors(): \Illuminate\Database\Eloquent\Relations\BelongsToMany {
         return $this->belongsToMany('App\WaterSensor');
     }
 
-    public function getUrl() {
+    public function getUrl(): string {
         return route('taps.show', ['id' => $this->id]);
     }
 
+    /**
+     * @param string $uid
+     * @param string $messageType
+     * @param \stdClass $messageObj
+     * @TODO turn this into a router
+     * @throws \Exception
+     */
     public static function handleMessage(string $uid, string $messageType, \stdClass $messageObj) {
         $tap = Tap::where(['uid' => $uid])->first();
         echo "got a message\n";

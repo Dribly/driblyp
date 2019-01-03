@@ -10,25 +10,25 @@
     {{--<script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>--}}
     <!-- Load our React component. -->
     {{--<script src="{{ mix('/js/app.js') }}"></script>--}}
-    <script type="text/javascript">const tap_id={{(int)$tap->id}};</script>
+    <script type="text/javascript">const tap_id ={{(int)$tap->id}};</script>
     <script src="{{ mix('/js/myjs.js') }}"></script>
 @endsection
 @section('content')
-<style type="text/css">
-    span.tap_off, span.tap_on{
-        width:6px;
-        display: inline-block;
+    <style type="text/css">
+        span.tap_off, span.tap_on {
+            width: 6px;
+            display: inline-block;
 
-    }
-    span.tap_off
-    {
-        color: red;
-    }
-    span.tap_on
-    {
-        color: green;
-    }
-</style>
+        }
+
+        span.tap_off {
+            color: red;
+        }
+
+        span.tap_on {
+            color: green;
+        }
+    </style>
     <div class="row">
         <div class="col-lg-8">
             <div class="row">
@@ -78,10 +78,15 @@
                                     @if ($tap->hasSchedule())
                                         {{$tap->getTurnOffDate()}}
                                     @endif
-
                                     @if ($tap->expected_state != $tap->reported_state)
                                         we have sent a message to turn it: {{$tap->expected_state}},
                                     @endif
+
+                                    @if ($tap->isBlockedByTimer())
+                                        The tap will not turn on due to a timer block, you can adjust this below
+                                    @endif
+
+
                                 </div>
                             </div>
                         </div>
@@ -95,7 +100,9 @@
                             <h4 class="card-title">Disable / enable</h4>
                         </div>
                         <div class="card-body">
-                            <p>If your sensor is inactive, we will ignore any signals from it. This tap is currently
+                            <p>If your tap is inactive, we will not send any signals to it. This takes precedence over
+                                all other signals, so even if the timer is on,
+                                and the sensors report dryness, the tap will not turn on. This tap is currently
                                 <b>{{ucfirst($tap->status)}}</b></p>
                             {{ Form::model($tap, array('route' => array('taps.changestatus', $tap->id))) }}
                             {{ Form::select('status', $statuses, null, ['class' => 'form-control form-control-sm']) }}
@@ -108,10 +115,15 @@
                 <div class="col-sm-6">
                     <div class="card">
                         <div class="card-header card-header-success">
-                            <h4 class="card-title">Control this tap</h4>
+                            <h4 class="card-title">Manual Control</h4>
                         </div>
                         <div class="card-body ">
                             {{ Form::model($tap, array('route' => array('taps.turntap', $tap->id))) }}
+                            <div class="row">
+                                <div class="col-md-12">
+                                    This overrides the timer blocks, but does not override the Disable / Enable switch.
+                                </div>
+                            </div>
                             <div class="row">
                                 <div class="col-md-6">
                                     The Tap should
@@ -123,7 +135,6 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-12">
-
                                     {{ Form::submit('Save Status', ['class' => 'btn btn-success pull-right']) }}
                                 </div>
                                 {{ Form::close() }}

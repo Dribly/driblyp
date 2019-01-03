@@ -18,7 +18,7 @@ class TimeSlotManager implements \Iterator {
     }
 
     /** begin iterator methods */
-    private $currentDay;
+    private $currentDay = 0;
 
     /**
      * Return the current element
@@ -70,13 +70,32 @@ class TimeSlotManager implements \Iterator {
     public function rewind() {
         $this->currentDay = 0;
     }
+
     /** end iterator methods */
+
+    public function getNowDayNumber(): int {
+        return (int) date('w');
+    }
+
+    public function getNowHour(): int {
+        return (int) date('G');
+    }
+
+    public function isTimerBlocked(): bool {
+        if (array_key_exists($this->getNowHour(), $this->days[$this->getNowDayNumber()])) {
+            return ($this->days[$this->getNowDayNumber()][$this->getNowHour()]);
+        } else {
+            return false;
+        }
+    }
+
 
     /**
      * Destructively reinitiate the days
      */
     public function initDays(): bool {
         $this->days = [0 => [], 1 => [], 2 => [], 3 => [], 4 => [], 5 => [], 6 => []];
+        $this->currentDay = 0;
         return true;
     }
 

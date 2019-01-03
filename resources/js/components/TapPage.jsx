@@ -11,11 +11,13 @@ class TapPage extends Component {
         this.afternoontimeHours = [12, 13, 14, 15, 16, 17];
         this.eveningtimeHours = [18, 19, 20, 21];
         this.nighttimeHours = [22, 23, 0, 1, 2, 3, 4, 5, 6];
+        this.everythingHours = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24];
         this.morningsRange = [this.morningHours, this.morningHours, this.morningHours, this.morningHours, this.morningHours, this.morningHours, this.morningHours];
         this.daysRange = [this.daytimeHours, this.daytimeHours, this.daytimeHours, this.daytimeHours, this.daytimeHours, this.daytimeHours, this.daytimeHours];
         this.afternoonsRange = [this.afternoontimeHours, this.afternoontimeHours, this.afternoontimeHours, this.afternoontimeHours, this.afternoontimeHours, this.afternoontimeHours, this.afternoontimeHours];
         this.eveningsRange = [this.eveningtimeHours, this.eveningtimeHours, this.eveningtimeHours, this.eveningtimeHours, this.eveningtimeHours, this.eveningtimeHours, this.eveningtimeHours];
         this.overnightsRange = [this.nighttimeHours, this.nighttimeHours, this.nighttimeHours, this.nighttimeHours, this.nighttimeHours, this.nighttimeHours, this.nighttimeHours];
+        this.everythingRange = [this.everythingHours, this.everythingHours, this.everythingHours, this.everythingHours, this.everythingHours, this.everythingHours, this.everythingHours];
         // this.state.slots = this.props.slots
         this.state = {isDirty: false};
     }
@@ -153,6 +155,9 @@ class TapPage extends Component {
                                 <button value="Overnight"
                                         onClick={() => this.changeValues(this.overnightsRange, true)}>Overnight
                                 </button>
+                                <button value="All"
+                                        onClick={() => this.changeValues(this.everythingRange, true)}>ALL
+                                </button>
                             </div>
                             <div className="col-lg-3">
                                 <h4>Un Block</h4>
@@ -170,6 +175,9 @@ class TapPage extends Component {
                                 </button>
                                 <button value="Overnight"
                                         onClick={() => this.changeValues(this.overnightsRange, false)}>Overnight
+                                </button>
+                                <button value="All"
+                                        onClick={() => this.changeValues(this.everythingRange, false)}>ALL
                                 </button>
                             </div>
                             <div className="col-lg-6">

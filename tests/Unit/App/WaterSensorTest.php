@@ -14,9 +14,9 @@ class WaterSensorTest extends TestCase {
      * @return void
      */
     public function testGetUrl() {
-        $this->sut = new WaterSensor();
-        $this->sut->id = 8;
-        $this->assertSame($_SERVER['APP_URL'] . '/sensors/8', $this->sut->getUrl());
+        $sut = new WaterSensor();
+        $sut->id = 8;
+        $this->assertSame($_SERVER['APP_URL'] . '/sensors/8', $sut->getUrl());
     }
 
     /*
@@ -50,11 +50,11 @@ class WaterSensorTest extends TestCase {
      * @dataProvider providerneedsWater
      */
     public function testneedsWater($threshold, $lastReading, $expectedState, $expectedResult) {
-        $this->sut = new WaterSensor();
-        $this->sut->last_reading = $lastReading;
-        $this->sut->threshold = $threshold;
-        $this->sut->expected_state = $expectedState;
-        $this->assertSame($expectedResult, $this->sut->needsWater());
+        $sut = new WaterSensor();
+        $sut->last_reading = $lastReading;
+        $sut->threshold = $threshold;
+        $sut->expected_state = $expectedState;
+        $this->assertSame($expectedResult, $sut->needsWater());
     }
 
 
@@ -82,21 +82,21 @@ class WaterSensorTest extends TestCase {
         $mockTap->method('isActive')->willReturn($isActive);
         $mockTap->owner = $tapOwner;
 
-        $this->sut = $this->getMockBuilder(WaterSensor::class)->setMethods(['save'])->disableOriginalConstructor()->getMock();
-        $this->sut->method('save')->willReturn(true);
-//        $this->sut->method('taps')->willReturn($mockTaps);
-        $this->sut->owner = $waterSensorOwner;
-        $this->sut->taps = $mockTaps;
+        $sut = $this->getMockBuilder(WaterSensor::class)->setMethods(['save'])->disableOriginalConstructor()->getMock();
+        $sut->method('save')->willReturn(true);
+//        $sut->method('taps')->willReturn($mockTaps);
+        $sut->owner = $waterSensorOwner;
+        $sut->taps = $mockTaps;
 
-        $this->assertSame($expected, $this->sut->canControlTap($mockTap));
+        $this->assertSame($expected, $sut->canControlTap($mockTap));
 
     }
-    public function providercontrolTap():array
-    {
+
+    public function providercontrolTap(): array {
         return [
             [false, false],
             [true, true],
-            ];
+        ];
     }
 
     /**
@@ -104,27 +104,28 @@ class WaterSensorTest extends TestCase {
      * @param bool $canControlTap
      * @dataProvider providercontrolTap
      */
-    public function testcontrolTap(bool $expected,  bool $canControlTap) {
+    public function testcontrolTap(bool $expected, bool $canControlTap) {
         $mockTap = $this->getMockBuilder(Tap::class)->setMethods(['save'])->disableOriginalConstructor()->getMock();
 
-        $mockRelationship  = $this->getMockBuilder('relationship')->setMethods(['attach'])->disableOriginalConstructor()->getMock();
+        $mockRelationship = $this->getMockBuilder('relationship')->setMethods(['attach'])->disableOriginalConstructor()->getMock();
         $mockRelationship->method('attach')->with($mockTap)->willReturn(null);
 
-        $this->sut = $this->getMockBuilder(WaterSensor::class)->setMethods(['save', 'taps', 'canControlTap'])->disableOriginalConstructor()->getMock();
-        $this->sut->method('save')->willReturn(true);
-        $this->sut->method('canControlTap')->willReturn($canControlTap);
-        $this->sut ->method('taps')->willReturn($mockRelationship);
+        $sut = $this->getMockBuilder(WaterSensor::class)->setMethods(['save', 'taps', 'canControlTap'])->disableOriginalConstructor()->getMock();
+        $sut->method('save')->willReturn(true);
+        $sut->method('canControlTap')->willReturn($canControlTap);
+        $sut->method('taps')->willReturn($mockRelationship);
 
-        $this->assertSame($expected, $this->sut->controlTap($mockTap));
+        $this->assertSame($expected, $sut->controlTap($mockTap));
 
     }
 
-    public function testtaps()
-    {
-        $this->sut = new WaterSensor();
-        $taps = $this->sut->taps();
-        $this->assertInstanceOf('Illuminate\Database\Eloquent\Relations\BelongsToMany',$taps);
+    public function testtaps() {
+        $sut = new WaterSensor();
+        $taps = $sut->taps();
+        $this->assertInstanceOf('Illuminate\Database\Eloquent\Relations\BelongsToMany', $taps);
         $this->assertsame('tap_water_sensor', $taps->getTable());
         $this->assertsame('taps', $taps->getRelationName());
     }
+
+
 }
