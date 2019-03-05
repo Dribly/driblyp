@@ -30,7 +30,7 @@ class CloudMQTTTest extends TestCase {
      * @dataProvider providerMakeFeedName
      */
     public function testmakeFeedName(string $expected, int $feedType, string $uid) {
-        $sut = $this->getMockBuilder('CloudMQTT')->setMethods([])->disableOriginalDestructor()->disableOriginalConstructor()->getMock();
+        $sut = $this->getMockBuilder('CloudMQTT')->setMethods(['__destruct'])->disableOriginalConstructor()->getMock();
         $this->assertSame($expected, $sut->makeFeedName($feedType, $uid));
     }
 }

@@ -204,6 +204,9 @@ class Tap extends Model {
      * @param \stdClass $messageObj
      * @TODO turn this into a router
      * @throws \Exception
+    /tap/identify/<uid> {"battery_level":<0-100>, "errors":["<error message here>" ..]}
+    /tap/update/<uid> {"battery_level":<0-100>, "errors":["<error message here>" ..], "state":<on|off>, ""}
+    /tap/response/<uid> {"battery_level":<0-100>, "errors":["<error message here>" ..], "state":<on|off>, ""}
      */
     public static function handleMessage(string $uid, string $messageType, \stdClass $messageObj) {
         $tap = Tap::where(['uid' => $uid])->first();
@@ -228,8 +231,6 @@ class Tap extends Model {
                                 throw new \Exception('Cannot use ' . $messageObj->state . ' as last state fpr ' . $messageType);
                                 break;
                         }
-                    }
-                    if (isset($messageObj->state)) {
                         $tap->reported_state = $messageObj->state;
                     }
 
@@ -247,8 +248,6 @@ class Tap extends Model {
                                 throw new \Exception('Cannot use ' . $messageObj->state . ' as last state fpr ' . $messageType);
                                 break;
                         }
-                    }
-                    if (isset($messageObj->state)) {
                         $tap->reported_state = $messageObj->state;
                     }
 
@@ -261,7 +260,7 @@ class Tap extends Model {
             $tap->last_signal = $messageType;
             $tap->last_signal_date = gmdate('Y-m-d H:i:s');
             if (!empty($messageObj->battery_level)) {
-                $tap->last_battery_level = $messageObj->last_battery_level;
+                $tap->last_battery_level = $messageObj->battery_level;
             }
             if (!$tap->save()) {
                 error_log('Tap ' . $uid . ' could not be saved ' . json_encode($messageObj));

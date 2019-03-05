@@ -1,0 +1,15 @@
+version: '3.7'
+
+services:
+     ### Workspace Utilities Container ###########################
+  core:
+    container_name: "${CONTAINER_NAME_PREFIX}-core"
+    image: "powellblyth/dribly-core"
+    build:
+      context: ../
+      dockerfile: "docker/core/Dockerfile"
+
+### Networks Setup ############################################
+
+
+### Volumes Setup #############################################

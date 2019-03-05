@@ -8,10 +8,9 @@ import React from 'react'
 
 // if ( document.querySelector('#clock_container')) {
     // find element by id
-    const element =  document.querySelector('#clock_container')
+    const element =  document.querySelector('#clock_container');
     // create new props object with element's data-attributes
     // result: {tsId: "1241"}
-console.log(element.dataset)
     const props = Object.assign({}, element.dataset)
 
     // render element with props (using spread)

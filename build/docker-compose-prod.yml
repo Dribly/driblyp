@@ -1,0 +1,100 @@
+version: '3.7'
+
+services:
+     ### Workspace Utilities Container ###########################
+
+  web-workspace:
+    container_name: "${CONTAINER_NAME_PREFIX}-workspace-utilities"
+    image: "powellblyth/dribly-workspace:${BUILDID}"
+    build:
+      context: ../
+      args:
+        - PUID=1000
+        - PGID=1000
+        - NODE_VERSION=stable
+        - YARN_VERSION=latest
+        - TZ=UTC
+      dockerfile: "docker/workspace/Dockerfile-71-prod"
+    volumes:
+      - ./storage:/var/www/storage:rw
+    extra_hosts:
+      - "dockerhost:${DOCKER_HOST_IP}"
+    ports:
+      - "${WORKSPACE_SSH_PORT}:22"
+    tty: true
+    networks:
+      - backend
+
+    ### PHP-FPM Container #######################################
+
+  web-php-fpm:
+    container_name: "${CONTAINER_NAME_PREFIX}-php-fpm"
+    image: "powellblyth/dribly:${BUILDID}"
+    build:
+      context: ../
+      dockerfile: "docker/php-fpm/php-Dockerfile-prod"
+    volumes:
+      - ./storage:/var/www/storage:rw
+      - ./php-fpm/php71.ini:/usr/local/etc/php/php.ini
+    ports:
+      - "${NGINX_PHP_UPSTREAM_PORT}:9000"
+    extra_hosts:
+      - "dockerhost:${DOCKER_HOST_IP}"
+    environment:
+      - PHP_IDE_CONFIG=serverName=laradock
+    networks:
+      - backend
+
+
+    ### NGINX Server Container ##################################
+
+  web-nginx:
+    container_name: "${CONTAINER_NAME_PREFIX}-nginx"
+    image: "powellblyth/dribly-nginx:${BUILDID}"
+    build:
+      context: ../
+      args:
+        - NGINX_HOSTNAME=dribly
+        - PHP_UPSTREAM_CONTAINER=${NGINX_PHP_UPSTREAM_CONTAINER}
+        - PHP_UPSTREAM_PORT=${NGINX_PHP_UPSTREAM_PORT}
+      dockerfile: "docker/nginx/Dockerfile-Prod"
+    volumes:
+      #        - .:/var/www/:rw
+      #        - ./storage:/var/www/storage:rw
+      - ${NGINX_HOST_LOG_PATH}:/var/log/nginx
+      - ./nginx/sites/e:/etc/nginx/sites-available
+    ports:
+      - "${HOST_HTTP_PORT}:80"
+      - "${HOST_HTTPS_PORT}:443"
+    extra_hosts:
+      - "dockerhost:${DOCKER_HOST_IP}"
+    networks:
+      - frontend
+      - backend
+
+  php-mqtt-listener:
+    container_name: "${CONTAINER_NAME_PREFIX}-mqtt-listener"
+    image: "powellblyth/dribly-mqtt-listener:${BUILDID}"
+    restart: on-failure
+    volumes:
+      - ./storage:/var/www/storage:rw
+      - ./php-fpm/php71.ini:/usr/local/etc/php/php.ini
+    build:
+      context: ../
+      dockerfile: "docker/php-mqtt-listener/php-Dockerfile-prod"
+    extra_hosts:
+      - "dockerhost:${DOCKER_HOST_IP}"
+    environment:
+      - PHP_IDE_CONFIG=serverName=laradock
+    networks:
+      - backend
+
+### Networks Setup ############################################
+
+networks:
+  frontend:
+    driver: "bridge"
+  backend:
+    driver: "bridge"
+
+### Volumes Setup #############################################

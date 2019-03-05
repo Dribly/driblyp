@@ -1,0 +1,8 @@
+composer.lock
+storage/
+laradock/
+.git*
+builds
+node_modules
+tests
+.env

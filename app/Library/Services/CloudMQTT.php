@@ -115,7 +115,7 @@ class CloudMQTT {
                 var_dump($e);
                 exit;
             }
-            $this->mqtt->debug = true;
+            $this->mqtt->debug = false;
         }
     }
 

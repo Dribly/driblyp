@@ -1,0 +1,44 @@
+#
+#--------------------------------------------------------------------------
+# Image Setup
+#--------------------------------------------------------------------------
+#
+# To edit the 'php-fpm' base Image, visit its repository on Github
+#    https://github.com/Laradock/php-fpm
+#
+# To change its version, see the available Tags on the Docker Hub:
+#    https://hub.docker.com/r/laradock/php-fpm/tags/
+#
+# Note: Base Image name format {image-tag}-{php-version}
+#
+
+FROM powellblyth/dribly-core
+
+MAINTAINER Toby Powell-Blyth <toby@powellblyth.com>
+
+
+RUN printf "\n" | pecl install -o -f redis \
+&&  rm -rf /tmp/pear \
+&&  docker-php-ext-enable redis
+
+COPY ./bin/composer bin
+
+
+# Copy opcache configration
+COPY ./docker/php-fpm/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
+
+RUN docker-php-ext-install mysqli
+
+
+ADD ./docker/php-fpm/laravel.ini /usr/local/etc/php/conf.d
+ADD ./docker/php-fpm/xlaravel.pool.conf /usr/local/etc/php-fpm.d/
+
+#RUN rm -r /var/lib/apt/lists/*
+
+RUN usermod -u 1000 www-data
+
+WORKDIR /var/www
+
+CMD ["php-fpm"]
+
+EXPOSE ${PHP_FPM_PORT} 9000

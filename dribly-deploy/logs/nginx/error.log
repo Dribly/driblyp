@@ -1,0 +1,17 @@
+2019/02/13 08:33:55 [emerg] 1#1: getpwnam("www-data") failed in /etc/nginx/nginx.conf:1
+2019/02/13 08:34:01 [emerg] 1#1: getpwnam("www-data") failed in /etc/nginx/nginx.conf:1
+2019/02/13 08:34:04 [emerg] 1#1: getpwnam("www-data") failed in /etc/nginx/nginx.conf:1
+2019/02/13 08:34:07 [emerg] 1#1: getpwnam("www-data") failed in /etc/nginx/nginx.conf:1
+2019/02/13 08:34:09 [emerg] 1#1: getpwnam("www-data") failed in /etc/nginx/nginx.conf:1
+2019/02/13 08:34:12 [emerg] 1#1: getpwnam("www-data") failed in /etc/nginx/nginx.conf:1
+2019/02/13 08:34:18 [emerg] 1#1: getpwnam("www-data") failed in /etc/nginx/nginx.conf:1
+2019/02/13 08:34:25 [emerg] 1#1: getpwnam("www-data") failed in /etc/nginx/nginx.conf:1
+2019/02/13 08:34:39 [emerg] 1#1: getpwnam("www-data") failed in /etc/nginx/nginx.conf:1
+2019/02/13 08:35:06 [emerg] 1#1: getpwnam("www-data") failed in /etc/nginx/nginx.conf:1
+2019/02/13 08:35:58 [emerg] 1#1: getpwnam("www-data") failed in /etc/nginx/nginx.conf:1
+2019/02/13 08:36:59 [emerg] 1#1: getpwnam("www-data") failed in /etc/nginx/nginx.conf:1
+2019/02/13 08:38:00 [emerg] 1#1: getpwnam("www-data") failed in /etc/nginx/nginx.conf:1
+2019/02/13 08:39:04 [emerg] 1#1: getpwnam("www-data") failed in /etc/nginx/nginx.conf:1
+2019/02/13 08:40:05 [emerg] 1#1: getpwnam("www-data") failed in /etc/nginx/nginx.conf:1
+2019/02/13 08:41:06 [emerg] 1#1: getpwnam("www-data") failed in /etc/nginx/nginx.conf:1
+2019/02/13 08:42:07 [emerg] 1#1: getpwnam("www-data") failed in /etc/nginx/nginx.conf:1

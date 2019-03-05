@@ -24224,7 +24224,6 @@ __webpack_require__.r(__webpack_exports__);
 var element = document.querySelector('#clock_container'); // create new props object with element's data-attributes
 // result: {tsId: "1241"}
 
-console.log(element.dataset);
 var props = Object.assign({}, element.dataset); // render element with props (using spread)
 
 react_dom__WEBPACK_IMPORTED_MODULE_1___default.a.render(react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement(_components_TapPage__WEBPACK_IMPORTED_MODULE_0__["default"], props), element); // }
@@ -24240,7 +24239,7 @@ react_dom__WEBPACK_IMPORTED_MODULE_1___default.a.render(react__WEBPACK_IMPORTED_
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! /clients/dribly/driblyp/resources/js/myjs.jsx */"./resources/js/myjs.jsx");
+module.exports = __webpack_require__(/*! /var/www/resources/js/myjs.jsx */"./resources/js/myjs.jsx");
 
 
 /***/ })

@@ -108,6 +108,10 @@ class WaterSensor extends Model {
      * @param string $messageType
      * @param \stdClass $messageObj The object we made above with the message in it.
      * @throws SensorNotFoundException
+    /watersensor/identify/<uid> {"battery_level":<0-100>, "errors":["<error message here>" ..]}
+    /watersensor/update/<uid> {"battery_level":<0-100>, "errors":["<error message here>" ..], "reading":<0-100>}
+     {}
+
      */
     public static function handleMessage(string $uid, string $messageType, \stdClass $messageObj) {
 

@@ -1,2 +1,2 @@
 #! /bin/sh
-docker exec -it driblyp-workspace-utilities bash
+docker exec -it dribly-dev-workspace-utilities bash

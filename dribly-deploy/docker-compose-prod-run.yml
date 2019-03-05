@@ -1,0 +1,94 @@
+version: '3.7'
+
+services:
+
+  ### Workspace Utilities Container ###########################
+  web-workspace:
+    container_name: "dribly-prod-workspace-utilities"
+    image: "powellblyth/dribly-workspace:${BUILDID}"
+    restart: on-failure
+    volumes:
+      - ./storage:/var/www/storage:rw
+      - ./.env:/var/www/.env
+    extra_hosts:
+      - "dockerhost:${DOCKER_HOST_IP}"
+    ports:
+      - "${WORKSPACE_SSH_PORT}:22"
+    tty: true
+    networks:
+      - backend
+
+  ### PHP-FPM Container #######################################
+
+  web-php-fpm:
+    container_name: "dribly-prod-php-fpm"
+    image: "powellblyth/dribly:${BUILDID}"
+    restart: on-failure
+    volumes:
+      - ./storage:/var/www/storage:rw
+      - ./.env:/var/www/.env
+      - ./php-fpm/php71.ini:/usr/local/etc/php/php.ini
+    ports:
+      - "${NGINX_PHP_UPSTREAM_PORT}:9000"
+    extra_hosts:
+      - "dockerhost:${DOCKER_HOST_IP}"
+    environment:
+      - PHP_IDE_CONFIG=serverName=laradock
+    networks:
+      - backend
+    depends_on:
+      - web-workspace
+
+
+  ### NGINX Server Container ##################################
+
+  web-nginx:
+    container_name: "dribly-prod-nginx"
+    image: "powellblyth/dribly-nginx:${BUILDID}"
+    restart: on-failure
+    volumes:
+      - ./storage:/var/www/storage:rw
+      - ./.env:/var/www/.env
+      - ${NGINX_HOST_LOG_PATH}:/var/log/nginx
+      - ./nginx/sites/:/etc/nginx/sites-available
+    ports:
+      - "${HOST_HTTP_PORT}:80"
+      - "${HOST_HTTPS_PORT}:443"
+    extra_hosts:
+      - "dockerhost:${DOCKER_HOST_IP}"
+    depends_on:
+      - web-php-fpm
+    networks:
+      - frontend
+      - backend
+
+  php-mqtt-listener:
+    depends_on:
+      - web-php-fpm
+    container_name: "dribly-prod-mqtt-listener"
+    image: "powellblyth/dribly-mqtt-listener:${BUILDID}"
+    restart: on-failure
+    volumes:
+      - ./storage:/var/www/storage:rw
+      - ./.env:/var/www/.env
+    extra_hosts:
+      - "dockerhost:${DOCKER_HOST_IP}"
+    tty: true
+    environment:
+      - PHP_IDE_CONFIG=serverName=laradock
+    networks:
+      - backend
+
+
+### Networks Setup ############################################
+
+networks:
+  frontend:
+    driver: "bridge"
+  backend:
+    driver: "bridge"
+
+### Volumes Setup #############################################
+
+volumes:
+  code:
