@@ -79,6 +79,12 @@
                             <p>{{ Auth::user()->firstname }}'s Profile</p>
                         </a>
                     </li>
+                    <li class="nav-item @yield('gardensNavHighlight', '') ">
+                        <a class="nav-link " href="{{route('gardens.index')}}">
+                            <i class="material-icons">local_florist</i>
+                            <p>Garden</p>
+                        </a>
+                    </li>
                     <li class="nav-item @yield('sensorsNavHighlight', '') ">
                         <a class="nav-link " href="{{route('sensors.index')}}">
                             <i class="material-icons">brightness_medium</i>

@@ -28,6 +28,13 @@ Route::post('/profile',
     ['as' => 'user.update',
         'uses' => 'UsersController@profile'])->middleware('auth');
 
+Route::get('/gardens',
+    ['as' => 'gardens.index',
+        'uses' => 'GardensController@index'])->middleware('auth');
+Route::get('/gardens/add',
+    ['as' => 'gardens.add',
+        'uses' => 'GardensController@add'])->middleware('auth');
+
 Route::get('/sensors',
         ['as' => 'sensors.index',
     'uses' => 'SensorsController@index'])->middleware('auth');
