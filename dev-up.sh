@@ -11,10 +11,13 @@ echo "Building Dribly"
 
 if [ "$1" == "" ] || [ "$1" == "up" ]; then
    VERB="up"
+elif [ "$1" == "down" ]; then
+   VERB="down"
+#   AFTER="--rmi v"
 else
    VERB="$1"
 fi
-docker-compose -f docker-compose.yml --project-name="${COMPOSE_PROJECT_NAME}" $VERB
+docker-compose -f docker-compose.yml --project-name="${COMPOSE_PROJECT_NAME}" $VERB $AFTER
 
 if [ $? -eq 0 ]
  then

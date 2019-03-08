@@ -41,4 +41,4 @@ WORKDIR /var/www
 
 CMD ["php-fpm"]
 
-EXPOSE ${PHP_FPM_PORT} 9000
+#EXPOSE ${PHP_FPM_PORT} 9000

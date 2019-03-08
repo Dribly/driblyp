@@ -107,6 +107,7 @@ class CloudMQTT {
     private function initMqtt() {
         if (!$this->mqtt) {
             try {
+                var_dump([ $this->SERVER, $this->PORT, 'powellblythconnection' . md5(uniqid()), $this->USERNAME, $this->PASSWORD]);
                 $this->mqtt = new LightningApp(
                     $this->SERVER, $this->PORT, 'powellblythconnection' . md5(uniqid()), $this->USERNAME, $this->PASSWORD);
 //                        new Client(, self::USERNAME,"HeresJohnny");

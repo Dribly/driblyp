@@ -1,5 +1,7 @@
 <?php
-
+//echo "ENV IS \n\n;";
+//vaR_dump(env());
+//die();
 return [
 
     /*
@@ -13,12 +15,12 @@ return [
     |
     */
 
-    'server' => ['server_name' => getenv('CLOUD_MQTT_SERVER'),
-        'username' => getenv('CLOUD_MQTT_USERNAME'),
-        'password' => getenv('CLOUD_MQTT_PASSWORD'),
-        'port' => getenv('CLOUD_MQTT_PORT'),
-        'key' => getenv('CLOUD_MQTT_KEY'),
-        'prefix' => getenv('CLOUD_MQTT_PREFIX')
+    'server' => ['server_name' => env('CLOUD_MQTT_SERVER'),
+        'username' => env('CLOUD_MQTT_USERNAME'),
+        'password' => env('CLOUD_MQTT_PASSWORD'),
+        'port' => env('CLOUD_MQTT_PORT'),
+        'key' => env('CLOUD_MQTT_KEY'),
+        'prefix' => env('CLOUD_MQTT_PREFIX')
     ],
 
 ];
