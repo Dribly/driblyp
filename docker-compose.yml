@@ -23,8 +23,9 @@ services:
         - "${WORKSPACE_SSH_PORT}:22"
       tty: true
       networks:
-        - frontend
-        - backend
+        - dribly-frontend
+        - dribly-backend
+        - dockernet
 
 ### PHP-FPM Container #######################################
 
@@ -36,8 +37,8 @@ services:
       volumes:
         - .:/var/www/:rw
         - ./php-fpm/php71.ini:/usr/local/etc/php/php.ini
-      ports:
-        - "${NGINX_PHP_UPSTREAM_PORT}:9000"
+#      ports:
+#        - "${NGINX_PHP_UPSTREAM_PORT}:9000"
       depends_on:
         - "web-workspace"
       extra_hosts:
@@ -45,7 +46,8 @@ services:
       environment:
         - PHP_IDE_CONFIG=serverName=laradock
       networks:
-        - backend
+        - dribly-backend
+        - dockernet
 
     php-mqtt-listener:
       container_name: "${CONTAINER_NAME_PREFIX}-mqtt-listener"
@@ -60,7 +62,8 @@ services:
       environment:
         - PHP_IDE_CONFIG=serverName=laradock
       networks:
-        - backend
+        - dribly-backend
+        - dockernet
 
 
 ### NGINX Server Container ##################################
@@ -85,27 +88,9 @@ services:
       depends_on:
         - web-php-fpm
       networks:
-        - frontend
-        - backend
-
-    web-mariadb:
-      container_name: "${CONTAINER_NAME_PREFIX}-mariadb"
-      build: ./laradock/mariadb
-      volumes:
-        - .:/var/www/:rw
-        - ${DATA_SAVE_PATH}/mariadb:/var/lib/mysql
-        - ${MARIADB_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
-      ports:
-        - "${MARIADB_PORT}:3306"
-      environment:
-        - MYSQL_DATABASE=${MARIADB_DATABASE}
-        - MYSQL_USER=${MARIADB_USER}
-        - MYSQL_PASSWORD=${MARIADB_PASSWORD}
-        - MYSQL_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
-      extra_hosts:
-        - "dockerhost:${DOCKER_HOST_IP}"
-      networks:
-        - backend
+        - dribly-frontend
+        - dribly-backend
+        - dockernet
 
     dev-watcher:
       container_name: "dribly-dev-watcher"
@@ -118,14 +103,16 @@ services:
       extra_hosts:
         - "dockerhost:${DOCKER_HOST_IP}"
       networks:
-        - backend
+        - dribly-backend
+        - dockernet
 ### Networks Setup ############################################
 
 networks:
-  frontend:
+  dribly-frontend:
     driver: "bridge"
-  backend:
+  dribly-backend:
     driver: "bridge"
-
+  dockernet:
+    external: true
 ### Volumes Setup #############################################
 
