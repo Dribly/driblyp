@@ -17,7 +17,6 @@ class GardensController extends Controller {
             $garden = new Garden();
             $garden->owner = Auth::user()->id;
             $garden->name = $request->post('name');
-            $garden->description = $request->post('description');
             $garden->save();
             return redirect(Route('gardens.show', $garden->id), 302);
         } else {

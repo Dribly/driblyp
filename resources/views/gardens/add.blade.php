@@ -2,7 +2,7 @@
 
 @section('headertitle')Tell us about your garden @endsection
 @section('pagetitle')Tell us about your garden @endsection
-@section('pageColour', 'orange')
+@section('pageColour', 'green')
 @section('gardensNavHighlight', 'active')
 
 @section('content')
@@ -22,11 +22,11 @@
             <div class="row">
                 <div class="col-lg-12">
                     <div class="card">
-                        <div class="card-header card-header-warning">
+                        <div class="card-header card-header-success">
                             <h4 class="card-title">Tell us about your Garden</h4>
                         </div>
                         <div class="card-body">
-                            {{ Form::open(['route' => 'sensors.add']) }}
+                            {{ Form::open(['route' => 'gardens.add']) }}
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group bmd-form-group">
@@ -34,15 +34,17 @@
                                         {{ Form::text('name', null, ['class' => 'form-control']) }}
                                     </div>
                                 </div>
-                            </div><div class="row">
+                            </div>
+                            <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group bmd-form-group">
-                                        {{ Form::label('description', 'Description - e.g. Front Garden, Flower Bed', ['class' => 'bmd-label-floating']) }}
-                                        {{ Form::text('description', null, ['class' => 'form-control']) }}
+                                        {{ Form::label('location', 'Pinpoint your garden on this map', ['class' => 'bmd-label-floating']) }}
+                                        GOOGLE MAPS HERE
+                                        <p><b>This allows us to correctly predict the weather in your area</b>
                                     </div>
                                 </div>
                             </div>
-                            {{ Form::submit('Save this garden', ['class' => 'btn-warning btn btn-xl pull-right']) }}
+                            {{ Form::submit('Save this garden', ['class' => 'btn-warning btn btn-xl pull-right btn-success']) }}
                             {{ Form::close() }}
 
                         </div>

@@ -3,7 +3,7 @@
 @section('pagetitle')Your Gardens @endsection
 @section('headertitle')Your Gardens @endsection
 @section('pageColour', 'green')
-@section('tapsNavHighlight', 'active')
+@section('gardensNavHighlight', 'active')
 
 @section('content')
 

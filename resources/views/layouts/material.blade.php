@@ -104,7 +104,8 @@
                     <a class="mdl-navigation__link" href="{{route('login')}}">Log in</a>
             @else
                 <a class="mdl-navigation__link" href="{{route('users.dashboard')}}"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">home</i>Home</a>
-                    <a class="mdl-navigation__link" href="{{route('sensors.index')}}">My Sensors</a>
+                <a class="mdl-navigation__link" href="{{route('sensors.index')}}">My Sensors</a>
+                <a class="mdl-navigation__link" href="{{route('gardens.index')}}">My Garden</a>
                     <a class="mdl-navigation__link" href="{{route('taps.index')}}">My Taps</a>
                     <a class="mdl-navigation__link" href="{{route('logout')}}" onclick="event.preventDefault(); document.getElementById('frm-logout').submit();return false" title="Logged in as {{ Auth::user()->firstname }}">Log Out</a>
                 <div class="mdl-layout-spacer"></div>

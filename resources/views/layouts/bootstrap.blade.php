@@ -55,9 +55,12 @@
               <a class="nav-link js-scroll-trigger" href="{{route('login')}}">Log in</a>
             </li>
             @else
-            <li class="nav-item">
-              <a class="nav-link js-scroll-trigger" href="{{route('sensors.index')}}">My Sensors</a>
-            </li>
+              <li class="nav-item">
+                <a class="nav-link js-scroll-trigger" href="{{route('gardens.index')}}">My Garden</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link js-scroll-trigger" href="{{route('sensors.index')}}">My Sensors</a>
+              </li>
             <li class="nav-item">
               <a class="nav-link js-scroll-trigger" href="{{route('taps.index')}}">My Taps</a>
             </li>
