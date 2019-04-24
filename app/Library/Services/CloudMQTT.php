@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Library\Services;
-
 use Lightning\App as LightningApp;
 use App\Exceptions\InvalidMessageException;
 

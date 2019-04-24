@@ -7,7 +7,6 @@
 
 @section('content')
 
-
     <div class="col-lg-8 col-md-12">
         <div class="card">
             <div class="card-header card-header-success">
@@ -22,6 +21,7 @@
                     <th>&nbsp;</th>
                     </thead>
                     <tbody>
+
                     @foreach ($gardens as $garden)
                         <tr>
                             <td>{{$garden->id}}</td>

@@ -6,10 +6,6 @@
 @section('tapsNavHighlight', 'active')
 
 @section('footer_js')
-    {{--<script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>--}}
-    {{--<script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>--}}
-    <!-- Load our React component. -->
-    {{--<script src="{{ mix('/js/app.js') }}"></script>--}}
     <script type="text/javascript">const tap_id ={{(int)$tap->id}};</script>
     <script src="{{ mix('/js/myjs.js') }}"></script>
 @endsection

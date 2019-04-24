@@ -7,12 +7,14 @@
     "require": {
         "php": ">=7.1.3",
         "brandonhudson/lightning": "^0.9",
+        "cornford/googlmapper": "^2.33",
         "doctrine/dbal": "^2.6",
         "fideloper/proxy": "^4.0",
-        "laravel/framework": "5.8.*",
+        "laravel/framework": ">=5.8.3",
         "laravel/passport": "^7.0",
         "laravel/tinker": "^1.0",
-        "laravelcollective/html": "^5.7"
+        "laravelcollective/html": "^5.7",
+        "naughtonium/laravel-dark-sky": "^1.2"
     },
     "require-dev": {
         "filp/whoops": "^2.0",

@@ -37,7 +37,7 @@ Route::get('/gardens/add',
 Route::post('/gardens/add',
     ['as' => 'gardens.add.post',
         'uses' => 'GardensController@add'])->middleware('auth');
-Route::get('/sensors/{id}',
+Route::get('/gardens/{id}',
     ['as' => 'gardens.show',
         'uses' => 'GardensController@show'])->middleware('auth');
 

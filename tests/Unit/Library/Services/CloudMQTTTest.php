@@ -7,12 +7,12 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use \App\Library\Services\CloudMQTT;
 
 class CloudMQTTTest extends TestCase {
-    public function setup() {
-        parent::setup();
+    public function setUp():void {
+        parent::setUp();
     }
 
     public function providerMakeFeedName(): array {
-        parent::setup();
+        parent::setUp();
         return [
             [config('cloudmqtt.server.prefix') . '/watersensors/update/fakeuid/', CloudMQTT::FEED_WATERSENSOR, 'fakeuid'],
             [config('cloudmqtt.server.prefix') . '/watersensors/update/fakeuid/', CloudMQTT::FEED_WATERSENSOR, 'f/a/keui/d'],
@@ -30,7 +30,7 @@ class CloudMQTTTest extends TestCase {
      * @dataProvider providerMakeFeedName
      */
     public function testmakeFeedName(string $expected, int $feedType, string $uid) {
-        $sut = $this->getMockBuilder('CloudMQTT')->setMethods(['__destruct'])->disableOriginalConstructor()->getMock();
+        $sut = $this->getMockBuilder('\App\Library\Services\CloudMQTT')->setMethods(['__destruct'])->getMock();
         $this->assertSame($expected, $sut->makeFeedName($feedType, $uid));
     }
 }

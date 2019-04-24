@@ -1,2 +1,2 @@
 #! /bin/sh
-docker exec -it driblyp-php-fpm bash
+docker exec -it dribly-dev-php-fpm bash
