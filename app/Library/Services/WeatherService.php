@@ -1806,7 +1806,7 @@ class WeatherService {
         $weatherCache->longitude = $longitude;
         $weatherCache->forecast_updated_date = gmdate('Y-m-d H:i:s');
         $weatherCache->forecast_hour = gmdate('Y-m-d H:00:00', $weather->time);
-        $weatherCache->is_current = gmdate('Y-m-d H:00:00') === gmdate('Y-m-d H:00:00', $weather->time) ;
+        $weatherCache->is_current = gmdate('Y-m-d H:00:00') === gmdate('Y-m-d H:00:00', $weather->time);
         if (isset($weather->precipType)) {
             $weatherCache->precip_type = $weather->precipType;
         } else {
@@ -1836,17 +1836,23 @@ class WeatherService {
         }
     }
 
-    protected function getWeatherFromCache(float $latitude, float $longitude): ?WeatherCache {
-        $weather = WeatherCache::where('latitude', $latitude)->where('longitude', $longitude)->where('created_at', '>', Carbon::now()->sub('1 hour'))->first();
+    protected function getWeatherFromCache(float $latitude, float $longitude, ?DateTime $specificHour = null): ?WeatherCache {
+        $weather = WeatherCache::where('latitude', $latitude)->where('longitude', $longitude);
+        //IF the user does not want a specific forecast, we request a 'current' forecast
+        if (is_null($specificHour)) {
+            $weather = $weather->where('created_at', '>', Carbon::now()->sub('1 hour'))->where('is_current', true);
+        } else {
+            $weather = $weather->where('created_at', '>', Carbon::now()->sub('1 hour'))->where('forecast_hour', $specificHour->format('Y-m-d H:00:00'));
+        }
 //        var_dump($weather);
-        return $weather;
+        return $weather->first();
 
     }
 
-    public function getPrecipitationForecast(float $latitude, float $longitude, array $opts = []) {
+    public function getPrecipitationForecast(float $latitude, float $longitude, array $opts = [], DateTime $specificHour = null) {
         $latLng = $this->roundLatLng((float)$latitude, (float)$longitude);
 
-        $weather = $this->getWeatherFromCache($latLng['latitude'], $latLng['longitude']);
+        $weather = $this->getWeatherFromCache($latLng['latitude'], $latLng['longitude'], $specificHour);
 
         try {
             if (!$weather instanceof WeatherCache) {
