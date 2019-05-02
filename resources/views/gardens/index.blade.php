@@ -25,7 +25,7 @@
                     @foreach ($gardens as $garden)
                         <tr>
                             <td>{{$garden->id}}</td>
-                            <td> {{ $garden->description }}</td>
+                            <td> {{ $garden->name }}</td>
                             <td> {{$garden->status}}</td>
                             <td> <a href="{{$garden->getUrl()}}" class="btn btn-success">Show</a></td>
                         </tr>
