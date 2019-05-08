@@ -1918,18 +1918,18 @@ class WeatherService {
             $curlWrapper = $this->getCurl($endpoint . $querystring);
             // GET something
             $curlResult = $curlWrapper->exec();
-            error_log($curlResult);
+//            error_log($curlResult);
             if (0 !== $curlWrapper->getErrNo()) {
                 $this->lastError = $curlWrapper->getError();
-                var_dump($curlWrapper->getError());
+//                var_dump($curlWrapper->getError());
                 throw new \Exception($curlWrapper->getError());
             } else {
                 $curlWrapper->close();
                 return json_decode($curlResult);
             }
         } catch (\Exception $e) {
-//            var_dump($e);
-            error_log($e->getMessage());
+            \Log::Error($e->getMessage());
+//            error_log($e->getMessage());
             $curlWrapper->close();
             throw $e;
         }

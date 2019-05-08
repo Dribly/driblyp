@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\TimeSlotManager;
 use Illuminate\Http\Request;
+use App\Garden;
 use App\Tap;
 use App\WaterSensor;
 use Illuminate\Support\Facades\Auth;
@@ -28,39 +29,37 @@ class TapsController extends Controller {
     }
 
     public function index(Request $request) {
-        $taps = Tap::where('owner', Auth::user()->id)->get();
+        $taps = Auth::user()->taps()->get();
         return view('taps.index', ['taps' => $taps, 'navHighlight' => 'taps']);
     }
-    public function apiIndex(Request $request)
-    {
-//        die('got here 1');
-        $taps = Tap::where('owner', Auth::user()->id)->get();
-        return $taps->toJson();
+
+    public function apiIndex(Request $request) {
+        $taps = Auth::user()->taps()->get();
+        iF (is_null($taps)) {
+            return $taps->toJson();
+        } else {
+            return '[]';
+        }
 
     }
-    public function apiGetTimeSlots(int $tapID)
-    {
-        return response()->json(['slots'=>$this->getTimeSlots($tapID)], 200,[],JSON_OBJECT_AS_ARRAY );
-//        return response()->json(['slots'=>$this->getTimeSlots($tapID)]);
 
+    public function apiGetTimeSlots(int $tapID) {
+        return response()->json(['slots' => $this->getTimeSlots($tapID)], 200, [], JSON_OBJECT_AS_ARRAY);
     }
-    public function getTimeSlots(int $tapID):TimeSlotManager
-    {
-        $tap = Tap::getTap(Auth::user()->id, $tapID);
+
+    public function getTimeSlots(int $tapID): TimeSlotManager {
+        $tap = Auth::user()->taps()->where('id', $tapID)->first();
         return $tap->getTimeSlotManager();
-
-
     }
-    public function jsonGetTimeSlots(int $tapID){
-        $data = ['slots'=>$this->getTimeSlots($tapID)->dumpDays()];
-//        var_dump( response()->json($data));die();
 
+    public function jsonGetTimeSlots(int $tapID) {
+        $data = ['slots' => $this->getTimeSlots($tapID)->dumpDays()];
         return response()->json($data);
     }
+
     public function show(Request $request, int $id) {
-        try {
-            $tap = Tap::getTap(Auth::user()->id, $id);
-        } catch (TapNotFoundException $ex) {
+        $tap = Auth::user()->taps()->where('id', $id)->first();
+        if (is_null($tap)) {
             return view('404');
         }
         $sensors = $tap->waterSensors;
@@ -72,8 +71,7 @@ class TapsController extends Controller {
 
         $allUnAddedSensorsAry = [];
 
-//        $allSensors = $tap->waterSensors();//WaterSensor::where('owner', Auth::user()->id)->get(); //->list('description','id');
-        $allSensors = WaterSensor::where('owner', Auth::user()->id)->get(); //->list('description','id');
+        $allSensors = Auth::user()->water_sensors;
         // Yuck! don't know how to map model to select
         foreach ($allSensors as $sensor) {
             if (!array_key_exists($sensor->id, $allAddedSensorsAry) && $sensor->canControlTap($tap)) {
@@ -86,28 +84,29 @@ class TapsController extends Controller {
             'onOrOffs' => $this->onOrOff,
             'timeLengths' => [0 => 'How Long...', 1 => '1 minute', 10 => '10 minutes', 20 => '20 minutes', 30 => 'half an hour', 40 => '40 minutes', 60 => '1 hour', 90 => '1 and a half hours', 120 => '2 hours'],
             'tap' => $tap,
+            'garden' => $tap->garden()->first(),
             'lastvalue' => 0,
             'sensors' => $sensors,
             'allSensors' => $allUnAddedSensorsAry,
             'timeSlotsManager' => $tap->getTimeSlotManager(),
             'navHighlight' => 'taps'
-            ]);
+        ]);
 //            return view('taps.add', );
     }
 
     public function storeTimeSlots(Request $request, int $id) {
-        try {
-            $tap = Tap::getTap(Auth::user()->id, $id);
-        } catch (TapNotFoundException $ex) {
+        $tap = Auth::user()->taps()->where('id', $id)->first();
+        if (is_null($tap)) {
             return view('404');
         }
         // We don't load from db, as we assume this is a POST request to replace.
         $timeSlotManager = $tap->getTimeSlotManager(false);
-//var_dump($request->post());
         foreach ($request->post('slots') as $dayId => $blocks) {
-            echo ($dayId);echo " = DAY\n";
+            echo($dayId);
+            echo " = DAY\n";
             foreach ($blocks as $hour => $isBlocked) {
-                echo ($hour);echo " = HOUR\n";
+                echo($hour);
+                echo " = HOUR\n";
                 if ($isBlocked) {
                     echo "IS BLOCKED \n";
                     $timeSlotManager->addBlock($dayId, $hour);
@@ -115,7 +114,7 @@ class TapsController extends Controller {
             }
         }
         $timeSlotManager->save();
-        return response()->json(['slots'=>$this->getTimeSlots($tap->id)], 200,[],JSON_OBJECT_AS_ARRAY );
+        return response()->json(['slots' => $this->getTimeSlots($tap->id)], 200, [], JSON_OBJECT_AS_ARRAY);
 
         // Will override all previosu.
         $timeSlotManager->save();
@@ -135,6 +134,7 @@ class TapsController extends Controller {
                 $tap->owner = Auth::user()->id;
                 $tap->name = $request->post('name');
                 $tap->description = $request->post('description');
+                $tap->garden_id = $request->post('garden');
                 $tap->uid = $request->post('uid');
                 $tap->save();
 
@@ -151,14 +151,24 @@ class TapsController extends Controller {
                 return view('taps.add', ['statuses' => $this->tapStatuses]);
             }
         } else {
-            return view('taps.add', ['statuses' => $this->tapStatuses, 'navHighlight' => 'taps']);
+            $allGardens = Auth::user()->gardens;
+            $gardens = [];
+            foreach ($allGardens as $garden) {
+                $gardens[$garden->id] = $garden->name;
+            }
+            return view('taps.add',
+                [
+                    'statuses' => $this->tapStatuses,
+                    'gardens' => $gardens,
+                    'navHighlight' => 'taps'
+                ]);
         }
     }
 
     public function changestatus(Request $request, $id) {
-        try {
-            $tap = Tap::getTap(Auth::user()->id, $id);
-        } catch (TapNotFoundException $ex) {
+        $tap = Auth::user()->taps()->where('id', $id)->first();
+        if (is_null($tap)) {
+            $request->session()->flash('warning', 'Tap does not exist');
             return view('404');
         }
         $status = $request->post('status');
@@ -178,9 +188,9 @@ class TapsController extends Controller {
     }
 
     public function manualTurnOnOrOff(Request $request, $id) {
-        try {
-            $tap = Tap::getTap(Auth::user()->id, $id);
-        } catch (TapNotFoundException $ex) {
+        $tap = Auth::user()->taps()->where('id', $id)->first();
+        if (is_null($tap)) {
+            $request->session()->flash('warning', 'Tap does not exist');
             return view('404');
         }
         $state = $request->post('expected_state');
@@ -201,14 +211,13 @@ class TapsController extends Controller {
      * @return type
      */
     public function connectToSensor(Request $request, int $id) {
-        try {
-            $tap = Tap::getTap(Auth::user()->id, $id);
-        } catch (TapNotFoundException $ex) {
+        $tap = Auth::user()->taps()->where('id', $id)->first();
+        if (is_null($tap)) {
             $request->session()->flash('warning', 'Tap does not exist');
             return view('404');
         }
         try {
-            $sensor = WaterSensor::getSensor(Auth::user()->id, (int)$request->post('sensor_id'));
+            $sensor = Auth::User()->water_sensors()->where('id', (int)$request->post('sensor_id'));
             if ($sensor->controlTap($tap)) {
                 $request->session()->flash('success', 'Connected the tap to the water sensor');
             } else {

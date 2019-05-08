@@ -1,7 +1,7 @@
 @extends('layouts.material2')
 
-@section('headertitle')Your Garden '{{$garden->description}}' @endsection
-@section('pagetitle')Your Garden '{{$garden->description}}' @endsection
+@section('headertitle')Your Garden '{{$garden->name}}' @endsection
+@section('pagetitle')Your Garden '{{$garden->name}}' @endsection
 @section('pageColour', 'green')
 @section('gardensNavHighlight', 'active')
 
@@ -52,7 +52,9 @@
         </div>
         <div class="col-sm-4">
             <div class="card mx-auto text-center">
-                Weather: {{$weather->precip_type}} {{$weather->precip_intensity}} {{$weather->precip_probability}}
+                @if ($weather instanceof \App\WeatherCache)
+                    Weather: {{$weather->precip_type}} {{$weather->precip_intensity}} {{$weather->precip_probability}}
+                @endif
 
             </div>
         </div>

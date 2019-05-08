@@ -45,6 +45,12 @@ class TapTest extends TestCase {
         $this->assertsame('waterSensors', $waterSensors->getRelationName());
     }
 
+    public function testGarden() {
+        $sut = new Tap();
+        $garden = $sut->garden();
+        $this->assertInstanceOf('Illuminate\Database\Eloquent\Relations\BelongsTo', $garden);
+    }
+
     public function providerturnTap(): array {
         return [
             [Tap::OFF, Tap::OFF],

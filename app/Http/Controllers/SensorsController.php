@@ -23,9 +23,8 @@ class SensorsController extends Controller {
      * @return type
      */
     public function sendFakeValue(Request $request, int $id) {
-        try {
-            $sensor = WaterSensor::getSensor(Auth::user()->id, $id);
-        } catch (SensorNotFoundException $ex) {
+        $sensor = Auth::user()->water_sensors()->where('id', $id)->first();
+        if (is_null($sensor)){
             return view('404');
         }
         $value = (float)$request->post('last_reading');
@@ -47,9 +46,8 @@ class SensorsController extends Controller {
     }
 
     public function show(Request $request, int $id) {
-        try {
-            $sensor = WaterSensor::getSensor(Auth::user()->id, $id);
-        } catch (SensorNotFoundException $ex) {
+        $sensor = Auth::user()->water_sensors()->where('id', $id)->first();
+        if (is_null($sensor)){
             return view('404');
         }
         $taps = $sensor->taps;
@@ -83,13 +81,12 @@ class SensorsController extends Controller {
      * @return type
      */
     public function connectToTap(Request $request, int $id) {
-        try {
-            $sensor = WaterSensor::getSensor(Auth::user()->id, $id);
-        } catch (SensorNotFoundException $ex) {
+        $sensor = Auth::user()->water_sensors()->where('id', $id)->first();
+        if (is_null($sensor)){
             return view('404');
         }
         try {
-            $tap = Tap::getTap(Auth::user()->id, (int)$request->post('tap_id'));
+            $tap = Auth::user()->taps->where('id',  (int)$request->post('tap_id'))->first();
             if ($sensor->controlTap($tap)) {
                 $request->session()->flash('success', 'Tap connected!');
             } else {
@@ -108,9 +105,8 @@ class SensorsController extends Controller {
      * @return type
      */
     public function detachFromTap(Request $request, int $id) {
-        try {
-            $sensor = WaterSensor::getSensor(Auth::user()->id, $id);
-        } catch (SensorNotFoundException $ex) {
+        $sensor = Auth::user()->water_sensors()->where('id', $id)->first();
+        if (is_null($sensor)){
             return view('404');
         }
         try {
@@ -122,9 +118,8 @@ class SensorsController extends Controller {
     }
 
     public function changestatus(Request $request, $id) {
-        try {
-            $sensor = WaterSensor::getSensor(Auth::user()->id, $id);
-        } catch (SensorNotFoundException $ex) {
+        $sensor = Auth::user()->water_sensors()->where('id', $id)->first();
+        if (is_null($sensor)){
             return view('404');
         }
         $status = $request->post('status');

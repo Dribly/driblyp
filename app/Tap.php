@@ -193,6 +193,9 @@ class Tap extends Model {
     public function waterSensors(): \Illuminate\Database\Eloquent\Relations\BelongsToMany {
         return $this->belongsToMany('App\WaterSensor');
     }
+    public function garden(): \Illuminate\Database\Eloquent\Relations\BelongsTo {
+        return $this->belongsTo('App\Garden');
+    }
 
     public function getUrl(): string {
         return route('taps.show', ['id' => $this->id]);

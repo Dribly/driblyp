@@ -53,6 +53,18 @@
                             </div>
                             <div class="row">
                                 <div class="col-sm-2">
+                                    <p><b class="text-success">Garden:</b>
+                                </div>
+                                <div class="col-sm-10">
+                                    @if(isset($garden))
+                                        {{$garden->name}}
+                                    @else
+                                        &ltNone&gt;
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-2">
                                     <p><b class="text-success">Description:</b>
                                 </div>
                                 <div class="col-sm-10">

@@ -11,8 +11,8 @@ use Illuminate\Support\Facades\Auth;
 
 class GardensController extends Controller {
     public function index(Request $request) {
-        $sensors = Garden::where('owner', Auth::user()->id)->get();
-        return view('gardens.index', ['gardens' => $sensors, 'navHighlight' => 'gardens']);
+        $gardens = Auth::user()->gardens;
+        return view('gardens.index', ['gardens' => $gardens, 'navHighlight' => 'gardens']);
     }
 
     public function add(Request $request) {
@@ -30,9 +30,9 @@ class GardensController extends Controller {
     }
 
     public function show(Request $request, int $id) {
-        try {
-            $garden = Garden::getGarden(Auth::user()->id, $id);
-        } catch (GardenNotFoundException $ex) {
+            $garden = Auth::User()->gardens()->where('id', $id)->first();
+//            $garden = Garden::getGarden(Auth::user()->id, $id);
+        if (is_null($garden)){
             return view('404');
         }
 //        $taps = $garden->taps;

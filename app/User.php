@@ -27,4 +27,14 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token','auth_token','password_reset_token'
     ];
+
+    public function taps(): \Illuminate\Database\Eloquent\Relations\hasMany {
+        return $this->hasMany('App\Tap', 'owner');
+    }
+    public function water_sensors(): \Illuminate\Database\Eloquent\Relations\hasMany {
+        return $this->hasMany('App\WaterSensor', 'owner');
+    }
+    public function gardens(): \Illuminate\Database\Eloquent\Relations\hasMany {
+        return $this->hasMany('App\Garden', 'owner');
+    }
 }
