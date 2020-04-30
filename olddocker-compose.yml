@@ -1,0 +1,118 @@
+version: '2'
+
+services:
+
+### Applications Code Container #############################
+
+    web-workspace:
+      container_name: "${CONTAINER_NAME_PREFIX}-workspace-utilities"
+      build:
+        context: olddocker/workspace
+        args:
+          - PUID=1000
+          - PGID=1000
+          - NODE_VERSION=stable
+          - YARN_VERSION=latest
+          - TZ=UTC
+        dockerfile: "Dockerfile-71"
+      volumes:
+        - .:/var/www/:rw
+      extra_hosts:
+        - "dockerhost:${DOCKER_HOST_IP}"
+      ports:
+        - "${WORKSPACE_SSH_PORT}:22"
+      tty: true
+      networks:
+        - dribly-frontend
+        - dribly-backend
+        - dockernet
+
+### PHP-FPM Container #######################################
+
+    web-php-fpm:
+      container_name: "${CONTAINER_NAME_PREFIX}-php-fpm"
+      build:
+        context: olddocker/php-fpm
+        dockerfile: "php-Dockerfile"
+      volumes:
+        - .:/var/www/:rw
+        - ./php-fpm/php71.ini:/usr/local/etc/php/php.ini
+#      ports:
+#        - "${NGINX_PHP_UPSTREAM_PORT}:9000"
+      depends_on:
+        - "web-workspace"
+      extra_hosts:
+        - "dockerhost:${DOCKER_HOST_IP}"
+      environment:
+        - PHP_IDE_CONFIG=serverName=laradock
+      networks:
+        - dribly-backend
+        - dockernet
+
+    php-mqtt-listener:
+      container_name: "${CONTAINER_NAME_PREFIX}-mqtt-listener"
+      restart: on-failure
+      build:
+        context: olddocker/php-mqtt-listener
+        dockerfile: "php-Dockerfile"
+      volumes:
+        - .:/var/www/:rw
+      extra_hosts:
+        - "dockerhost:${DOCKER_HOST_IP}"
+      environment:
+        - PHP_IDE_CONFIG=serverName=laradock
+      networks:
+        - dribly-backend
+        - dockernet
+
+
+### NGINX Server Container ##################################
+
+    web-nginx:
+      container_name: "${CONTAINER_NAME_PREFIX}-nginx"
+      build:
+        context: olddocker/nginx
+        args:
+          - NGINX_HOSTNAME=dribly
+          - PHP_UPSTREAM_CONTAINER=${NGINX_PHP_UPSTREAM_CONTAINER}
+          - PHP_UPSTREAM_PORT=${NGINX_PHP_UPSTREAM_PORT}
+      volumes:
+        - .:/var/www/:rw
+        - ${NGINX_HOST_LOG_PATH}:/var/log/nginx
+        - ./nginx/sites/:/etc/nginx/sites-available
+      ports:
+        - "${HOST_HTTP_PORT}:80"
+        - "${HOST_HTTPS_PORT}:443"
+      extra_hosts:
+        - "dockerhost:${DOCKER_HOST_IP}"
+      depends_on:
+        - web-php-fpm
+      networks:
+        - dribly-frontend
+        - dribly-backend
+        - dockernet
+
+    dev-watcher:
+      container_name: "dribly-dev-watcher"
+      build:
+        context: olddocker/watcher
+        dockerfile: Dockerfile
+      command: "sh -c 'npm install && npm run watch'"
+      volumes:
+        - .:/var/www/:rw
+      extra_hosts:
+        - "dockerhost:${DOCKER_HOST_IP}"
+      networks:
+        - dribly-backend
+        - dockernet
+### Networks Setup ############################################
+
+networks:
+  dribly-frontend:
+    driver: "bridge"
+  dribly-backend:
+    driver: "bridge"
+  dockernet:
+    external: true
+### Volumes Setup #############################################
+

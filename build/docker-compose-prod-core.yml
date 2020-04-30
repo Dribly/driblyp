@@ -7,7 +7,7 @@ services:
     image: "powellblyth/dribly-core"
     build:
       context: ../
-      dockerfile: "docker/core/Dockerfile"
+      dockerfile: "../olddocker/core/Dockerfile"
 
 ### Networks Setup ############################################
 

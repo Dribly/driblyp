@@ -14,7 +14,7 @@ services:
         - NODE_VERSION=stable
         - YARN_VERSION=latest
         - TZ=UTC
-      dockerfile: "docker/workspace/Dockerfile-71-prod"
+      dockerfile: "../olddocker/workspace/Dockerfile-71-prod"
     volumes:
       - ./storage:/var/www/storage:rw
     extra_hosts:
@@ -32,7 +32,7 @@ services:
     image: "powellblyth/dribly:${BUILDID}"
     build:
       context: ../
-      dockerfile: "docker/php-fpm/php-Dockerfile-prod"
+      dockerfile: "../olddocker/php-fpm/php-Dockerfile-prod"
     volumes:
       - ./storage:/var/www/storage:rw
       - ./php-fpm/php71.ini:/usr/local/etc/php/php.ini
@@ -57,7 +57,7 @@ services:
         - NGINX_HOSTNAME=dribly
         - PHP_UPSTREAM_CONTAINER=${NGINX_PHP_UPSTREAM_CONTAINER}
         - PHP_UPSTREAM_PORT=${NGINX_PHP_UPSTREAM_PORT}
-      dockerfile: "docker/nginx/Dockerfile-Prod"
+      dockerfile: "../olddocker/nginx/Dockerfile-Prod"
     volumes:
       #        - .:/var/www/:rw
       #        - ./storage:/var/www/storage:rw
@@ -81,7 +81,7 @@ services:
       - ./php-fpm/php71.ini:/usr/local/etc/php/php.ini
     build:
       context: ../
-      dockerfile: "docker/php-mqtt-listener/php-Dockerfile-prod"
+      dockerfile: "../olddocker/php-mqtt-listener/php-Dockerfile-prod"
     extra_hosts:
       - "dockerhost:${DOCKER_HOST_IP}"
     environment:

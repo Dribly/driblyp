@@ -10,8 +10,12 @@ class MessageReader {
 
     /**
      * timeout in seconds
-     * @param string $feed
-     * @param int $timeout
+     * @param string $message
+     * @param $route
+     * @param $received
+     * @param $attributes
+     * @throws InvalidMessageException
+     * @throws \App\Exceptions\SensorNotFoundException
      */
     public function readMessage(string $message, $route, $received, $attributes) {
         $messageObj = @json_decode($message);

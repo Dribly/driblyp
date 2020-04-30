@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Unit\App;
 
 use App\Garden;
 use App\Library\Services\WeatherService;
